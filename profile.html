@@ -3,68 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profilim - ASÜ Student Hub</title>
+    <title>Profilim | ASÜ Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <script>
-        tailwind.config = { theme: { extend: { colors: { asuDark: '#0f172a', asuCard: '#1e293b', asuPurple: '#6366f1', asuRed: '#ef4444' } } } }
+        tailwind.config = { theme: { extend: { colors: { asuDark: '#0f172a', asuCard: '#1e293b', asuPurple: '#6366f1' } } } }
     </script>
 </head>
-<body class="bg-[#0f172a] min-h-screen text-slate-200 font-sans">
+<body class="bg-asuDark text-slate-200 min-h-screen">
 
-    <nav class="bg-asuCard border-b border-slate-700 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center gap-3">
-                    <img src="asu_logo.png" alt="Logo" class="h-10 w-10">
-                    <span class="font-bold text-xl text-white tracking-tight">Profilim</span>
-                </div>
-                <div class="flex items-center gap-4">
-                    <a href="index.html" class="text-slate-300 hover:text-white transition-colors"><i class="fa-solid fa-home"></i> Ana Sayfa</a>
-                </div>
-            </div>
+    <nav class="bg-asuCard border-b border-slate-700 p-4 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <a href="index.html" class="font-bold text-xl text-white flex items-center gap-2">
+                <img src="asu_logo.png" class="h-8"> ASÜ HUB
+            </a>
+            <a href="index.html" class="hover:text-white text-sm"><i class="fa-solid fa-arrow-left mr-1"></i> Ana Sayfaya Dön</a>
         </div>
     </nav>
 
-    <div class="max-w-5xl mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto p-6 space-y-8">
         
-        <div class="bg-gradient-to-r from-slate-800 to-slate-900 p-8 rounded-2xl border border-slate-700 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
-            <div class="flex items-center gap-6">
-                <div class="w-20 h-20 bg-asuPurple rounded-full flex items-center justify-center text-3xl font-bold text-white shadow-lg shadow-indigo-500/50">
-                    <i class="fa-solid fa-user"></i>
+        <div class="bg-gradient-to-r from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-2xl flex flex-col md:flex-row items-center gap-8 shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-asuPurple/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+            
+            <div class="relative">
+                <div class="w-32 h-32 bg-indigo-600 rounded-full flex items-center justify-center text-4xl font-bold text-white border-4 border-slate-700 shadow-xl" id="avatarBig">
+                    ..
                 </div>
-                <div>
-                    <h1 class="text-2xl font-bold text-white" id="profileName">Yükleniyor...</h1>
-                    <p class="text-slate-400" id="profileEmail">...</p>
+                <div class="absolute bottom-1 right-1 bg-green-500 w-6 h-6 rounded-full border-4 border-slate-800" title="Çevrimiçi"></div>
+            </div>
+            
+            <div class="text-center md:text-left flex-1 z-10">
+                <h1 class="text-3xl font-bold text-white mb-1" id="displayNick">Yükleniyor...</h1>
+                <p class="text-slate-400 mb-4 font-mono text-sm" id="displayEmail">...</p>
+                <div class="flex flex-wrap justify-center md:justify-start gap-3">
+                    <span class="bg-slate-800 border border-slate-600 px-3 py-1 rounded-full text-xs text-slate-300">
+                        <i class="fa-solid fa-graduation-cap text-asuPurple mr-1"></i> <span id="displayDept">Bölüm Yok</span>
+                    </span>
+                    <span class="bg-slate-800 border border-slate-600 px-3 py-1 rounded-full text-xs text-slate-300">
+                        <i class="fa-solid fa-star text-yellow-400 mr-1"></i> Öğrenci Puanı: 5.0
+                    </span>
                 </div>
             </div>
-            <button onclick="logout()" class="bg-slate-700 hover:bg-red-600 text-white px-6 py-3 rounded-xl transition-all flex items-center gap-2 border border-slate-600 hover:border-red-500">
-                <i class="fa-solid fa-right-from-bracket"></i> Çıkış Yap
+
+            <button onclick="logout()" class="bg-red-500/10 hover:bg-red-600 text-red-500 hover:text-white border border-red-500/50 px-6 py-3 rounded-xl transition-all font-bold z-10">
+                <i class="fa-solid fa-right-from-bracket mr-2"></i> Çıkış Yap
             </button>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
-            <div class="bg-asuCard p-6 rounded-2xl border border-slate-700">
-                <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                    <span class="bg-indigo-500/20 text-indigo-400 p-2 rounded"><i class="fa-solid fa-file-pdf"></i></span>
-                    Paylaştığım Notlar
-                </h2>
-                <div id="myNotesList" class="space-y-4">
-                    <div class="text-center py-4"><i class="fa-solid fa-spinner fa-spin text-slate-500"></i></div>
+            <div class="lg:col-span-1 space-y-6">
+                <div class="bg-asuCard border border-slate-700 p-6 rounded-xl">
+                    <h3 class="font-bold text-white mb-4 border-b border-slate-700 pb-2"><i class="fa-solid fa-user-pen mr-2 text-blue-400"></i>Profili Düzenle</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-xs text-slate-400">Nickname (İsmin yerine görünür)</label>
+                            <input type="text" id="inputNick" class="w-full bg-slate-900 border border-slate-600 rounded p-2.5 text-white text-sm outline-none focus:border-asuPurple transition-colors" placeholder="Örn: Mühendis06">
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400">Bölümün</label>
+                            <select id="inputDept" class="w-full bg-slate-900 border border-slate-600 rounded p-2.5 text-white text-sm outline-none focus:border-asuPurple transition-colors">
+                                <option value="">Seçiniz...</option>
+                                <option value="Mühendislik Fak.">Mühendislik Fak.</option>
+                                <option value="İ.İ.B.F">İ.İ.B.F</option>
+                                <option value="Eğitim Fak.">Eğitim Fak.</option>
+                                <option value="Fen Edebiyat">Fen Edebiyat</option>
+                                <option value="Spor Bilimleri">Spor Bilimleri</option>
+                                <option value="Sağlık Bilimleri">Sağlık Bilimleri</option>
+                            </select>
+                        </div>
+                        <button onclick="saveProfile()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-bold text-sm transition-colors">Bilgileri Kaydet</button>
+                    </div>
+                </div>
+
+                <div class="bg-asuCard border border-slate-700 p-6 rounded-xl">
+                    <h3 class="font-bold text-white mb-4 border-b border-slate-700 pb-2"><i class="fa-solid fa-lock mr-2 text-yellow-400"></i>Güvenlik</h3>
+                    <div class="space-y-4">
+                        <input type="password" id="newPass" class="w-full bg-slate-900 border border-slate-600 rounded p-2.5 text-white text-sm outline-none" placeholder="Yeni Şifreniz">
+                        <button onclick="changePassword()" class="w-full bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-lg font-bold text-sm transition-colors">Şifreyi Güncelle</button>
+                    </div>
                 </div>
             </div>
 
-            <div class="bg-asuCard p-6 rounded-2xl border border-slate-700">
-                <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                    <span class="bg-emerald-500/20 text-emerald-400 p-2 rounded"><i class="fa-solid fa-book"></i></span>
-                    Satıştakiler
-                </h2>
-                <div id="myBooksList" class="space-y-4">
-                    <div class="text-center py-4"><i class="fa-solid fa-spinner fa-spin text-slate-500"></i></div>
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bg-asuCard border border-slate-700 p-6 rounded-xl">
+                    <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
+                        <h3 class="font-bold text-white"><i class="fa-solid fa-file-pdf mr-2 text-red-400"></i>Paylaştığım Notlar</h3>
+                        <span class="bg-slate-800 text-xs px-2 py-1 rounded text-slate-400" id="countNotes">0</span>
+                    </div>
+                    <div id="myNotesList" class="space-y-3 max-h-60 overflow-y-auto pr-2">
+                        <p class="text-slate-500 text-sm italic text-center py-4">Henüz not paylaşmadın.</p>
+                    </div>
+                </div>
+
+                <div class="bg-asuCard border border-slate-700 p-6 rounded-xl">
+                    <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
+                        <h3 class="font-bold text-white"><i class="fa-solid fa-book mr-2 text-green-400"></i>Satıştaki Kitaplarım</h3>
+                        <span class="bg-slate-800 text-xs px-2 py-1 rounded text-slate-400" id="countBooks">0</span>
+                    </div>
+                    <div id="myBooksList" class="space-y-3 max-h-60 overflow-y-auto pr-2">
+                        <p class="text-slate-500 text-sm italic text-center py-4">Henüz kitap ilanı vermedin.</p>
+                    </div>
                 </div>
             </div>
 
@@ -72,92 +113,116 @@
     </div>
 
     <script>
-        // --- AYARLAR ---
         const SUPABASE_URL = "https://kmzbywrcspzwuznexcla.supabase.co";
         const SUPABASE_KEY = "sb_publishable_2mPJ390ssxg8euZ9hgmfFg_O5mPR1Fh"; 
-        
-        const { createClient } = window.supabase;
-        const asuDb = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        // 1. GİRİŞ KONTROLÜ
+        const asuDb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const userEmail = localStorage.getItem('userEmail');
-        if (!userEmail) {
-            window.location.href = 'login.html'; // Giriş yapmamışsa at
-        } else {
-            document.getElementById('profileName').innerText = userEmail.split('@')[0];
-            document.getElementById('profileEmail').innerText = userEmail;
-        }
 
-        // 2. ÇIKIŞ YAP FONKSİYONU
-        function logout() {
-            if(confirm("Çıkış yapmak istediğine emin misin?")) {
-                localStorage.clear();
-                window.location.href = 'index.html';
+        // Sayfa Yüklenince
+        window.onload = async () => {
+            if(!userEmail) window.location.href = 'login.html';
+            
+            document.getElementById('displayEmail').innerText = userEmail;
+            document.getElementById('avatarBig').innerText = userEmail.substring(0,2).toUpperCase();
+
+            await loadProfileData();
+            await loadMyContent();
+        };
+
+        // 1. Profil Bilgilerini Çek (Nickname & Bölüm)
+        async function loadProfileData() {
+            // Önce profili var mı diye bak
+            const { data, error } = await asuDb.from('profiles').select('*').eq('email', userEmail).single();
+            
+            if(data) {
+                if(data.nickname) {
+                    document.getElementById('displayNick').innerText = data.nickname;
+                    document.getElementById('inputNick').value = data.nickname;
+                } else {
+                    document.getElementById('displayNick').innerText = userEmail.split('@')[0];
+                }
+
+                if(data.department) {
+                    document.getElementById('displayDept').innerText = data.department;
+                    document.getElementById('inputDept').value = data.department;
+                }
+            } else {
+                // Profil yoksa varsayılan göster
+                document.getElementById('displayNick').innerText = userEmail.split('@')[0];
             }
         }
 
-        // 3. VERİLERİ SİLME FONKSİYONU
-        async function deleteItem(table, id) {
-            if(!confirm("Bu öğeyi silmek istediğine emin misin? Bu işlem geri alınamaz!")) return;
+        // 2. Profili Kaydet / Güncelle
+        async function saveProfile() {
+            const nick = document.getElementById('inputNick').value;
+            const dept = document.getElementById('inputDept').value;
+            
+            // Upsert: Varsa güncelle, yoksa ekle
+            const { error } = await asuDb.from('profiles').upsert(
+                { email: userEmail, nickname: nick, department: dept }, 
+                { onConflict: 'email' }
+            );
 
-            try {
-                const { error } = await asuDb.from(table).delete().eq('id', id);
-                if(error) throw error;
-                
-                alert("Silindi! 🗑️");
-                location.reload(); // Sayfayı yenile
-            } catch (error) {
-                alert("Hata: " + error.message);
+            if(error) {
+                alert("Hata oluştu: " + error.message);
+            } else {
+                alert("Profilin güncellendi! ✅");
+                location.reload();
             }
         }
 
-        // 4. VERİLERİ GETİR
+        // 3. Şifre Değiştir
+        async function changePassword() {
+            const newPass = document.getElementById('newPass').value;
+            if(newPass.length < 6) return alert("Şifre en az 6 karakter olmalı!");
+
+            const { data, error } = await asuDb.auth.updateUser({ password: newPass });
+
+            if(error) alert("Hata: " + error.message);
+            else {
+                alert("Şifren başarıyla değiştirildi! Lütfen tekrar giriş yap.");
+                logout();
+            }
+        }
+
+        // 4. İçerikleri Getir ve Silme Fonksiyonu
         async function loadMyContent() {
-            // A) Notları Çek
+            // Notlar
             const { data: notes } = await asuDb.from('notes').select('*').eq('uploader_email', userEmail);
-            const notesList = document.getElementById('myNotesList');
-            
             if(notes && notes.length > 0) {
-                notesList.innerHTML = notes.map(note => `
-                    <div class="bg-slate-800 p-4 rounded-lg flex items-center justify-between group">
-                        <div class="truncate pr-4">
-                            <h4 class="font-bold text-white truncate">${note.title}</h4>
-                            <p class="text-xs text-slate-400">${new Date(note.created_at).toLocaleDateString('tr-TR')}</p>
-                        </div>
-                        <button onclick="deleteItem('notes', ${note.id})" class="text-slate-500 hover:text-red-500 transition-colors p-2" title="Sil">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
+                document.getElementById('countNotes').innerText = notes.length;
+                document.getElementById('myNotesList').innerHTML = notes.map(n => `
+                    <div class="bg-slate-800 p-3 rounded-lg flex justify-between items-center group">
+                        <span class="truncate text-sm text-slate-300 w-3/4">${n.title}</span>
+                        <button onclick="deleteItem('notes', ${n.id})" class="text-slate-500 hover:text-red-400 p-1"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 `).join('');
-            } else {
-                notesList.innerHTML = '<div class="text-slate-500 text-sm text-center">Hiç not paylaşmamışsın.</div>';
             }
 
-            // B) Kitapları Çek
+            // Kitaplar
             const { data: books } = await asuDb.from('books').select('*').eq('seller_email', userEmail);
-            const booksList = document.getElementById('myBooksList');
-            
             if(books && books.length > 0) {
-                booksList.innerHTML = books.map(book => `
-                    <div class="bg-slate-800 p-4 rounded-lg flex items-center justify-between group">
-                        <div class="flex items-center gap-3 overflow-hidden">
-                            <img src="${book.image_url}" class="w-10 h-10 rounded object-cover">
-                            <div class="truncate">
-                                <h4 class="font-bold text-white truncate">${book.title}</h4>
-                                <span class="text-xs bg-green-900 text-green-300 px-1.5 py-0.5 rounded">${book.price}</span>
-                            </div>
-                        </div>
-                        <button onclick="deleteItem('books', ${book.id})" class="text-slate-500 hover:text-red-500 transition-colors p-2" title="Sil">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
+                document.getElementById('countBooks').innerText = books.length;
+                document.getElementById('myBooksList').innerHTML = books.map(b => `
+                    <div class="bg-slate-800 p-3 rounded-lg flex justify-between items-center group">
+                        <span class="truncate text-sm text-slate-300 w-3/4">${b.title}</span>
+                        <button onclick="deleteItem('books', ${b.id})" class="text-slate-500 hover:text-red-400 p-1"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 `).join('');
-            } else {
-                booksList.innerHTML = '<div class="text-slate-500 text-sm text-center">Satılık kitabın yok.</div>';
             }
         }
 
-        loadMyContent();
+        async function deleteItem(table, id) {
+            if(confirm("Bunu silmek istediğine emin misin?")) {
+                await asuDb.from(table).delete().eq('id', id);
+                location.reload();
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
     </script>
 </body>
 </html>
