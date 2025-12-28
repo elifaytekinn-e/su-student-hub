@@ -3,162 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>İkinci El Kitap Pazarı - ASÜ Hub</title>
+    <title>Kitap Borsası | ASÜ Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <script>
-        tailwind.config = { theme: { extend: { colors: { asuDark: '#0f172a', asuCard: '#1e293b', asuPurple: '#6366f1', asuGreen: '#10b981' } } } }
+        tailwind.config = { theme: { extend: { colors: { asuDark: '#0f172a', asuCard: '#1e293b', asuPurple: '#6366f1' } } } }
     </script>
 </head>
-<body class="bg-[#0f172a] min-h-screen text-slate-200 font-sans">
-
-    <nav class="bg-asuCard border-b border-slate-700 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center gap-3">
-                    <img src="asu_logo.png" alt="Logo" class="h-10 w-10">
-                    <span class="font-bold text-xl text-white tracking-tight">ASÜ Hub</span>
-                </div>
-                <div class="flex items-center gap-4">
-                    <span id="userDisplay" class="text-sm text-slate-400 hidden md:block"></span>
-                    <a href="index.html" class="text-slate-300 hover:text-white transition-colors"><i class="fa-solid fa-home"></i></a>
-                </div>
-            </div>
+<body class="bg-[#0f172a] text-slate-200 min-h-screen">
+    <nav class="bg-asuCard border-b border-slate-700 p-4">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <a href="index.html" class="font-bold text-xl flex items-center gap-2">
+                <img src="asu_logo.png" class="h-8"> ASÜ <span class="text-asuPurple">Hub</span>
+            </a>
+            <a href="index.html" class="text-sm hover:text-white">Ana Sayfaya Dön</a>
         </div>
     </nav>
 
-    <div class="max-w-6xl mx-auto px-4 py-8">
-        
-        <div id="sellSection" class="hidden bg-asuCard p-6 rounded-2xl border border-slate-700 shadow-xl mb-8">
-            <h2 class="text-xl font-bold text-white mb-4"><i class="fa-solid fa-store mr-2"></i>Kitap Sat</h2>
-            <form id="sellForm" class="space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <input type="text" id="bookTitle" placeholder="Kitap Adı (Örn: Calculus 1)" class="bg-slate-800 border border-slate-600 rounded-lg p-3 text-white focus:border-asuPurple outline-none" required>
-                    <input type="text" id="bookPrice" placeholder="Fiyat (Örn: 150 TL)" class="bg-slate-800 border border-slate-600 rounded-lg p-3 text-white focus:border-asuGreen outline-none" required>
-                    <input type="text" id="contactInfo" placeholder="İletişim (Tel veya Instagram)" class="bg-slate-800 border border-slate-600 rounded-lg p-3 text-white focus:border-asuPurple outline-none" required>
-                </div>
-                <div class="border-2 border-dashed border-slate-600 rounded-lg p-6 text-center hover:border-asuPurple transition-colors cursor-pointer relative">
-                    <input type="file" id="bookImage" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required>
-                    <div id="fileName" class="text-slate-400"><i class="fa-solid fa-camera text-3xl mb-2 block"></i>Kitap Fotoğrafı Yükle</div>
-                </div>
-                <button type="submit" id="sellBtn" class="w-full bg-asuGreen hover:bg-emerald-600 text-white font-bold py-3 rounded-lg transition-all shadow-lg shadow-emerald-500/30">
-                    <i class="fa-solid fa-check mr-2"></i>İlana Koy
-                </button>
-            </form>
+    <div class="max-w-4xl mx-auto p-6">
+        <h2 class="text-2xl font-bold mb-6">Kitap Borsası 📚</h2>
+        <div id="booksContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <p class="text-slate-500">Kitaplar yükleniyor...</p>
         </div>
-
-        <div id="loader" class="text-center py-8 hidden"><i class="fa-solid fa-spinner fa-spin text-4xl text-asuPurple"></i></div>
-
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-2xl font-bold text-white">Vitrin 🏷️</h2>
-            <button onclick="loadBooks()" class="text-sm text-asuPurple hover:text-white transition-colors"><i class="fa-solid fa-rotate mr-1"></i> Yenile</button>
-        </div>
-        
-        <div id="booksGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            </div>
     </div>
-
-    <script>
-        // --- AYARLAR ---
-        const SUPABASE_URL = "https://kmzbywrcspzwuznexcla.supabase.co";
-        const SUPABASE_KEY = "sb_publishable_2mPJ390ssxg8euZ9hgmfFg_O5mPR1Fh"; 
-        
-        const { createClient } = window.supabase;
-        const asuDb = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        // Kullanıcı Kontrolü
-        const userEmail = localStorage.getItem('userEmail');
-        if (userEmail) {
-            document.getElementById('sellSection').classList.remove('hidden');
-            document.getElementById('userDisplay').innerText = userEmail;
-        }
-
-        // Dosya İsmi Gösterme
-        document.getElementById('bookImage').addEventListener('change', function(e) {
-            if(this.files[0]) document.getElementById('fileName').innerHTML = `<span class="text-white font-bold text-green-400"><i class="fa-solid fa-check"></i> Fotoğraf Seçildi</span>`;
-        });
-
-        // --- KİTAP EKLEME ---
-        document.getElementById('sellForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('sellBtn');
-            const file = document.getElementById('bookImage').files[0];
-            const title = document.getElementById('bookTitle').value;
-            const price = document.getElementById('bookPrice').value;
-            const contact = document.getElementById('contactInfo').value;
-
-            if(!file) return alert("Lütfen kitabın fotoğrafını yükle!");
-
-            btn.disabled = true; btn.innerText = "Yükleniyor...";
-
-            try {
-                // 1. Fotoğrafı Storage'a Yükle
-                const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '')}`;
-                const { error: fileError } = await asuDb.storage.from('kitap-fotolari').upload(fileName, file);
-                if (fileError) throw fileError;
-
-                // 2. Linki Al
-                const { data: publicUrlData } = asuDb.storage.from('kitap-fotolari').getPublicUrl(fileName);
-                const publicUrl = publicUrlData.publicUrl;
-
-                // 3. Veritabanına Yaz
-                const { error: dbError } = await asuDb.from('books').insert([
-                    { title, price, contact, image_url: publicUrl, seller_email: userEmail }
-                ]);
-
-                if (dbError) throw dbError;
-
-                alert("✅ Kitap satışa çıktı!");
-                location.reload(); 
-
-            } catch (error) {
-                console.error(error);
-                alert("Hata: " + error.message);
-            } finally {
-                btn.disabled = false; btn.innerText = "İlana Koy";
-            }
-        });
-
-        // --- KİTAPLARI LİSTELEME ---
-        async function loadBooks() {
-            document.getElementById('loader').classList.remove('hidden');
-            const { data, error } = await asuDb.from('books').select('*').order('created_at', { ascending: false });
-            document.getElementById('loader').classList.add('hidden');
-            
-            const grid = document.getElementById('booksGrid');
-            
-            if (error) { console.error(error); return; }
-            if (!data || data.length === 0) {
-                grid.innerHTML = '<div class="col-span-full text-center text-slate-500 py-10">Henüz satılık kitap yok. <br>İlk ilanı sen ver! 📚</div>';
-                return;
-            }
-
-            grid.innerHTML = data.map(book => `
-                <div class="bg-asuCard border border-slate-700 rounded-xl overflow-hidden hover:shadow-2xl hover:shadow-indigo-500/20 transition-all group">
-                    <div class="h-48 overflow-hidden relative bg-slate-800">
-                        <img src="${book.image_url}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="${book.title}">
-                        <div class="absolute top-2 right-2 bg-green-500 text-white font-bold text-xs px-2 py-1 rounded shadow">${book.price}</div>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="font-bold text-white text-lg truncate">${book.title}</h3>
-                        <div class="mt-3 space-y-2">
-                            <div class="text-xs text-slate-400 flex items-center gap-2">
-                                <i class="fa-solid fa-user text-asuPurple"></i> ${book.seller_email.split('@')[0]}
-                            </div>
-                            <div class="bg-slate-800 p-2 rounded text-sm text-green-400 font-mono text-center border border-slate-700">
-                                <i class="fa-brands fa-whatsapp mr-1"></i> ${book.contact}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        loadBooks();
-    </script>
 </body>
 </html>
-
