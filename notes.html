@@ -138,7 +138,7 @@
         const userEmail = localStorage.getItem('userEmail');
         let allNotes=[], allComments=[], currentNoteId=null;
 
-        // TOAST BİLDİRİMİ
+        // TOAST FONKSİYONU
         function showToast(msg, type='success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -150,18 +150,38 @@
             setTimeout(() => { toast.classList.add('hide'); setTimeout(()=>toast.remove(),300); }, 3000);
         }
 
+        // VERİLERİ YÜKLE
         async function loadAllData() {
             const { data: nData } = await asuDb.from('notes').select('*').eq('is_approved', true).order('created_at', { ascending: false });
             const { data: cData } = await asuDb.from('comments').select('*');
             if(nData) allNotes = nData;
             if(cData) allComments = cData;
             renderNotes(allNotes);
+            
+            // Arama Kontrolü (Burası Yeni!)
+            checkUrlSearch();
+        }
+
+        // Arama Kontrolü Fonksiyonu
+        function checkUrlSearch() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const query = urlParams.get('q');
+            if (query) {
+                const lowerQ = query.toLowerCase();
+                const filtered = allNotes.filter(n => 
+                    n.title.toLowerCase().includes(lowerQ) || 
+                    (n.description && n.description.toLowerCase().includes(lowerQ))
+                );
+                document.getElementById('currentCategory').innerText = `"${query}" Sonuçları`;
+                renderNotes(filtered);
+                showToast(`${filtered.length} sonuç bulundu.`, 'success');
+            }
         }
 
         function renderNotes(notes) {
             document.getElementById('noteCount').innerText = notes.length;
             const grid = document.getElementById('notesGrid');
-            if(!notes.length) { grid.innerHTML='<p class="col-span-3 text-center text-slate-500 py-10">Henüz onaylanmış not yok.</p>'; return; }
+            if(!notes.length) { grid.innerHTML='<p class="col-span-3 text-center text-slate-500 py-10">Kayıt bulunamadı.</p>'; return; }
             
             grid.innerHTML = notes.map(n => {
                 const nComments = allComments.filter(c => c.note_id === n.id);
@@ -221,7 +241,7 @@
             if(error) showToast("Hata: "+error.message, 'error');
             else { 
                 document.getElementById('commentText').value=''; 
-                showToast('Yorumun gönderildi!', 'success');
+                showToast('Yorum gönderildi!', 'success');
                 const {data:c}=await asuDb.from('comments').select('*'); allComments=c; renderComments(currentNoteId); renderNotes(allNotes); 
             }
         });
@@ -262,6 +282,7 @@
                 setTimeout(() => location.reload(), 2000);
             } catch(err){ showToast("Hata:"+err.message, 'error'); btn.disabled=false; btn.innerText="Gönder"; }
         });
+        
         loadAllData();
     </script>
 </body>
