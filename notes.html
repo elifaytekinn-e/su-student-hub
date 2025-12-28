@@ -10,15 +10,23 @@
     <script>
         tailwind.config = { theme: { extend: { colors: { asuDark: '#0f172a', asuCard: '#1e293b', asuPurple: '#6366f1' } } } }
     </script>
+    <style>
+        .star-rating i { cursor: pointer; transition: color 0.2s; }
+        .star-rating i.active { color: #facc15; } /* Sarı */
+    </style>
 </head>
 <body class="bg-asuDark text-slate-200 min-h-screen">
 
     <nav class="bg-asuCard border-b border-slate-700 p-4 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <a href="index.html" class="font-bold text-xl text-white flex items-center gap-2"><img src="asu_logo.png" class="h-8"> ASÜ HUB</a>
+            <a href="index.html" class="font-bold text-xl text-white flex items-center gap-2">
+                <img src="asu_logo.png" class="h-8"> ASÜ HUB
+            </a>
             <div class="flex gap-4">
-                <a href="index.html" class="hover:text-white">Ana Sayfa</a>
-                <button onclick="document.getElementById('uploadModal').classList.remove('hidden')" class="bg-asuPurple hover:bg-indigo-600 text-white px-4 py-1.5 rounded text-sm font-bold"><i class="fa-solid fa-plus mr-1"></i> Not Yükle</button>
+                <a href="index.html" class="hover:text-white hidden md:block">Ana Sayfa</a>
+                <button onclick="openUploadModal()" class="bg-asuPurple hover:bg-indigo-600 text-white px-4 py-1.5 rounded text-sm font-bold shadow-lg">
+                    <i class="fa-solid fa-plus mr-1"></i> Not Yükle
+                </button>
             </div>
         </div>
     </nav>
@@ -46,7 +54,7 @@
         </div>
     </div>
 
-    <div id="uploadModal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-[60]">
+    <div id="uploadModal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-[60] p-4">
         <div class="bg-asuCard border border-slate-700 p-6 rounded-xl w-full max-w-md relative">
             <button onclick="document.getElementById('uploadModal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             <h2 class="text-xl font-bold text-white mb-4">Not Paylaş</h2>
@@ -66,6 +74,51 @@
         </div>
     </div>
 
+    <div id="detailModal" class="fixed inset-0 bg-black/90 hidden flex items-center justify-center z-[70] p-4 backdrop-blur-sm">
+        <div class="bg-asuCard border border-slate-700 rounded-xl w-full max-w-2xl h-[80vh] flex flex-col relative overflow-hidden">
+            <div class="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-800">
+                <h2 class="text-xl font-bold text-white truncate" id="modalTitle">Not Başlığı</h2>
+                <button onclick="document.getElementById('detailModal').classList.add('hidden')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-2xl"></i></button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700">
+                    <p class="text-slate-300 mb-4" id="modalDesc">Açıklama yok.</p>
+                    <a href="#" id="modalDownload" target="_blank" class="inline-flex items-center bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-bold transition-colors">
+                        <i class="fa-solid fa-download mr-2"></i> Dosyayı İndir
+                    </a>
+                </div>
+
+                <div>
+                    <h3 class="font-bold text-white mb-4 border-b border-slate-700 pb-2">Öğrenci Yorumları</h3>
+                    <div id="commentsList" class="space-y-4">
+                        <p class="text-slate-500 italic text-center">Henüz yorum yapılmamış. İlk yorumu sen yap!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-slate-800 border-t border-slate-700">
+                <form id="commentForm" class="flex flex-col gap-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-slate-400">Puanın:</span>
+                        <div class="star-rating flex text-slate-600 text-lg" id="starInput">
+                            <i class="fa-solid fa-star" data-val="1"></i>
+                            <i class="fa-solid fa-star" data-val="2"></i>
+                            <i class="fa-solid fa-star" data-val="3"></i>
+                            <i class="fa-solid fa-star" data-val="4"></i>
+                            <i class="fa-solid fa-star" data-val="5"></i>
+                        </div>
+                        <input type="hidden" id="ratingValue" value="5">
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="commentText" placeholder="Yorumun nedir?" class="flex-1 bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white text-sm outline-none focus:border-asuPurple" required>
+                        <button type="submit" class="bg-asuPurple hover:bg-indigo-600 text-white px-4 py-2 rounded text-sm font-bold">Gönder</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
         const SUPABASE_URL = "https://kmzbywrcspzwuznexcla.supabase.co";
         const SUPABASE_KEY = "sb_publishable_2mPJ390ssxg8euZ9hgmfFg_O5mPR1Fh"; 
@@ -73,80 +126,189 @@
         const userEmail = localStorage.getItem('userEmail');
 
         let allNotes = [];
+        let allComments = [];
+        let currentNoteId = null;
 
-        // Notları Çek
-        async function fetchNotes() {
-            const { data, error } = await asuDb.from('notes').select('*').order('created_at', { ascending: false });
-            if(data) {
-                allNotes = data;
-                renderNotes(allNotes);
-            }
+        // Sayfa Açılınca Verileri Çek
+        async function loadAllData() {
+            // Notları Çek
+            const { data: nData } = await asuDb.from('notes').select('*').order('created_at', { ascending: false });
+            // Yorumları Çek
+            const { data: cData } = await asuDb.from('comments').select('*');
+            
+            if(nData) allNotes = nData;
+            if(cData) allComments = cData;
+
+            renderNotes(allNotes);
         }
 
-        // Ekrana Bas
         function renderNotes(notes) {
             document.getElementById('noteCount').innerText = notes.length;
             const grid = document.getElementById('notesGrid');
-            if(notes.length === 0) { grid.innerHTML = '<p class="col-span-3 text-center text-slate-500 py-10">Bu kategoride not bulunamadı.</p>'; return; }
             
-            grid.innerHTML = notes.map(n => `
-                <div class="bg-asuCard border border-slate-700 rounded-xl p-5 hover:border-asuPurple transition-all group relative">
+            if(notes.length === 0) {
+                grid.innerHTML = '<p class="col-span-3 text-center text-slate-500 py-10">Bu kategoride not bulunamadı.</p>'; 
+                return;
+            }
+            
+            grid.innerHTML = notes.map(n => {
+                // Notun yorumlarını bul ve ortalamayı hesapla
+                const nComments = allComments.filter(c => c.note_id === n.id);
+                let avgRating = 0;
+                if(nComments.length > 0) {
+                    const sum = nComments.reduce((a, b) => a + (b.rating || 0), 0);
+                    avgRating = (sum / nComments.length).toFixed(1);
+                }
+
+                return `
+                <div class="bg-asuCard border border-slate-700 rounded-xl p-5 hover:border-asuPurple transition-all group flex flex-col h-full">
                     <div class="flex justify-between items-start mb-3">
                         <span class="bg-slate-800 text-xs text-slate-400 px-2 py-1 rounded border border-slate-700">${n.faculty || 'Genel'}</span>
-                        <div class="flex gap-1 text-yellow-400 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i></div>
+                        <div class="flex items-center gap-1 text-yellow-400 text-xs font-bold">
+                            <i class="fa-solid fa-star"></i> ${avgRating > 0 ? avgRating : '-'}
+                        </div>
                     </div>
                     <h3 class="font-bold text-white text-lg mb-1 truncate">${n.title}</h3>
-                    <p class="text-sm text-slate-400 mb-4 h-10 overflow-hidden line-clamp-2">${n.description || ''}</p>
+                    <p class="text-sm text-slate-400 mb-4 line-clamp-2 flex-1">${n.description || ''}</p>
                     
-                    <div class="flex items-center justify-between mt-4 border-t border-slate-700 pt-4">
-                        <div class="flex items-center gap-2 text-xs text-slate-500">
-                            <i class="fa-regular fa-comment"></i> 0 Yorum
-                        </div>
-                        <a href="${n.file_url}" target="_blank" class="bg-slate-800 hover:bg-asuPurple text-white px-4 py-2 rounded text-sm font-medium transition-colors">
-                            <i class="fa-solid fa-download mr-1"></i> İndir
-                        </a>
+                    <div class="flex items-center justify-between mt-auto border-t border-slate-700 pt-4">
+                        <button onclick="openDetail(${n.id})" class="text-xs text-slate-400 hover:text-white flex items-center gap-1">
+                            <i class="fa-regular fa-comment"></i> ${nComments.length} Yorum
+                        </button>
+                        <button onclick="openDetail(${n.id})" class="bg-slate-800 hover:bg-asuPurple text-white px-4 py-2 rounded text-sm font-medium transition-colors">
+                            İncele
+                        </button>
                     </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        // Detay Modalını Aç
+        function openDetail(noteId) {
+            const note = allNotes.find(n => n.id === noteId);
+            if(!note) return;
+
+            currentNoteId = noteId;
+            document.getElementById('modalTitle').innerText = note.title;
+            document.getElementById('modalDesc').innerText = note.description || "Açıklama yok.";
+            document.getElementById('modalDownload').href = note.file_url;
+            document.getElementById('detailModal').classList.remove('hidden');
+
+            renderComments(noteId);
+        }
+
+        // Yorumları Listele
+        function renderComments(noteId) {
+            const list = document.getElementById('commentsList');
+            const nComments = allComments.filter(c => c.note_id === noteId).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+
+            if(nComments.length === 0) {
+                list.innerHTML = '<p class="text-slate-500 italic text-center py-2">Henüz yorum yok.</p>';
+                return;
+            }
+
+            list.innerHTML = nComments.map(c => `
+                <div class="bg-slate-900 border border-slate-700 p-3 rounded-lg">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="font-bold text-white text-sm">${c.user_nick || c.user_email.split('@')[0]}</span>
+                        <span class="text-yellow-400 text-xs"><i class="fa-solid fa-star"></i> ${c.rating}</span>
+                    </div>
+                    <p class="text-slate-400 text-sm">${c.content}</p>
                 </div>
             `).join('');
         }
 
+        // Yorum Gönder
+        document.getElementById('commentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(!userEmail) return alert("Yorum yapmak için giriş yapmalısın!");
+
+            const content = document.getElementById('commentText').value;
+            const rating = document.getElementById('ratingValue').value;
+            
+            // Profilden Nickname al (varsa)
+            let nickname = userEmail.split('@')[0];
+            const { data: profile } = await asuDb.from('profiles').select('nickname').eq('email', userEmail).single();
+            if(profile && profile.nickname) nickname = profile.nickname;
+
+            const { error } = await asuDb.from('comments').insert([{
+                note_id: currentNoteId,
+                user_email: userEmail,
+                user_nick: nickname,
+                content: content,
+                rating: rating
+            }]);
+
+            if(error) alert("Hata: " + error.message);
+            else {
+                document.getElementById('commentText').value = ''; // Temizle
+                // Yorumları tekrar çek ve güncelle
+                const { data: cData } = await asuDb.from('comments').select('*');
+                if(cData) allComments = cData;
+                renderComments(currentNoteId); // Listeyi yenile
+                renderNotes(allNotes); // Ortalamayı yenile
+            }
+        });
+
+        // Yıldız Seçimi
+        document.querySelectorAll('#starInput i').forEach(star => {
+            star.addEventListener('click', function() {
+                const val = this.getAttribute('data-val');
+                document.getElementById('ratingValue').value = val;
+                
+                // Yıldızları boya
+                document.querySelectorAll('#starInput i').forEach(s => {
+                    if(s.getAttribute('data-val') <= val) s.classList.add('active');
+                    else s.classList.remove('active');
+                });
+            });
+        });
+        // Başlangıçta 5 yıldız aktif
+        document.querySelectorAll('#starInput i').forEach(s => s.classList.add('active'));
+
         // Filtreleme
-        function filterNotes(category) {
-            document.getElementById('currentCategory').innerText = category === 'Tümü' ? 'Tüm Notlar' : category;
-            if(category === 'Tümü') renderNotes(allNotes);
-            else renderNotes(allNotes.filter(n => n.faculty === category));
+        function filterNotes(cat) {
+            document.getElementById('currentCategory').innerText = cat === 'Tümü' ? 'Tüm Notlar' : cat;
+            if(cat === 'Tümü') renderNotes(allNotes);
+            else renderNotes(allNotes.filter(n => n.faculty === cat));
         }
 
-        // Yükleme
+        // Yükleme Modal
+        function openUploadModal() {
+            if(!userEmail) return alert("Giriş yapmalısın!");
+            document.getElementById('uploadModal').classList.remove('hidden');
+        }
+
+        // Not Yükle
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            if(!userEmail) return alert("Önce giriş yapmalısın!");
-            
             const btn = document.getElementById('submitBtn');
             const file = document.getElementById('noteFile').files[0];
-            const title = document.getElementById('noteTitle').value;
-            const desc = document.getElementById('noteDesc').value;
-            const fac = document.getElementById('noteFaculty').value;
-
+            if(!file) return alert("Dosya seç!");
+            
             btn.disabled = true; btn.innerText = "Yükleniyor...";
+            
             try {
                 const fileName = Date.now() + "_" + file.name.replace(/[^a-zA-Z0-9.]/g, '');
                 const { error: fError } = await asuDb.storage.from('ders-notlari').upload(fileName, file);
                 if(fError) throw fError;
-                const { data: pUrl } = asuDb.storage.from('ders-notlari').getPublicUrl(fileName);
                 
-                // DİKKAT: Supabase'de 'faculty' sütununu açtığından emin ol!
+                const { data: pUrl } = asuDb.storage.from('ders-notlari').getPublicUrl(fileName);
                 const { error: dbError } = await asuDb.from('notes').insert([{ 
-                    title, description: desc, file_url: pUrl.publicUrl, uploader_email: userEmail, faculty: fac 
+                    title: document.getElementById('noteTitle').value, 
+                    description: document.getElementById('noteDesc').value, 
+                    file_url: pUrl.publicUrl, 
+                    uploader_email: userEmail, 
+                    faculty: document.getElementById('noteFaculty').value 
                 }]);
                 
                 if(dbError) throw dbError;
-                alert("Not yüklendi!");
                 location.reload();
             } catch (err) { alert("Hata: " + err.message); btn.disabled = false; btn.innerText = "Paylaş"; }
         });
 
-        fetchNotes();
+        loadAllData();
     </script>
 </body>
 </html>
