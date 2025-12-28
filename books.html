@@ -3,174 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kitap Borsası - ASÜ Student Hub</title>
+    <title>İkinci El Kitap Pazarı - ASÜ Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <script>
-        tailwind.config = {
-            theme: {
-                extend: { colors: { asuDark: '#0f172a', asuCard: '#1e293b', asuPurple: '#6366f1', asuGreen: '#10b981', asuText: '#e2e8f0', asuGray: '#94a3b8' }, fontFamily: { sans: ['Inter', 'sans-serif'] } }
-            }
-        }
+        tailwind.config = { theme: { extend: { colors: { asuDark: '#0f172a', asuCard: '#1e293b', asuPurple: '#6366f1', asuGreen: '#10b981' } } } }
     </script>
-    <style>.book-cover-shadow { box-shadow: -5px 5px 10px rgba(0,0,0,0.5); } input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } input[type=number] { -moz-appearance: textfield; }</style>
 </head>
-<body class="bg-asuDark text-asuText min-h-screen flex flex-col relative">
+<body class="bg-[#0f172a] min-h-screen text-slate-200 font-sans">
 
-    <nav class="bg-asuCard/90 backdrop-blur-md border-b border-slate-700 sticky top-0 z-50">
+    <nav class="bg-asuCard border-b border-slate-700 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-20">
-                <a href="index.html" class="flex items-center gap-3 group"><div class="h-12 w-12 flex items-center justify-center transition-transform group-hover:scale-105"><img src="asu_logo.png" alt="ASÜ Logo" class="h-full w-full object-contain filter drop-shadow-lg"></div><div><h1 class="text-xl font-bold tracking-tight text-white">ASÜ<span class="text-asuPurple">HUB</span></h1><p class="text-xs text-asuGray">Student Network</p></div></a>
-                <div class="hidden md:flex space-x-6">
-                    <a href="index.html" class="text-asuGray hover:text-white transition-colors font-medium">Ana Sayfa</a>
-                    <a href="notes.html" class="text-asuGray hover:text-white transition-colors font-medium">Ders Notları</a>
-                    <a href="books.html" class="text-white border-b-2 border-asuGreen pb-1 font-medium">Kitap Borsası</a>
-                    <a href="faq.html" class="text-asuGray hover:text-white transition-colors font-medium">S.S.S.</a>
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <img src="asu_logo.png" alt="Logo" class="h-10 w-10">
+                    <span class="font-bold text-xl text-white tracking-tight">ASÜ Pazarı</span>
                 </div>
                 <div class="flex items-center gap-4">
-                    <div id="auth-buttons" class="hidden md:flex items-center gap-4"><a href="login.html#login" class="text-sm font-medium text-asuGray hover:text-white">Giriş Yap</a><a href="login.html#register" class="bg-asuPurple hover:bg-asuPurpleDark text-white px-5 py-2.5 rounded-md text-sm font-medium transition-all shadow-lg shadow-indigo-500/30">Kayıt Ol</a></div>
-                    <div id="user-profile" class="relative hidden"><button onclick="toggleProfileMenu()" class="w-10 h-10 rounded-full bg-indigo-900 border border-indigo-500 flex items-center justify-center text-indigo-300 font-bold text-sm cursor-pointer hover:bg-indigo-800 transition-colors">AK</button><div id="profile-dropdown" class="absolute right-0 mt-2 w-48 bg-asuCard border border-slate-700 rounded-lg shadow-xl py-2 hidden"><div class="px-4 py-2 border-b border-slate-700"><p class="text-sm text-white font-bold">Öğrenci</p></div><a href="profile.html" class="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-800 hover:text-white">Profilim</a><button onclick="handleLogout()" class="block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-slate-800 hover:text-red-300">Çıkış Yap</button></div></div>
-                    <button onclick="openPostModal()" class="bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 px-3 py-2 rounded-md text-sm border border-emerald-500/30 transition-colors flex items-center"><i class="fa-solid fa-plus mr-2"></i>İlan Ver</button>
-                    <button onclick="toggleMobileMenu()" class="md:hidden text-slate-300 hover:text-white focus:outline-none"><i class="fa-solid fa-bars text-2xl"></i></button>
+                    <span id="userDisplay" class="text-sm text-slate-400 hidden md:block"></span>
+                    <a href="index.html" class="text-slate-300 hover:text-white transition-colors"><i class="fa-solid fa-home"></i></a>
                 </div>
-            </div>
-        </div>
-        <div id="mobile-menu" class="hidden md:hidden bg-slate-900 border-t border-slate-800">
-            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <a href="index.html" class="text-slate-300 block px-3 py-2 rounded-md text-base font-medium">Ana Sayfa</a>
-                <a href="notes.html" class="text-slate-300 block px-3 py-2 rounded-md text-base font-medium">Ders Notları</a>
-                <a href="books.html" class="text-white bg-slate-800 block px-3 py-2 rounded-md text-base font-medium">Kitap Borsası</a>
-                <a href="faq.html" class="text-slate-300 block px-3 py-2 rounded-md text-base font-medium">S.S.S.</a>
-                <div id="mobile-auth" class="border-t border-slate-800 mt-4 pt-4 flex flex-col gap-2 px-3"><a href="login.html#login" class="text-center w-full border border-slate-600 text-white px-4 py-2 rounded-md">Giriş Yap</a><a href="login.html#register" class="text-center w-full bg-asuPurple text-white px-4 py-2 rounded-md">Kayıt Ol</a></div>
             </div>
         </div>
     </nav>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow">
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <aside class="lg:col-span-1 space-y-6">
-                <div id="search-info" class="hidden bg-slate-800/50 border border-emerald-500/30 rounded-xl p-4 text-center">
-                    <p class="text-sm text-slate-300">Aranan Kitap:</p>
-                    <h3 id="search-term-display" class="text-xl font-bold text-emerald-400">Kitap Adı</h3>
-                    <button onclick="window.location.href='books.html'" class="text-xs text-slate-500 hover:text-white mt-2 underline">Tüm İlanları Göster</button>
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        
+        <div id="sellSection" class="hidden bg-asuCard p-6 rounded-2xl border border-slate-700 shadow-xl mb-8">
+            <h2 class="text-xl font-bold text-white mb-4"><i class="fa-solid fa-store mr-2"></i>Kitap Sat</h2>
+            <form id="sellForm" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <input type="text" id="bookTitle" placeholder="Kitap Adı (Örn: Calculus 1)" class="bg-slate-800 border border-slate-600 rounded-lg p-3 text-white focus:border-asuPurple outline-none" required>
+                    <input type="text" id="bookPrice" placeholder="Fiyat (Örn: 150 TL)" class="bg-slate-800 border border-slate-600 rounded-lg p-3 text-white focus:border-asuGreen outline-none" required>
+                    <input type="text" id="contactInfo" placeholder="İletişim (Tel veya Instagram)" class="bg-slate-800 border border-slate-600 rounded-lg p-3 text-white focus:border-asuPurple outline-none" required>
                 </div>
-
-                <div class="bg-asuCard border border-slate-700 rounded-xl p-5 shadow-lg">
-                    <h3 class="font-bold text-white mb-4">Filtrele</h3>
-                    <div class="space-y-2">
-                        <label class="flex items-center text-sm text-slate-300"><input type="checkbox" checked class="mr-2 bg-slate-800 border-slate-600 text-asuGreen"> Satılık</label>
-                        <label class="flex items-center text-sm text-slate-300"><input type="checkbox" checked class="mr-2 bg-slate-800 border-slate-600 text-orange-500"> Takaslık</label>
-                        <label class="flex items-center text-sm text-slate-300"><input type="checkbox" checked class="mr-2 bg-slate-800 border-slate-600 text-asuPurple"> Ücretsiz</label>
-                    </div>
+                <div class="border-2 border-dashed border-slate-600 rounded-lg p-6 text-center hover:border-asuPurple transition-colors cursor-pointer relative">
+                    <input type="file" id="bookImage" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required>
+                    <div id="fileName" class="text-slate-400"><i class="fa-solid fa-camera text-3xl mb-2 block"></i>Kitap Fotoğrafı Yükle</div>
                 </div>
-                <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4"><h4 class="text-xs font-bold text-slate-400 uppercase mb-3">Durum Rehberi</h4><div class="space-y-2 text-xs"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> <span class="text-emerald-400">Yeni Gibi:</span> Çiziksiz.</div><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-yellow-500"></span> <span class="text-yellow-400">Temiz:</span> Az not alınmış.</div><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-orange-500"></span> <span class="text-orange-400">Yıpranmış:</span> Yoğun kullanılmış.</div></div></div>
-            </aside>
-            <main class="lg:col-span-3">
-                 <div id="books-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="book-item bg-asuCard border border-slate-700 rounded-xl overflow-hidden group hover:shadow-xl hover:border-emerald-500/50 transition-all flex flex-col h-full" data-title="Calculus 1"><div class="h-48 bg-slate-800 flex items-center justify-center relative"><div class="w-24 h-36 bg-blue-700 rounded-sm book-cover-shadow flex items-center justify-center text-center p-2 text-white text-[10px] font-bold">Thomas Calculus</div><div class="absolute top-2 right-2 bg-emerald-600 text-white text-xs font-bold px-2 py-1 rounded">₺250</div></div><div class="p-4 flex flex-col flex-grow"><h3 class="font-bold text-white group-hover:text-emerald-400">Calculus 1</h3><div class="mt-2 mb-2"><span class="inline-flex items-center gap-1 bg-emerald-900/30 text-emerald-400 text-[10px] px-2 py-1 rounded border border-emerald-500/30 font-medium"><i class="fa-solid fa-sparkles"></i> Yeni Gibi / Çiziksiz</span></div><div class="mt-auto pt-3 border-t border-slate-700 flex justify-between items-center"><span class="text-xs text-slate-400">Mehmet A.</span><button onclick="openModal('buy', 'Calculus 1', 'Mehmet A.', '555 123 45 67')" class="text-emerald-400 hover:bg-emerald-600 hover:text-white px-3 py-1 text-xs border border-emerald-500/30 rounded transition-colors">Satın Al</button></div></div></div>
-                    <div class="book-item bg-asuCard border border-slate-700 rounded-xl overflow-hidden group hover:shadow-xl hover:border-orange-500/50 transition-all flex flex-col h-full" data-title="1984 - Orwell"><div class="h-48 bg-slate-800 flex items-center justify-center relative"><div class="w-24 h-36 bg-red-800 rounded-sm book-cover-shadow flex items-center justify-center text-center p-2 text-white text-[10px] font-bold">1984</div><div class="absolute top-2 right-2 bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded flex items-center gap-1"><i class="fa-solid fa-rotate"></i> Takas</div></div><div class="p-4 flex flex-col flex-grow"><h3 class="font-bold text-white group-hover:text-orange-400">1984 - Orwell</h3><div class="mt-2 mb-2"><span class="inline-flex items-center gap-1 bg-yellow-900/30 text-yellow-400 text-[10px] px-2 py-1 rounded border border-yellow-500/30 font-medium"><i class="fa-regular fa-circle-check"></i> Temiz / Az Kullanılmış</span></div><div class="mt-auto pt-3 border-t border-slate-700 flex justify-between items-center"><span class="text-xs text-slate-400">Zeynep K.</span><button onclick="openModal('trade', '1984 - Orwell', 'Zeynep K.', '544 987 65 43')" class="text-orange-400 hover:bg-orange-600 hover:text-white px-3 py-1 text-xs border border-orange-500/30 rounded transition-colors">Teklif Ver</button></div></div></div>
-                    <div class="book-item bg-asuCard border border-slate-700 rounded-xl overflow-hidden group hover:shadow-xl hover:border-asuPurple/50 transition-all flex flex-col h-full" data-title="Oxford Hazırlık"><div class="h-48 bg-slate-800 flex items-center justify-center relative"><div class="w-24 h-36 bg-gray-400 rounded-sm book-cover-shadow flex items-center justify-center text-center p-2 text-slate-900 text-[10px] font-bold">Hazırlık Seti</div><div class="absolute top-2 right-2 bg-asuPurple text-white text-xs font-bold px-2 py-1 rounded">Ücretsiz</div></div><div class="p-4 flex flex-col flex-grow"><h3 class="font-bold text-white group-hover:text-asuPurple">Oxford Hazırlık</h3><div class="mt-2 mb-2"><span class="inline-flex items-center gap-1 bg-orange-900/30 text-orange-400 text-[10px] px-2 py-1 rounded border border-orange-500/30 font-medium"><i class="fa-solid fa-triangle-exclamation"></i> Yıpranmış / Altı Çizili</span></div><div class="mt-auto pt-3 border-t border-slate-700 flex justify-between items-center"><span class="text-xs text-slate-400">Ali V.</span><button onclick="openModal('free', 'Hazırlık Seti', 'Ali V.', '533 000 00 00')" class="text-asuPurple hover:bg-asuPurple hover:text-white px-3 py-1 text-xs border border-asuPurple/30 rounded transition-colors">Talep Et</button></div></div></div>
-                 </div>
-                 <div id="no-results" class="hidden text-center py-12 text-slate-500">
-                    <i class="fa-solid fa-book-open text-4xl mb-4 opacity-50"></i>
-                    <p>Aradığınız kitap bulunamadı.</p>
-                 </div>
-            </main>
-        </div>
-    </div>
-    <footer class="bg-asuCard border-t border-slate-800 py-8 mt-auto"><div class="max-w-7xl mx-auto px-4 text-center"><p class="text-slate-500 text-sm">&copy; 2025 ASÜ Student Hub.</p></div></footer>
-
-    <div id="contactModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4">
-        <div class="bg-asuCard border border-slate-600 rounded-2xl max-w-sm w-full p-6 relative shadow-2xl animate-[pulse_0.2s_ease-out]">
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-            <div class="text-center">
-                <div id="modalIcon" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"></div>
-                <h3 id="modalTitle" class="text-xl font-bold text-white mb-2">Başlık</h3>
-                <p id="modalDesc" class="text-sm text-slate-400 mb-6">Açıklama</p>
-                <div class="space-y-3">
-                    <a id="wpLink" href="#" target="_blank" class="flex items-center justify-center gap-2 w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 rounded-lg transition-colors"><i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp ile Yaz</a>
-                    <div class="flex items-center justify-between bg-slate-800 p-3 rounded-lg border border-slate-700"><span id="phoneNum" class="text-slate-300 font-mono">0555 000 00 00</span><button onclick="copyPhone()" class="text-asuPurple hover:text-white text-xs font-semibold"><i class="fa-regular fa-copy"></i> Kopyala</button></div>
-                    <p class="text-[10px] text-slate-500 mt-4">*Güvenliğiniz için ödemeyi yüz yüze veya ürünü teslim aldığınızda yapınız.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="postAdModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-[70] hidden flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-asuCard border border-slate-600 rounded-2xl max-w-lg w-full p-6 relative shadow-2xl animate-[pulse_0.2s_ease-out] my-8">
-            <button onclick="closePostModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-            <h3 class="text-xl font-bold text-white mb-6 border-b border-slate-700 pb-2"><i class="fa-solid fa-plus-circle text-emerald-500 mr-2"></i>Yeni Kitap İlanı</h3>
-            <form onsubmit="submitAd(event)" class="space-y-4">
-                <div><label class="block text-xs font-medium text-slate-400 mb-1">Kitap Adı</label><input type="text" class="w-full bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2.5 focus:border-asuPurple focus:ring-1 focus:ring-asuPurple outline-none" placeholder="Örn: Calculus 1" required></div>
-                <div><label class="block text-xs font-medium text-slate-400 mb-1">Yazar</label><input type="text" class="w-full bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2.5 focus:border-asuPurple outline-none" placeholder="Örn: George B. Thomas"></div>
-                <div class="grid grid-cols-2 gap-4"><div><label class="block text-xs font-medium text-slate-400 mb-1">Fiyat (₺)</label><input type="number" class="w-full bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2.5 focus:border-asuPurple outline-none" placeholder="0"></div><div><label class="block text-xs font-medium text-slate-400 mb-1">İlan Tipi</label><select class="w-full bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2.5 focus:border-asuPurple outline-none"><option value="sell">Satılık</option><option value="trade">Takaslık</option><option value="free">Ücretsiz / Hibe</option></select></div></div>
-                <div><label class="block text-xs font-medium text-slate-400 mb-1">Kitap Durumu</label><select class="w-full bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2.5 focus:border-asuPurple outline-none"><option value="new">🟢 Yeni Gibi (Çiziksiz)</option><option value="good">🟡 Temiz (Az Kullanılmış)</option><option value="worn">🟠 Yıpranmış (Altı Çizili)</option></select></div>
-                <div><label class="block text-xs font-medium text-slate-400 mb-1">Kapak Fotoğrafı</label><div class="flex items-center justify-center w-full"><label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-24 border-2 border-slate-600 border-dashed rounded-lg cursor-pointer bg-slate-800 hover:bg-slate-700 transition-colors"><div class="flex flex-col items-center justify-center pt-5 pb-6"><i class="fa-solid fa-cloud-arrow-up text-2xl text-slate-400 mb-2"></i><p class="text-xs text-slate-400">Tıkla veya sürükle</p></div><input id="dropzone-file" type="file" class="hidden" accept="image/*" /></label></div></div>
-                <div><label class="block text-xs font-medium text-slate-400 mb-1">WhatsApp Numaranız</label><input type="tel" class="w-full bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2.5 focus:border-asuPurple outline-none" placeholder="0555 123 45 67" required><p class="text-[10px] text-slate-500 mt-1">Alıcılar sizinle bu numara üzerinden iletişime geçecektir.</p></div>
-                <button type="submit" class="w-full text-white bg-emerald-600 hover:bg-emerald-700 font-medium rounded-lg text-sm px-5 py-3 text-center transition-all shadow-lg shadow-emerald-900/30">İlanı Yayınla</button>
+                <button type="submit" id="sellBtn" class="w-full bg-asuGreen hover:bg-emerald-600 text-white font-bold py-3 rounded-lg transition-all shadow-lg shadow-emerald-500/30">
+                    <i class="fa-solid fa-check mr-2"></i>İlana Koy
+                </button>
             </form>
         </div>
+
+        <div id="loader" class="text-center py-8 hidden"><i class="fa-solid fa-spinner fa-spin text-4xl text-asuPurple"></i></div>
+
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-white">Vitrin 🏷️</h2>
+            <button onclick="loadBooks()" class="text-sm text-asuPurple hover:text-white transition-colors"><i class="fa-solid fa-rotate mr-1"></i> Yenile</button>
+        </div>
+        
+        <div id="booksGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            </div>
     </div>
 
     <script>
+        // --- AYARLAR ---
+        const SUPABASE_URL = "https://kmzbywrcspzwuznexcla.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_2mPJ390ssxg8euZ9hgmfFg_O5mPR1Fh"; 
         
-        function toggleMobileMenu() { document.getElementById('mobile-menu').classList.toggle('hidden'); }
-        function toggleProfileMenu() { document.getElementById('profile-dropdown').classList.toggle('hidden'); }
-        
-        
-        function handleLogout() { if(confirm("Çıkış yapmak istediğinize emin misiniz?")) { localStorage.removeItem('isLoggedIn'); localStorage.removeItem('isAdmin'); window.location.href='index.html'; } }
-        
-        window.addEventListener('load', () => {
-            const isLogged = localStorage.getItem('isLoggedIn') === 'true';
-            if(isLogged) { document.getElementById('auth-buttons')?.classList.add('hidden'); document.getElementById('mobile-auth')?.classList.add('hidden'); document.getElementById('user-profile')?.classList.remove('hidden'); } 
-            else { document.getElementById('auth-buttons')?.classList.remove('hidden'); document.getElementById('mobile-auth')?.classList.remove('hidden'); document.getElementById('user-profile')?.classList.add('hidden'); }
-        
-            
-            const params = new URLSearchParams(window.location.search);
-            const query = params.get('q');
-            
-            if(query) {
-                const searchTerm = query.toLowerCase();
-                const items = document.querySelectorAll('.book-item');
-                let foundCount = 0;
+        const { createClient } = window.supabase;
+        const asuDb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-                
-                document.getElementById('search-info').classList.remove('hidden');
-                document.getElementById('search-term-display').innerText = query;
+        // Kullanıcı Kontrolü
+        const userEmail = localStorage.getItem('userEmail');
+        if (userEmail) {
+            document.getElementById('sellSection').classList.remove('hidden');
+            document.getElementById('userDisplay').innerText = userEmail;
+        }
 
-                items.forEach(item => {
-                    const title = item.getAttribute('data-title').toLowerCase();
-                    if(title.includes(searchTerm)) {
-                        item.classList.remove('hidden');
-                        foundCount++;
-                    } else {
-                        item.classList.add('hidden');
-                    }
-                });
+        // Dosya İsmi Gösterme
+        document.getElementById('bookImage').addEventListener('change', function(e) {
+            if(this.files[0]) document.getElementById('fileName').innerHTML = `<span class="text-white font-bold text-green-400"><i class="fa-solid fa-check"></i> Fotoğraf Seçildi</span>`;
+        });
 
-                if(foundCount === 0) {
-                    document.getElementById('no-results').classList.remove('hidden');
-                }
+        // --- KİTAP EKLEME ---
+        document.getElementById('sellForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('sellBtn');
+            const file = document.getElementById('bookImage').files[0];
+            const title = document.getElementById('bookTitle').value;
+            const price = document.getElementById('bookPrice').value;
+            const contact = document.getElementById('contactInfo').value;
+
+            if(!file) return alert("Lütfen kitabın fotoğrafını yükle!");
+
+            btn.disabled = true; btn.innerText = "Yükleniyor...";
+
+            try {
+                // 1. Fotoğrafı Storage'a Yükle
+                const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '')}`;
+                const { error: fileError } = await asuDb.storage.from('kitap-fotolari').upload(fileName, file);
+                if (fileError) throw fileError;
+
+                // 2. Linki Al
+                const { data: publicUrlData } = asuDb.storage.from('kitap-fotolari').getPublicUrl(fileName);
+                const publicUrl = publicUrlData.publicUrl;
+
+                // 3. Veritabanına Yaz
+                const { error: dbError } = await asuDb.from('books').insert([
+                    { title, price, contact, image_url: publicUrl, seller_email: userEmail }
+                ]);
+
+                if (dbError) throw dbError;
+
+                alert("✅ Kitap satışa çıktı!");
+                location.reload(); 
+
+            } catch (error) {
+                console.error(error);
+                alert("Hata: " + error.message);
+            } finally {
+                btn.disabled = false; btn.innerText = "İlana Koy";
             }
         });
-        
-        window.onclick = function(e) { if(!e.target.closest('#user-profile')) document.getElementById('profile-dropdown')?.classList.add('hidden'); if(e.target == document.getElementById('contactModal')) closeModal(); if(e.target == document.getElementById('postAdModal')) closePostModal(); }
 
-        
-        function openModal(t, b, s, p) {
-            const m=document.getElementById('contactModal'), i=document.getElementById('modalIcon'), ti=document.getElementById('modalTitle'), d=document.getElementById('modalDesc'), w=document.getElementById('wpLink'), pn=document.getElementById('phoneNum'), cp=p.replace(/\s/g,'');
-            m.classList.remove('hidden');
-            if(t==='buy'){ i.className='w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl bg-emerald-900/30 text-emerald-500'; i.innerHTML='<i class="fa-solid fa-hand-holding-dollar"></i>'; ti.innerText="Satın Alma Talebi"; d.innerText=`"${b}" kitabı için ${s} ile iletişime geçiyorsun.`; w.href=`https://wa.me/90${cp}?text=Selam, ASÜ Hub üzerinden ${b} kitabın için yazıyorum. Müsait misin?`; }
-            else if(t==='trade'){ i.className='w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl bg-orange-900/30 text-orange-500'; i.innerHTML='<i class="fa-solid fa-rotate"></i>'; ti.innerText="Takas Teklifi"; d.innerText=`"${b}" kitabı için ${s} kullanıcısına takas teklif et.`; w.href=`https://wa.me/90${cp}?text=Selam, ASÜ Hub üzerinden ${b} kitabınla takas yapmak istiyorum.`; }
-            else if(t==='free'){ i.className='w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl bg-indigo-900/30 text-asuPurple'; i.innerHTML='<i class="fa-solid fa-gift"></i>'; ti.innerText="Ücretsiz Talep"; d.innerText=`"${b}" kitabını ${s} kullanıcısından istiyorsun.`; w.href=`https://wa.me/90${cp}?text=Selam, ASÜ Hub üzerinden ücretsiz verdiğin ${b} kitabına talibim. Duruyor mu?`; }
-            pn.innerText=p;
+        // --- KİTAPLARI LİSTELEME ---
+        async function loadBooks() {
+            document.getElementById('loader').classList.remove('hidden');
+            const { data, error } = await asuDb.from('books').select('*').order('created_at', { ascending: false });
+            document.getElementById('loader').classList.add('hidden');
+            
+            const grid = document.getElementById('booksGrid');
+            
+            if (error) { console.error(error); return; }
+            if (!data || data.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center text-slate-500 py-10">Henüz satılık kitap yok. <br>İlk ilanı sen ver! 📚</div>';
+                return;
+            }
+
+            grid.innerHTML = data.map(book => `
+                <div class="bg-asuCard border border-slate-700 rounded-xl overflow-hidden hover:shadow-2xl hover:shadow-indigo-500/20 transition-all group">
+                    <div class="h-48 overflow-hidden relative bg-slate-800">
+                        <img src="${book.image_url}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="${book.title}">
+                        <div class="absolute top-2 right-2 bg-green-500 text-white font-bold text-xs px-2 py-1 rounded shadow">${book.price}</div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-bold text-white text-lg truncate">${book.title}</h3>
+                        <div class="mt-3 space-y-2">
+                            <div class="text-xs text-slate-400 flex items-center gap-2">
+                                <i class="fa-solid fa-user text-asuPurple"></i> ${book.seller_email.split('@')[0]}
+                            </div>
+                            <div class="bg-slate-800 p-2 rounded text-sm text-green-400 font-mono text-center border border-slate-700">
+                                <i class="fa-brands fa-whatsapp mr-1"></i> ${book.contact}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
         }
-        function closeModal(){document.getElementById('contactModal').classList.add('hidden');}
-        function copyPhone(){navigator.clipboard.writeText(document.getElementById('phoneNum').innerText);alert("Numara kopyalandı!");}
-        function openPostModal() { document.getElementById('postAdModal').classList.remove('hidden'); }
-        function closePostModal() { document.getElementById('postAdModal').classList.add('hidden'); }
-        function submitAd(e) { e.preventDefault(); closePostModal(); alert("Harika! İlanınız editör onayına gönderildi. Kısa süre içinde yayında olacak."); }
+
+        loadBooks();
     </script>
 </body>
 </html>
