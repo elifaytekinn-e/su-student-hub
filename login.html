@@ -2,69 +2,79 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giriş Yap | ASÜ Student Hub</title>
+    <title>Giriş Yap | ASÜ Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>tailwind.config = { theme: { extend: { colors: { asuDark: '#0f172a', asuCard: '#1e293b', asuPurple: '#6366f1' } } } }</script>
 </head>
-<body class="bg-asuDark text-slate-200 min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-    <div class="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
-        <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-purple-600/20 rounded-full blur-3xl"></div>
-        <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-blue-600/20 rounded-full blur-3xl"></div>
-    </div>
-    <div class="w-full max-w-md bg-asuCard border border-slate-700 p-8 rounded-2xl shadow-2xl relative">
-        <div class="text-center mb-8">
-            <a href="index.html" class="inline-flex items-center gap-2 text-2xl font-bold text-white mb-2"><img src="asu_logo.png" class="h-10"> ASÜ HUB</a>
-            <p class="text-slate-400 text-sm">Öğrenci ağına katıl.</p>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center">
+
+    <div class="bg-gray-800 p-8 rounded shadow-lg w-96 border-t-4 border-red-600">
+        <div class="text-center mb-6">
+            <h1 class="text-2xl font-bold text-white">ASÜ <span class="text-red-600">HUB</span></h1>
+            <p class="text-gray-400 text-sm">Öğrenci Girişi</p>
         </div>
-        <div class="flex bg-slate-800 p-1 rounded-lg mb-6">
-            <button onclick="switchTab('login')" id="tab-login" class="flex-1 py-2 rounded-md text-sm font-bold bg-asuPurple text-white transition-all">Giriş Yap</button>
-            <button onclick="switchTab('register')" id="tab-register" class="flex-1 py-2 rounded-md text-sm font-bold text-slate-400 hover:text-white transition-all">Kayıt Ol</button>
+
+        <div class="flex mb-4">
+            <button onclick="showLogin()" id="tabLogin" class="flex-1 py-2 bg-red-600 text-white font-bold text-sm">GİRİŞ</button>
+            <button onclick="showRegister()" id="tabRegister" class="flex-1 py-2 bg-gray-700 text-gray-300 font-bold text-sm hover:bg-gray-600">KAYIT OL</button>
         </div>
+
         <form id="loginForm" class="space-y-4">
-            <div><label class="block text-xs text-slate-400 mb-1 ml-1">E-posta</label><div class="relative"><i class="fa-solid fa-envelope absolute left-3 top-3 text-slate-500"></i><input type="email" id="loginEmail" class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2.5 pl-10 text-white outline-none focus:border-asuPurple transition-colors" required></div></div>
-            <div><label class="block text-xs text-slate-400 mb-1 ml-1">Şifre</label><div class="relative"><i class="fa-solid fa-lock absolute left-3 top-3 text-slate-500"></i><input type="password" id="loginPass" class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2.5 pl-10 text-white outline-none focus:border-asuPurple transition-colors" required></div></div>
-            <button type="submit" id="loginBtn" class="w-full bg-asuPurple hover:bg-indigo-600 text-white font-bold py-3 rounded-lg shadow-lg">Giriş Yap</button>
+            <input type="email" id="loginEmail" placeholder="E-posta Adresi" class="w-full bg-gray-700 border border-gray-600 p-3 rounded text-white outline-none focus:border-red-500">
+            <input type="password" id="loginPass" placeholder="Şifre" class="w-full bg-gray-700 border border-gray-600 p-3 rounded text-white outline-none focus:border-red-500">
+            <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded transition">GİRİŞ YAP</button>
         </form>
+
         <form id="registerForm" class="space-y-4 hidden">
-            <div><label class="block text-xs text-slate-400 mb-1 ml-1">E-posta</label><input type="email" id="regEmail" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white outline-none focus:border-asuPurple" required></div>
-            <div><label class="block text-xs text-slate-400 mb-1 ml-1">Şifre Belirle</label><input type="password" id="regPass" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white outline-none focus:border-asuPurple" required></div>
-            <button type="submit" id="regBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg shadow-lg">Hesap Oluştur</button>
+            <input type="email" id="regEmail" placeholder="Okul E-postası" class="w-full bg-gray-700 border border-gray-600 p-3 rounded text-white outline-none focus:border-red-500">
+            <input type="password" id="regPass" placeholder="Şifre Belirle" class="w-full bg-gray-700 border border-gray-600 p-3 rounded text-white outline-none focus:border-red-500">
+            <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded transition">KAYIT OL</button>
         </form>
     </div>
+
     <script>
+        // YENİ ANAHTAR EKLENDİ
         const SUPABASE_URL = "https://kmzbywrcspzwuznexcla.supabase.co";
-        // DİKKAT: Burada 'O' harfi yerine '0' (sıfır) kullandım. Doğrusu bu:
-        const SUPABASE_KEY = "sb_publishable_2mPJ390ssxg8euZ9hgmfFg_O5mPR1Fh"; 
-        
+        const SUPABASE_KEY = "sb_publishable_z2fcMIygDFlXaZD3z1CxbA_YkPXzxNt";
         const asuDb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        function switchTab(tab) {
-            if(tab === 'login') { document.getElementById('loginForm').classList.remove('hidden'); document.getElementById('registerForm').classList.add('hidden'); document.getElementById('tab-login').className="flex-1 py-2 rounded-md text-sm font-bold bg-asuPurple text-white"; document.getElementById('tab-register').className="flex-1 py-2 rounded-md text-sm font-bold text-slate-400 hover:text-white"; }
-            else { document.getElementById('loginForm').classList.add('hidden'); document.getElementById('registerForm').classList.remove('hidden'); document.getElementById('tab-login').className="flex-1 py-2 rounded-md text-sm font-bold text-slate-400 hover:text-white"; document.getElementById('tab-register').className="flex-1 py-2 rounded-md text-sm font-bold bg-green-600 text-white"; }
+        function showLogin(){
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('tabLogin').className = "flex-1 py-2 bg-red-600 text-white font-bold text-sm";
+            document.getElementById('tabRegister').className = "flex-1 py-2 bg-gray-700 text-gray-300 font-bold text-sm hover:bg-gray-600";
         }
+        function showRegister(){
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.remove('hidden');
+            document.getElementById('tabLogin').className = "flex-1 py-2 bg-gray-700 text-gray-300 font-bold text-sm hover:bg-gray-600";
+            document.getElementById('tabRegister').className = "flex-1 py-2 bg-green-600 text-white font-bold text-sm";
+        }
+
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPass').value;
+            
             if(email === 'admin' && password === 'asu123') { localStorage.setItem('isAdmin', 'true'); window.location.href = 'admin.html'; return; }
+            
             const { error } = await asuDb.auth.signInWithPassword({ email, password });
             if (error) alert("Hata: " + error.message);
             else { 
-                const { data: profile } = await asuDb.from('profiles').select('is_banned').eq('email', email).single();
-                if(profile && profile.is_banned) return alert("Yasaklı Hesap!");
+                const { data } = await asuDb.from('profiles').select('*').eq('email', email).single();
+                if(data && data.is_banned) return alert("Yasaklandınız!");
                 localStorage.setItem('userEmail', email); window.location.href = 'index.html'; 
             }
         });
+
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('regEmail').value;
             const password = document.getElementById('regPass').value;
             const { error } = await asuDb.auth.signUp({ email, password });
             if (error) alert("Hata: " + error.message);
-            else { await asuDb.from('profiles').insert([{ email: email }]); alert("Kayıt Başarılı! Giriş yapabilirsiniz."); switchTab('login'); }
+            else { await asuDb.from('profiles').insert([{ email: email }]); alert("Kayıt başarılı! Giriş yapabilirsin."); showLogin(); }
         });
     </script>
 </body>
