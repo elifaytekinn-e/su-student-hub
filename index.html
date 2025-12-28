@@ -3,185 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASÜ Student Hub | Ana Sayfa</title>
+    <title>Ders Notları | ASÜ Student Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: { asuDark: '#0f172a', asuCard: '#1e293b', asuPurple: '#6366f1', asuPurpleDark: '#4338ca', asuText: '#e2e8f0', asuGray: '#94a3b8', asuGreen: '#10b981' },
-                    fontFamily: { sans: ['Inter', 'sans-serif'] }
-                }
-            }
-        }
-    </script>
     <style>
-        .bg-grid { background-image: radial-gradient(#334155 1px, transparent 1px); background-size: 40px 40px; }
-        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        body { background-color: #f3f4f6; color: #1f2937; font-family: 'Inter', sans-serif; }
+        .content-box { background: white; border-radius: 8px; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
     </style>
 </head>
-<body class="bg-asuDark text-asuText min-h-screen flex flex-col bg-grid">
+<body>
 
-    <nav class="bg-asuCard/90 backdrop-blur-md border-b border-slate-700 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-20">
-                <a href="index.html" class="flex items-center gap-3 group">
-                    <div class="h-12 w-12 flex items-center justify-center transition-transform group-hover:scale-105">
-                        <img src="asu_logo.png" alt="ASÜ Logo" class="h-full w-full object-contain filter drop-shadow-lg">
-                    </div>
-                    <div>
-                        <h1 class="text-xl font-bold tracking-tight text-white">ASÜ<span class="text-asuPurple">HUB</span></h1>
-                        <p class="text-xs text-asuGray">Student Network</p>
-                    </div>
-                </a>
-                
-                <div class="hidden md:flex space-x-6">
-                    <a href="index.html" class="text-white font-medium border-b-2 border-asuPurple pb-1">Ana Sayfa</a>
-                    <a href="notes.html" class="text-asuGray hover:text-white transition-colors font-medium">Ders Notları</a>
-                    <a href="books.html" class="text-asuGray hover:text-white transition-colors font-medium">Kitap Borsası</a>
-                    <a href="faq.html" class="text-asuGray hover:text-white transition-colors font-medium">S.S.S.</a>
-                </div>
-
-                <div class="flex items-center gap-4">
-                    <div id="auth-buttons" class="hidden md:flex items-center gap-4">
-                        <a href="login.html#login" class="text-sm font-medium text-asuGray hover:text-white">Giriş Yap</a>
-                        <a href="login.html#register" class="bg-asuPurple hover:bg-asuPurpleDark text-white px-5 py-2.5 rounded-md text-sm font-medium transition-all shadow-lg shadow-indigo-500/30">Kayıt Ol</a>
-                    </div>
-                    
-                    <div id="user-profile" class="relative hidden">
-                        <button onclick="toggleProfileMenu()" id="userAvatar" class="w-10 h-10 rounded-full bg-indigo-900 border border-indigo-500 flex items-center justify-center text-indigo-300 font-bold text-sm cursor-pointer hover:bg-indigo-800 transition-colors">..</button>
-                        <div id="profile-dropdown" class="absolute right-0 mt-2 w-48 bg-asuCard border border-slate-700 rounded-lg shadow-xl py-2 hidden">
-                            <div class="px-4 py-2 border-b border-slate-700"><p class="text-sm text-white font-bold">Öğrenci</p></div>
-                            <a href="profile.html" class="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-800 hover:text-white">Profilim</a>
-                            <button onclick="handleLogout()" class="block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-slate-800 hover:text-red-300">Çıkış Yap</button>
-                        </div>
-                    </div>
-                    <button onclick="toggleMobileMenu()" class="md:hidden text-slate-300 hover:text-white focus:outline-none"><i class="fa-solid fa-bars text-2xl"></i></button>
-                </div>
-            </div>
-        </div>
-        
-        <div id="mobile-menu" class="hidden md:hidden bg-slate-900 border-t border-slate-800">
-            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <a href="index.html" class="text-white block px-3 py-2 rounded-md text-base font-medium bg-slate-800">Ana Sayfa</a>
-                <a href="notes.html" class="text-slate-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Ders Notları</a>
-                <a href="books.html" class="text-slate-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Kitap Borsası</a>
-                <div id="mobile-auth" class="border-t border-slate-800 mt-4 pt-4 flex flex-col gap-2 px-3">
-                    <a href="login.html#login" class="text-center w-full border border-slate-600 text-white px-4 py-2 rounded-md">Giriş Yap</a>
-                    <a href="login.html#register" class="text-center w-full bg-asuPurple text-white px-4 py-2 rounded-md">Kayıt Ol</a>
-                </div>
-            </div>
+    <nav class="bg-white border-b border-gray-200 py-4 mb-8">
+        <div class="max-w-5xl mx-auto px-4 flex justify-between items-center">
+            <a href="index.html" class="font-bold text-xl text-indigo-600">ASÜ<span class="text-gray-800">HUB</span></a>
+            <a href="index.html" class="text-gray-600 hover:text-indigo-600"><i class="fa-solid fa-house"></i> Ana Sayfa</a>
         </div>
     </nav>
 
-    <header class="relative pt-20 pb-16 lg:pt-32 lg:pb-24 overflow-hidden text-center">
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-asuPurple/20 rounded-full blur-3xl -z-10 opacity-30"></div>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs text-asuPurple mb-8 animate-bounce">
-                <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                Sadece Aksaray Üniversitesi Öğrencileri İçin
-            </div>
-            <h2 class="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight leading-tight">
-                Kampüsün Dijital <br>
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400">Hafızası.</span>
-            </h2>
-            <p class="text-lg text-asuGray max-w-2xl mx-auto mb-10 font-light leading-relaxed">
-                Vize notlarını bul, eski kitaplarını değerlendir ve kampüsün bilgi ağına katıl. 
-            </p>
-
-            <div class="max-w-2xl mx-auto relative group mb-16">
-                <div class="absolute -inset-1 bg-gradient-to-r from-asuPurple to-blue-600 rounded-lg blur opacity-25 group-hover:opacity-50 transition duration-200"></div>
-                <div class="relative flex bg-asuCard rounded-lg overflow-hidden border border-slate-600 shadow-2xl">
-                    <div class="pl-4 flex items-center pointer-events-none"><i class="fa-solid fa-magnifying-glass text-slate-400"></i></div>
-                    <input type="text" id="mainSearchInput" class="w-full bg-transparent border-none text-white px-4 py-4 focus:outline-none placeholder-slate-500" placeholder="Örn: Calculus, Algoritma, İktisat...">
-                    <button onclick="performSearch()" class="bg-asuPurple hover:bg-asuPurpleDark text-white px-8 font-medium transition-colors">ARA</button>
+    <div class="max-w-4xl mx-auto px-4 pb-20">
+        
+        <div id="uploadBox" class="content-box p-6 mb-10 hidden">
+            <h2 class="text-lg font-bold mb-4 border-b pb-2"><i class="fa-solid fa-plus-circle mr-2 text-indigo-600"></i>Yeni Not Paylaş</h2>
+            <form id="uploadForm" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" id="noteTitle" placeholder="Dersin Adı (Örn: Algoritma)" class="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-indigo-500" required>
+                    <input type="text" id="noteDesc" placeholder="Not Hakkında Kısa Bilgi" class="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-indigo-500">
                 </div>
-            </div>
+                <div class="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center relative hover:bg-gray-50 transition-colors">
+                    <input type="file" id="noteFile" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required>
+                    <div id="fileStatus" class="text-gray-500 text-sm"><i class="fa-solid fa-file-upload mr-2"></i>Dosya Seç (PDF veya Resim)</div>
+                </div>
+                <button type="submit" id="submitBtn" class="bg-indigo-600 text-white px-6 py-2 rounded font-bold hover:bg-indigo-700 transition-colors w-full">Paylaşmayı Başlat</button>
+            </form>
+        </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto border-t border-slate-800 pt-8">
-                <div><div class="text-3xl font-bold text-white" id="statNotes">0</div><div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Paylaşılan Not</div></div>
-                <div><div class="text-3xl font-bold text-white" id="statBooks">0</div><div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Aktif İlan</div></div>
-                <div><div class="text-3xl font-bold text-white">8.5k</div><div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Öğrenci</div></div>
-                <div><div class="text-3xl font-bold text-emerald-400">%100</div><div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Ücretsiz</div></div>
+        <div class="content-box overflow-hidden">
+            <div class="bg-gray-50 px-6 py-3 border-b border-gray-200">
+                <h3 class="font-bold text-gray-700">Paylaşılan Notlar</h3>
+            </div>
+            <div id="notesContainer" class="divide-y divide-gray-100">
+                <div class="p-10 text-center text-gray-400">Notlar yükleniyor...</div>
             </div>
         </div>
-    </header>
-
-    <section class="py-16 bg-slate-900 border-y border-slate-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-12"><h3 class="text-2xl font-bold text-white">Sistem Nasıl İşliyor?</h3><p class="text-slate-400 text-sm mt-2">Karmaşık üyelikler yok. Her şey 3 adımda.</p></div>
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="text-center p-6 glass-card rounded-xl hover:-translate-y-2 transition-transform duration-300"><div class="w-16 h-16 bg-blue-900/30 text-blue-400 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl border border-blue-500/30"><i class="fa-solid fa-search"></i></div><h4 class="text-lg font-semibold text-white mb-2">1. Ara & Keşfet</h4><p class="text-sm text-slate-400">İhtiyacın olan dersin notunu veya aradığın kitabı kategorilere göre filtrele.</p></div>
-                <div class="text-center p-6 glass-card rounded-xl hover:-translate-y-2 transition-transform duration-300"><div class="w-16 h-16 bg-purple-900/30 text-asuPurple rounded-full flex items-center justify-center mx-auto mb-4 text-2xl border border-asuPurple/30"><i class="fa-regular fa-comments"></i></div><h4 class="text-lg font-semibold text-white mb-2">2. İletişime Geç</h4><p class="text-sm text-slate-400">Kitap için satıcıya WhatsApp'tan yaz veya notu tek tıkla cihazına indir.</p></div>
-                <div class="text-center p-6 glass-card rounded-xl hover:-translate-y-2 transition-transform duration-300"><div class="w-16 h-16 bg-green-900/30 text-green-400 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl border border-green-500/30"><i class="fa-solid fa-handshake"></i></div><h4 class="text-lg font-semibold text-white mb-2">3. Paylaş & Kazan</h4><p class="text-sm text-slate-400">Kendi notlarını yükle veya kullanmadığın kitapları satarak ekonomine katkı sağla.</p></div>
-            </div>
-        </div>
-    </section>
-
-    <footer class="bg-asuCard border-t border-slate-800 py-12 mt-auto text-center">
-        <p class="text-slate-600 text-xs">&copy; 2025 ASÜ Student Hub. Tüm hakları saklıdır.</p>
-    </footer>
+    </div>
 
     <script>
-        // --- SUPABASE BAĞLANTISI ---
         const SUPABASE_URL = "https://kmzbywrcspzwuznexcla.supabase.co";
         const SUPABASE_KEY = "sb_publishable_2mPJ390ssxg8euZ9hgmfFg_O5mPR1Fh"; 
         const asuDb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Menü Fonksiyonları
-        function toggleMobileMenu() { document.getElementById('mobile-menu').classList.toggle('hidden'); }
-        function toggleProfileMenu() { document.getElementById('profile-dropdown').classList.toggle('hidden'); }
-        
-        function handleLogout() { 
-            if(confirm("Çıkış yapmak istediğinize emin misiniz?")) { 
-                localStorage.clear();
-                window.location.href='index.html'; 
-            } 
-        }
-        
-        // SAYFA YÜKLENİNCE ÇALIŞAN KODLAR
-        window.addEventListener('load', async () => {
-            const userEmail = localStorage.getItem('userEmail');
-            const isLogged = localStorage.getItem('isLoggedIn') === 'true';
+        const userEmail = localStorage.getItem('userEmail');
 
-            // 1. Giriş Kontrolü
-            if(isLogged && userEmail) {
-                document.getElementById('auth-buttons').classList.add('hidden');
-                document.getElementById('mobile-auth')?.classList.add('hidden');
-                document.getElementById('user-profile').classList.remove('hidden');
-                // Baş harfleri avatara koy
-                document.getElementById('userAvatar').innerText = userEmail.substring(0,2).toUpperCase();
-            }
+        // Giriş yapmışsa yükleme kutusunu göster
+        if(userEmail) { document.getElementById('uploadBox').classList.remove('hidden'); }
 
-            // 2. Canlı İstatistikleri Çek
-            try {
-                const { count: n } = await asuDb.from('notes').select('*', { count: 'exact', head: true });
-                const { count: b } = await asuDb.from('books').select('*', { count: 'exact', head: true });
-                if(n !== null) document.getElementById('statNotes').innerText = n + "+";
-                if(b !== null) document.getElementById('statBooks').innerText = b + "+";
-            } catch (e) { console.error("İstatistik hatası:", e); }
+        // Dosya seçilince isim göster
+        document.getElementById('noteFile').addEventListener('change', function(e) {
+            if(this.files[0]) document.getElementById('fileStatus').innerText = "Seçildi: " + this.files[0].name;
         });
 
-        // Arama Motoru
-        function performSearch() {
-            const query = document.getElementById('mainSearchInput').value.toLowerCase().trim();
-            if(!query) return alert("Lütfen aramak için bir kelime giriniz.");
-            
-            const bookKeywords = ['calculus', 'kitap', 'roman', 'fizik', 'kimya', 'hesap'];
-            let targetPage = bookKeywords.some(keyword => query.includes(keyword)) ? 'books.html' : 'notes.html';
-            window.location.href = `${targetPage}?q=${encodeURIComponent(query)}`;
+        // NOT YÜKLEME FONKSİYONU
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const file = document.getElementById('noteFile').files[0];
+            const title = document.getElementById('noteTitle').value;
+            const desc = document.getElementById('noteDesc').value;
+
+            btn.disabled = true; btn.innerText = "Yükleniyor...";
+
+            try {
+                const fileName = Date.now() + "_" + file.name;
+                const { data: fData, error: fError } = await asuDb.storage.from('ders-notlari').upload(fileName, file);
+                if(fError) throw fError;
+
+                const { data: pUrl } = asuDb.storage.from('ders-notlari').getPublicUrl(fileName);
+                const { error: dbError } = await asuDb.from('notes').insert([{ title, description: desc, file_url: pUrl.publicUrl, uploader_email: userEmail }]);
+                if(dbError) throw dbError;
+
+                alert("Başarıyla yüklendi!");
+                location.reload();
+            } catch (err) { alert("Hata: " + err.message); btn.disabled = false; btn.innerText = "Paylaşmayı Başlat"; }
+        });
+
+        // NOTLARI LİSTELEME (ESKİ LİSTE TASARIMI)
+        async function fetchNotes() {
+            const { data, error } = await asuDb.from('notes').select('*').order('created_at', { ascending: false });
+            const container = document.getElementById('notesContainer');
+
+            if(error || !data || data.length === 0) {
+                container.innerHTML = '<div class="p-10 text-center text-gray-400">Henüz not bulunmuyor.</div>';
+                return;
+            }
+
+            container.innerHTML = data.map(note => `
+                <div class="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                    <div>
+                        <h4 class="font-bold text-gray-800">${note.title}</h4>
+                        <p class="text-xs text-gray-500">${note.description || 'Açıklama yok'} • ${note.uploader_email.split('@')[0]}</p>
+                    </div>
+                    <a href="${note.file_url}" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-sm font-bold border border-indigo-100 px-3 py-1 rounded bg-indigo-50">
+                        <i class="fa-solid fa-download"></i> İndir
+                    </a>
+                </div>
+            `).join('');
         }
 
-        // Enter ile arama
-        document.getElementById('mainSearchInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') performSearch(); });
-        
-        // Dışarı tıklayınca menü kapatma
-        window.onclick = function(e) { if(!e.target.closest('#user-profile')) document.getElementById('profile-dropdown')?.classList.add('hidden'); }
+        fetchNotes();
     </script>
 </body>
 </html>
