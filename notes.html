@@ -3,165 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ders Notları - ASÜ Student Hub</title>
+    <title>Ders Notları | ASÜ Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <script>
         tailwind.config = { theme: { extend: { colors: { asuDark: '#0f172a', asuCard: '#1e293b', asuPurple: '#6366f1' } } } }
     </script>
 </head>
-<body class="bg-[#0f172a] min-h-screen text-slate-200 font-sans">
+<body class="bg-asuDark text-slate-200 min-h-screen">
 
-    <nav class="bg-asuCard border-b border-slate-700 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center gap-3">
-                    <img src="asu_logo.png" alt="Logo" class="h-10 w-10">
-                    <span class="font-bold text-xl text-white tracking-tight">ASÜ Hub</span>
-                </div>
-                <div class="flex items-center gap-4">
-                    <span id="userDisplay" class="text-sm text-slate-400 hidden md:block"></span>
-                    <a href="index.html" class="text-slate-300 hover:text-white transition-colors"><i class="fa-solid fa-home"></i></a>
-                </div>
+    <nav class="bg-asuCard border-b border-slate-700 p-4 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <a href="index.html" class="font-bold text-xl text-white flex items-center gap-2"><img src="asu_logo.png" class="h-8"> ASÜ HUB</a>
+            <div class="flex gap-4">
+                <a href="index.html" class="hover:text-white">Ana Sayfa</a>
+                <button onclick="document.getElementById('uploadModal').classList.remove('hidden')" class="bg-asuPurple hover:bg-indigo-600 text-white px-4 py-1.5 rounded text-sm font-bold"><i class="fa-solid fa-plus mr-1"></i> Not Yükle</button>
             </div>
         </div>
     </nav>
 
-    <div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="max-w-7xl mx-auto p-6 grid grid-cols-1 md:grid-cols-4 gap-8">
         
-        <div id="uploadSection" class="hidden bg-asuCard p-6 rounded-2xl border border-slate-700 shadow-xl mb-8">
-            <h2 class="text-xl font-bold text-white mb-4"><i class="fa-solid fa-cloud-arrow-up mr-2"></i>Not Paylaş</h2>
-            <form id="uploadForm" class="space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input type="text" id="noteTitle" placeholder="Ders Adı / Not Başlığı" class="bg-slate-800 border border-slate-600 rounded-lg p-3 text-white focus:border-asuPurple outline-none" required>
-                    <input type="text" id="noteDesc" placeholder="Açıklama (Örn: Vize Notları)" class="bg-slate-800 border border-slate-600 rounded-lg p-3 text-white focus:border-asuPurple outline-none">
-                </div>
-                <div class="border-2 border-dashed border-slate-600 rounded-lg p-6 text-center hover:border-asuPurple transition-colors cursor-pointer relative">
-                    <input type="file" id="noteFile" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required>
-                    <div id="fileName" class="text-slate-400"><i class="fa-solid fa-file-pdf text-3xl mb-2 block"></i>Dosya Seç (PDF, Resim)</div>
-                </div>
-                <button type="submit" id="uploadBtn" class="w-full bg-asuPurple hover:bg-indigo-600 text-white font-bold py-3 rounded-lg transition-all shadow-lg shadow-indigo-500/30">
-                    <i class="fa-solid fa-paper-plane mr-2"></i>Paylaş
-                </button>
-            </form>
+        <div class="md:col-span-1 space-y-2">
+            <h3 class="font-bold text-white mb-4 px-2">Fakülteler</h3>
+            <button onclick="filterNotes('Tümü')" class="w-full text-left px-4 py-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 transition-colors focus:ring-2 ring-asuPurple">Tüm Notlar</button>
+            <button onclick="filterNotes('Mühendislik')" class="w-full text-left px-4 py-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors focus:ring-2 ring-asuPurple"><i class="fa-solid fa-gear mr-2 text-blue-400"></i> Mühendislik</button>
+            <button onclick="filterNotes('İİBF')" class="w-full text-left px-4 py-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors focus:ring-2 ring-asuPurple"><i class="fa-solid fa-chart-line mr-2 text-green-400"></i> İktisadi İdari B.</button>
+            <button onclick="filterNotes('Eğitim')" class="w-full text-left px-4 py-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors focus:ring-2 ring-asuPurple"><i class="fa-solid fa-book-open mr-2 text-yellow-400"></i> Eğitim Fak.</button>
+            <button onclick="filterNotes('Fen Edebiyat')" class="w-full text-left px-4 py-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors focus:ring-2 ring-asuPurple"><i class="fa-solid fa-flask mr-2 text-purple-400"></i> Fen Edebiyat</button>
         </div>
 
-        <div id="loader" class="text-center py-8 hidden"><i class="fa-solid fa-spinner fa-spin text-4xl text-asuPurple"></i></div>
-
-        <h2 class="text-2xl font-bold text-white mb-6">Son Paylaşılan Notlar 📚</h2>
-        <div id="notesList" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="md:col-span-3">
+            <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <span id="currentCategory">Tüm Notlar</span>
+                <span class="text-sm bg-slate-800 text-slate-400 px-2 py-1 rounded" id="noteCount">0</span>
+            </h2>
+            
+            <div id="notesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <p class="text-slate-500">Yükleniyor...</p>
             </div>
+        </div>
+    </div>
+
+    <div id="uploadModal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-[60]">
+        <div class="bg-asuCard border border-slate-700 p-6 rounded-xl w-full max-w-md relative">
+            <button onclick="document.getElementById('uploadModal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h2 class="text-xl font-bold text-white mb-4">Not Paylaş</h2>
+            <form id="uploadForm" class="space-y-4">
+                <input type="text" id="noteTitle" placeholder="Ders Adı" class="w-full bg-slate-900 border border-slate-600 rounded p-3 text-white outline-none" required>
+                <select id="noteFaculty" class="w-full bg-slate-900 border border-slate-600 rounded p-3 text-white outline-none">
+                    <option value="Diğer">Fakülte Seçiniz...</option>
+                    <option value="Mühendislik">Mühendislik</option>
+                    <option value="İİBF">İktisadi İdari Bilimler</option>
+                    <option value="Eğitim">Eğitim</option>
+                    <option value="Fen Edebiyat">Fen Edebiyat</option>
+                </select>
+                <textarea id="noteDesc" placeholder="Açıklama (Hoca adı, vize/final vb.)" class="w-full bg-slate-900 border border-slate-600 rounded p-3 text-white outline-none"></textarea>
+                <input type="file" id="noteFile" class="text-slate-400 text-sm" required>
+                <button type="submit" id="submitBtn" class="w-full bg-asuPurple hover:bg-indigo-600 text-white font-bold py-3 rounded">Paylaş</button>
+            </form>
+        </div>
     </div>
 
     <script>
-        // --- SENİN BİLGİLERİN ---
         const SUPABASE_URL = "https://kmzbywrcspzwuznexcla.supabase.co";
         const SUPABASE_KEY = "sb_publishable_2mPJ390ssxg8euZ9hgmfFg_O5mPR1Fh"; 
-        
-        const { createClient } = window.supabase;
-        const asuDb = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        // Kullanıcı Kontrolü (Giriş yapmamışsa yükleme kısmını gizle)
+        const asuDb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const userEmail = localStorage.getItem('userEmail');
-        if (userEmail) {
-            document.getElementById('uploadSection').classList.remove('hidden');
-            document.getElementById('userDisplay').innerText = userEmail;
+
+        let allNotes = [];
+
+        // Notları Çek
+        async function fetchNotes() {
+            const { data, error } = await asuDb.from('notes').select('*').order('created_at', { ascending: false });
+            if(data) {
+                allNotes = data;
+                renderNotes(allNotes);
+            }
         }
 
-        // Dosya İsmi Gösterme
-        document.getElementById('noteFile').addEventListener('change', function(e) {
-            if(this.files[0]) document.getElementById('fileName').innerHTML = <span class="text-white font-bold">${this.files[0].name}</span>;
-        });
-
-        // --- NOT YÜKLEME ---
-        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('uploadBtn');
-            const file = document.getElementById('noteFile').files[0];
-            const title = document.getElementById('noteTitle').value;
-            const desc = document.getElementById('noteDesc').value;
-
-            if(!file) return alert("Lütfen bir dosya seç!");
-
-            btn.disabled = true; btn.innerText = "Yükleniyor...";
-
-            try {
-                // 1. Dosyayı Storage'a Yükle
-                const fileName = ${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}; // Türkçe karakter sorununu önlemek için isim temizleme
-                const { data: fileData, error: fileError } = await asuDb.storage
-                    .from('ders-notlari')
-                    .upload(fileName, file);
-
-                if (fileError) throw fileError;
-
-                // 2. Dosya Linkini Al
-                const { data: publicUrlData } = asuDb.storage.from('ders-notlari').getPublicUrl(fileName);
-                const publicUrl = publicUrlData.publicUrl;
-
-                // 3. Veritabanına Kaydet
-                const { error: dbError } = await asuDb.from('notes').insert([
-                    { title: title, description: desc, file_url: publicUrl, uploader_email: userEmail }
-                ]);
-
-                if (dbError) throw dbError;
-
-                alert("✅ Not başarıyla yüklendi!");
-                location.reload(); // Sayfayı yenile
-
-            } catch (error) {
-                console.error(error);
-                alert("Hata oluştu: " + error.message);
-            } finally {
-                btn.disabled = false; btn.innerText = "Paylaş";
-            }
-        });
-
-        // --- NOTLARI LİSTELEME ---
-        async function loadNotes() {
-            document.getElementById('loader').classList.remove('hidden');
+        // Ekrana Bas
+        function renderNotes(notes) {
+            document.getElementById('noteCount').innerText = notes.length;
+            const grid = document.getElementById('notesGrid');
+            if(notes.length === 0) { grid.innerHTML = '<p class="col-span-3 text-center text-slate-500 py-10">Bu kategoride not bulunamadı.</p>'; return; }
             
-            // Veritabanından verileri çek
-            const { data, error } = await asuDb.from('notes').select('*').order('created_at', { ascending: false });
-            
-            document.getElementById('loader').classList.add('hidden');
-            const list = document.getElementById('notesList');
-
-            if (error) { 
-                console.error("Listeleme hatası:", error);
-                list.innerHTML = '<div class="text-red-400">Notlar yüklenirken hata oluştu.</div>';
-                return; 
-            }
-            
-            if (!data || data.length === 0) {
-                list.innerHTML = '<div class="col-span-2 text-center text-slate-500 py-10 bg-slate-900/50 rounded-xl border border-slate-800">Henüz hiç not yüklenmemiş.<br>İlk paylaşımı sen yap! 🚀</div>';
-                return;
-            }
-
-            // Gelen verileri ekrana yaz
-            list.innerHTML = data.map(note => `
-                <div class="bg-asuCard border border-slate-700 p-5 rounded-xl hover:border-asuPurple transition-colors group relative overflow-hidden">
-                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                        <i class="fa-solid fa-file-lines text-6xl text-white"></i>
+            grid.innerHTML = notes.map(n => `
+                <div class="bg-asuCard border border-slate-700 rounded-xl p-5 hover:border-asuPurple transition-all group relative">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="bg-slate-800 text-xs text-slate-400 px-2 py-1 rounded border border-slate-700">${n.faculty || 'Genel'}</span>
+                        <div class="flex gap-1 text-yellow-400 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i></div>
                     </div>
-                    <div class="relative z-10">
-                        <h3 class="font-bold text-lg text-white group-hover:text-asuPurple transition-colors">${note.title || 'Başlıksız'}</h3>
-                        <p class="text-sm text-slate-400 mt-1">${note.description || ''}</p>
-                        <div class="text-xs text-slate-500 mt-3 flex items-center gap-2 border-t border-slate-700/50 pt-3">
-                            <i class="fa-solid fa-user-circle"></i> ${note.uploader_email ? note.uploader_email.split('@')[0] : 'Anonim'}
+                    <h3 class="font-bold text-white text-lg mb-1 truncate">${n.title}</h3>
+                    <p class="text-sm text-slate-400 mb-4 h-10 overflow-hidden line-clamp-2">${n.description || ''}</p>
+                    
+                    <div class="flex items-center justify-between mt-4 border-t border-slate-700 pt-4">
+                        <div class="flex items-center gap-2 text-xs text-slate-500">
+                            <i class="fa-regular fa-comment"></i> 0 Yorum
                         </div>
+                        <a href="${n.file_url}" target="_blank" class="bg-slate-800 hover:bg-asuPurple text-white px-4 py-2 rounded text-sm font-medium transition-colors">
+                            <i class="fa-solid fa-download mr-1"></i> İndir
+                        </a>
                     </div>
-                    <a href="${note.file_url}" target="_blank" class="mt-4 flex items-center justify-center w-full bg-slate-800 hover:bg-asuPurple text-white py-2.5 rounded-lg text-sm font-medium transition-all group-hover:shadow-lg relative z-10">
-                        <i class="fa-solid fa-download mr-2"></i> İndir / Görüntüle
-                    </a>
                 </div>
             `).join('');
         }
 
-        // Sayfa açılınca notları getir
-        loadNotes();
+        // Filtreleme
+        function filterNotes(category) {
+            document.getElementById('currentCategory').innerText = category === 'Tümü' ? 'Tüm Notlar' : category;
+            if(category === 'Tümü') renderNotes(allNotes);
+            else renderNotes(allNotes.filter(n => n.faculty === category));
+        }
+
+        // Yükleme
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(!userEmail) return alert("Önce giriş yapmalısın!");
+            
+            const btn = document.getElementById('submitBtn');
+            const file = document.getElementById('noteFile').files[0];
+            const title = document.getElementById('noteTitle').value;
+            const desc = document.getElementById('noteDesc').value;
+            const fac = document.getElementById('noteFaculty').value;
+
+            btn.disabled = true; btn.innerText = "Yükleniyor...";
+            try {
+                const fileName = Date.now() + "_" + file.name.replace(/[^a-zA-Z0-9.]/g, '');
+                const { error: fError } = await asuDb.storage.from('ders-notlari').upload(fileName, file);
+                if(fError) throw fError;
+                const { data: pUrl } = asuDb.storage.from('ders-notlari').getPublicUrl(fileName);
+                
+                // DİKKAT: Supabase'de 'faculty' sütununu açtığından emin ol!
+                const { error: dbError } = await asuDb.from('notes').insert([{ 
+                    title, description: desc, file_url: pUrl.publicUrl, uploader_email: userEmail, faculty: fac 
+                }]);
+                
+                if(dbError) throw dbError;
+                alert("Not yüklendi!");
+                location.reload();
+            } catch (err) { alert("Hata: " + err.message); btn.disabled = false; btn.innerText = "Paylaş"; }
+        });
+
+        fetchNotes();
     </script>
 </body>
 </html>
