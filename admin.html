@@ -23,21 +23,17 @@
     <main class="flex-1 overflow-y-auto bg-asuDark relative">
         <header class="h-16 bg-asuCard/50 backdrop-blur border-b border-slate-700 flex items-center justify-between px-8 sticky top-0 z-30"><h2 class="text-xl font-bold text-white" id="pageTitle">Kontrol Paneli</h2><a href="index.html" class="text-sm text-asuPurple hover:text-white"><i class="fa-solid fa-eye mr-1"></i> Siteye Git</a></header>
         <div class="p-8">
-            <div id="sec-dashboard" class="section-content"><div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"><div class="glass-panel p-6 rounded-xl border-l-4 border-yellow-500"><p class="text-slate-400 text-xs uppercase">Onay Bekleyen</p><h3 class="text-3xl font-bold text-white mt-1" id="dashPending">0</h3></div><div class="glass-panel p-6 rounded-xl border-l-4 border-indigo-500"><p class="text-slate-400 text-xs uppercase">Toplam Not</p><h3 class="text-3xl font-bold text-white mt-1" id="dashNotes">0</h3></div><div class="glass-panel p-6 rounded-xl border-l-4 border-green-500"><p class="text-slate-400 text-xs uppercase">Satılık Kitap</p><h3 class="text-3xl font-bold text-white mt-1" id="dashBooks">0</h3></div><div class="glass-panel p-6 rounded-xl border-l-4 border-blue-500"><p class="text-slate-400 text-xs uppercase">Kullanıcı</p><h3 class="text-3xl font-bold text-white mt-1" id="dashUsers">0</h3></div></div><div class="glass-panel rounded-xl p-6"><h3 class="font-bold text-white mb-4">Sistem Mesajı</h3><p class="text-slate-400">Sistem aktif. Onay bekleyen içerikler burada listelenir.</p></div></div>
+            <div id="sec-dashboard" class="section-content"><div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"><div class="glass-panel p-6 rounded-xl border-l-4 border-yellow-500"><p class="text-slate-400 text-xs uppercase">Onay Bekleyen</p><h3 class="text-3xl font-bold text-white mt-1" id="dashPending">0</h3></div><div class="glass-panel p-6 rounded-xl border-l-4 border-indigo-500"><p class="text-slate-400 text-xs uppercase">Toplam Not</p><h3 class="text-3xl font-bold text-white mt-1" id="dashNotes">0</h3></div><div class="glass-panel p-6 rounded-xl border-l-4 border-green-500"><p class="text-slate-400 text-xs uppercase">Satılık Kitap</p><h3 class="text-3xl font-bold text-white mt-1" id="dashBooks">0</h3></div><div class="glass-panel p-6 rounded-xl border-l-4 border-blue-500"><p class="text-slate-400 text-xs uppercase">Kullanıcı</p><h3 class="text-3xl font-bold text-white mt-1" id="dashUsers">0</h3></div></div><div class="glass-panel rounded-xl p-6"><h3 class="font-bold text-white mb-4">Sistem Mesajı</h3><p class="text-slate-400">Sistem aktif.</p></div></div>
             <div id="sec-approvals" class="section-content hidden space-y-6"><div class="glass-panel rounded-xl overflow-hidden"><div class="p-4 bg-slate-800/50 border-b border-slate-700 font-bold text-yellow-400 flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> İncelenecek Notlar</div><div id="pendingNotesList" class="p-4 space-y-3"><p class="text-slate-500 text-center">İncelenecek not yok.</p></div></div><div class="glass-panel rounded-xl overflow-hidden"><div class="p-4 bg-slate-800/50 border-b border-slate-700 font-bold text-yellow-400 flex items-center gap-2"><i class="fa-solid fa-book"></i> İncelenecek Kitaplar</div><div id="pendingBooksList" class="p-4 space-y-3"><p class="text-slate-500 text-center">İncelenecek kitap yok.</p></div></div></div>
             <div id="sec-users" class="section-content hidden"><div class="glass-panel rounded-xl overflow-hidden"><div class="p-4 bg-slate-800/50 border-b border-slate-700 flex justify-between items-center"><h3 class="font-bold text-white">Kayıtlı Öğrenciler</h3><input type="text" id="userSearch" placeholder="Ara..." class="bg-slate-900 border border-slate-600 rounded px-3 py-1 text-sm text-white" onkeyup="filterUsers()"></div><div class="overflow-x-auto"><table class="w-full text-left"><thead class="text-xs text-slate-500 uppercase bg-slate-800"><tr><th class="p-3">Kullanıcı</th><th class="p-3">Bölüm</th><th class="p-3">Durum</th><th class="p-3 text-right">İşlem</th></tr></thead><tbody id="usersList" class="text-sm divide-y divide-slate-700"><tr><td colspan="4" class="p-4 text-center">Yükleniyor...</td></tr></tbody></table></div></div></div>
         </div>
     </main>
     <script>
         const SUPABASE_URL = "https://kmzbywrcspzwuznexcla.supabase.co";
-        // YENİ ANAHTAR:
         const SUPABASE_KEY = "sb_publishable_z2fcMIygDFlXaZD3z1CxbA_YkPXzxNt"; 
-
         const asuDb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
         if(localStorage.getItem('isAdmin') !== 'true') window.location.href = 'login.html';
         let globalUsers = [];
-
         async function loadAll() {
             const { count: n } = await asuDb.from('notes').select('*', { count: 'exact', head: true });
             const { count: b } = await asuDb.from('books').select('*', { count: 'exact', head: true });
@@ -45,7 +41,6 @@
             const { count: pn } = await asuDb.from('notes').select('*', { count: 'exact', head: true }).eq('is_approved', false);
             const { count: pb } = await asuDb.from('books').select('*', { count: 'exact', head: true }).eq('is_approved', false);
             const totalPending = (pn || 0) + (pb || 0);
-
             document.getElementById('dashNotes').innerText = n || 0; document.getElementById('dashBooks').innerText = b || 0; document.getElementById('dashUsers').innerText = u || 0; document.getElementById('dashPending').innerText = totalPending;
             if(totalPending > 0) { document.getElementById('pendingCount').innerText = totalPending; document.getElementById('pendingCount').classList.remove('hidden'); }
             loadPendingItems(); loadUsers();
@@ -56,7 +51,7 @@
             if(pNotes && pNotes.length > 0) {
                 nList.innerHTML = pNotes.map(n => `<div class="bg-slate-900 border border-slate-700 p-3 rounded flex justify-between items-center group"><div><p class="font-bold text-white text-sm"><a href="${n.file_url}" target="_blank" class="text-blue-400 hover:underline">${n.title}</a></p><p class="text-xs text-slate-500">${n.uploader_email} • ${n.faculty}</p></div><div class="flex gap-2"><button onclick="approveItem('notes', ${n.id})" class="bg-green-600 text-white px-3 py-1 rounded text-xs">Onayla</button><button onclick="deleteItem('notes', ${n.id})" class="bg-red-600 text-white px-3 py-1 rounded text-xs">Reddet</button></div></div>`).join('');
             } else { nList.innerHTML = '<p class="text-slate-500 text-sm text-center">Bekleyen not yok.</p>'; }
-
+            
             const { data: pBooks } = await asuDb.from('books').select('*').eq('is_approved', false);
             const bList = document.getElementById('pendingBooksList');
             if(pBooks && pBooks.length > 0) {
@@ -73,6 +68,7 @@
         async function deleteItem(table, id) { if(!confirm("Silinecek. Emin misin?")) return; await asuDb.from(table).delete().eq('id', id); loadAll(); }
         async function toggleBan(email, banStatus) { if(!confirm("Emin misin?")) return; await asuDb.from('profiles').update({ is_banned: banStatus }).eq('email', email); loadAll(); }
         function filterUsers() { const q = document.getElementById('userSearch').value.toLowerCase(); renderUsers(globalUsers.filter(u => (u.nickname && u.nickname.toLowerCase().includes(q)) || (u.email && u.email.toLowerCase().includes(q)))); }
+        function showSection(secId) { document.querySelectorAll('.section-content').forEach(el => el.classList.add('hidden')); document.getElementById('sec-' + secId).classList.remove('hidden'); document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active')); document.getElementById('nav-' + secId).classList.add('active'); }
         function logout() { localStorage.removeItem('isAdmin'); window.location.href = 'index.html'; }
         loadAll();
     </script>
