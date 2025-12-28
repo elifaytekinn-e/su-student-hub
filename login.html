@@ -3,172 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giriş Yap & Kayıt Ol - ASÜ Student Hub</title>
+    <title>Giriş Yap | ASÜ Student Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: { colors: { asuDark: '#0f172a', asuCard: '#1e293b', asuPurple: '#6366f1', asuPurpleDark: '#4338ca' }, fontFamily: { sans: ['Inter', 'sans-serif'] } }
-            }
-        }
-    </script>
-    <style>.hidden-form { display: none; } .bg-pattern { background-color: #0f172a; background-image: radial-gradient(#334155 1px, transparent 1px); background-size: 30px 30px; }</style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>tailwind.config = { theme: { extend: { colors: { asuDark: '#0f172a', asuCard: '#1e293b', asuPurple: '#6366f1' } } } }</script>
 </head>
-<body class="bg-pattern min-h-screen flex items-center justify-center p-4 text-slate-200">
-    <div class="w-full max-w-md bg-asuCard border border-slate-700 rounded-2xl shadow-2xl overflow-hidden relative">
-        <div class="bg-slate-900/50 p-6 text-center border-b border-slate-700">
-            <a href="index.html" class="inline-flex items-center justify-center h-16 w-16 mb-3 transition-transform hover:scale-105"><img src="asu_logo.png" alt="ASÜ Logo" class="h-full w-full object-contain filter drop-shadow-lg"></a>
-            <h2 class="text-2xl font-bold text-white">ASÜ Student Hub</h2><p class="text-sm text-slate-400 mt-1">Öğrenci Ağına Katıl</p>
-        </div>
-        <div class="p-8">
-            
-            <div id="login-container">
-                <form id="form-login" class="space-y-5" onsubmit="handleLogin(event)">
-                    <div><label class="block text-sm text-slate-400 mb-1">E-posta</label><input type="text" id="loginEmail" placeholder="ogrenci@aksaray.edu.tr" class="w-full bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2.5 outline-none focus:border-asuPurple transition-colors"></div>
-                    <div><div class="flex justify-between mb-1"><label class="block text-sm text-slate-400">Şifre</label><button type="button" onclick="showForgot()" class="text-xs text-asuPurple hover:text-white transition-colors">Şifremi Unuttum</button></div><input type="password" id="loginPassword" placeholder="••••••••" class="w-full bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2.5 outline-none focus:border-asuPurple transition-colors"></div>
-                    <button type="submit" class="w-full text-white bg-asuPurple hover:bg-asuPurpleDark font-medium rounded-lg text-sm px-5 py-3 shadow-lg transition-all">Giriş Yap</button>
-                    <p class="text-sm text-center text-slate-400 mt-4">Hesabın yok mu? <button type="button" onclick="showRegister()" class="text-asuPurple font-bold hover:underline">Kayıt Ol</button></p>
-                </form>
-            </div>
+<body class="bg-asuDark text-slate-200 min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
 
-            <div id="register-container" class="hidden-form">
-                <h3 class="text-xl font-semibold text-white mb-6">Hesap Oluştur 🚀</h3>
-                <form id="form-register" class="space-y-5" onsubmit="handleRegister(event)">
-                    <div class="bg-indigo-900/30 border border-indigo-500/30 text-indigo-300 px-3 py-2 rounded text-xs"><i class="fa-solid fa-circle-info mr-1"></i>Sadece <b>@aksaray.edu.tr</b></div>
-                    <div><label class="block text-sm text-slate-400 mb-1">Okul E-postası</label><input type="text" id="regEmail" placeholder="no@aksaray.edu.tr" class="w-full bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2.5 outline-none focus:border-asuPurple"></div>
-                    <div><label class="block text-sm text-slate-400 mb-1">Şifre Belirle</label><input type="password" id="regPassword" class="w-full bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2.5 outline-none focus:border-asuPurple"></div>
-                    <button type="submit" class="w-full text-white bg-asuPurple hover:bg-asuPurpleDark font-medium rounded-lg text-sm px-5 py-3 shadow-lg transition-all">Hesap Oluştur</button>
-                    <p class="text-sm text-center text-slate-400 mt-4">Zaten hesabın var mı? <button type="button" onclick="showLogin()" class="text-asuPurple font-bold hover:underline">Giriş Yap</button></p>
-                </form>
-            </div>
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
+        <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-purple-600/20 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-blue-600/20 rounded-full blur-3xl"></div>
+    </div>
 
-            <div id="forgot-container" class="hidden-form">
-                <div class="text-center mb-6"><div class="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3 text-asuPurple"><i class="fa-solid fa-lock-open text-xl"></i></div><h3 class="text-xl font-semibold text-white">Şifreni Sıfırla</h3><p class="text-xs text-slate-400 mt-2">Okul e-posta adresini gir, sana sıfırlama linki gönderelim.</p></div>
-                <form id="form-forgot" class="space-y-5" onsubmit="handleForgot(event)">
-                    <div><label class="block text-sm text-slate-400 mb-1">Okul E-postası</label><input type="text" id="forgotEmail" placeholder="no@aksaray.edu.tr" class="w-full bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2.5 outline-none focus:border-asuPurple"></div>
-                    <button type="submit" class="w-full text-white bg-asuPurple hover:bg-asuPurpleDark font-medium rounded-lg text-sm px-5 py-3 shadow-lg transition-all">Sıfırlama Linki Gönder</button>
-                    <button type="button" onclick="showLogin()" class="w-full text-slate-400 hover:text-white font-medium text-sm py-2 transition-colors"><i class="fa-solid fa-arrow-left mr-1"></i> Giriş'e Dön</button>
-                </form>
-            </div>
+    <div class="w-full max-w-md bg-asuCard border border-slate-700 p-8 rounded-2xl shadow-2xl relative">
+        <div class="text-center mb-8">
+            <a href="index.html" class="inline-flex items-center gap-2 text-2xl font-bold text-white mb-2">
+                <img src="asu_logo.png" class="h-10"> ASÜ HUB
+            </a>
+            <p class="text-slate-400 text-sm">Öğrenci ağına katıl.</p>
         </div>
-        <div class="bg-slate-900/50 p-4 text-center border-t border-slate-700 text-sm"><a href="index.html" class="text-slate-500 hover:text-white transition-colors"><i class="fa-solid fa-arrow-left mr-1"></i> Ana Sayfaya Dön</a></div>
+
+        <div class="flex bg-slate-800 p-1 rounded-lg mb-6">
+            <button onclick="switchTab('login')" id="tab-login" class="flex-1 py-2 rounded-md text-sm font-bold bg-asuPurple text-white transition-all">Giriş Yap</button>
+            <button onclick="switchTab('register')" id="tab-register" class="flex-1 py-2 rounded-md text-sm font-bold text-slate-400 hover:text-white transition-all">Kayıt Ol</button>
+        </div>
+
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <label class="block text-xs text-slate-400 mb-1 ml-1">Öğrenci E-postası</label>
+                <div class="relative">
+                    <i class="fa-solid fa-envelope absolute left-3 top-3 text-slate-500"></i>
+                    <input type="email" id="loginEmail" placeholder="ornek@aksaray.edu.tr" class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2.5 pl-10 text-white outline-none focus:border-asuPurple transition-colors" required>
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs text-slate-400 mb-1 ml-1">Şifre</label>
+                <div class="relative">
+                    <i class="fa-solid fa-lock absolute left-3 top-3 text-slate-500"></i>
+                    <input type="password" id="loginPass" placeholder="••••••••" class="w-full bg-slate-900 border border-slate-700 rounded-lg py-2.5 pl-10 text-white outline-none focus:border-asuPurple transition-colors" required>
+                </div>
+                <div class="text-right mt-1">
+                    <button type="button" onclick="document.getElementById('forgotModal').classList.remove('hidden')" class="text-xs text-asuPurple hover:text-white transition-colors">Şifremi Unuttum?</button>
+                </div>
+            </div>
+            <button type="submit" id="loginBtn" class="w-full bg-asuPurple hover:bg-indigo-600 text-white font-bold py-3 rounded-lg shadow-lg shadow-indigo-500/20 transition-all transform hover:scale-[1.02]">Giriş Yap</button>
+        </form>
+
+        <form id="registerForm" class="space-y-4 hidden">
+            <div>
+                <label class="block text-xs text-slate-400 mb-1 ml-1">E-posta Adresi</label>
+                <input type="email" id="regEmail" placeholder="ornek@aksaray.edu.tr" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white outline-none focus:border-asuPurple" required>
+            </div>
+            <div>
+                <label class="block text-xs text-slate-400 mb-1 ml-1">Şifre Belirle</label>
+                <input type="password" id="regPass" placeholder="En az 6 karakter" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white outline-none focus:border-asuPurple" required>
+            </div>
+            <p class="text-[10px] text-slate-500 text-center">Kayıt olarak <a href="legal.html" class="text-asuPurple underline">Kullanım Koşulları</a>nı kabul etmiş sayılırsınız.</p>
+            <button type="submit" id="regBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg shadow-lg transition-all">Hesap Oluştur</button>
+        </form>
+    </div>
+
+    <div id="forgotModal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-asuCard border border-slate-700 p-6 rounded-xl w-full max-w-sm relative">
+            <button onclick="document.getElementById('forgotModal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="font-bold text-white text-lg mb-2">Şifre Sıfırlama</h3>
+            <p class="text-sm text-slate-400 mb-4">E-posta adresini gir, sana sıfırlama linki gönderelim.</p>
+            <input type="email" id="resetEmail" placeholder="E-posta adresin" class="w-full bg-slate-900 border border-slate-700 rounded p-2.5 text-white mb-4 outline-none focus:border-asuPurple">
+            <button onclick="resetPassword()" class="w-full bg-slate-700 hover:bg-white hover:text-black text-white font-bold py-2 rounded transition-colors">Link Gönder</button>
+        </div>
     </div>
 
     <script>
-        // --- AYARLAR (İsim çakışmasını önlemek için asuDb adını kullandık) ---
         const SUPABASE_URL = "https://kmzbywrcspzwuznexcla.supabase.co";
-        const SUPABASE_KEY = "sb_publishable_2mPJ39Ossxg8euZ9hgmfFg_O5mPR1Fh"; 
+        const SUPABASE_KEY = "sb_publishable_2mPJ390ssxg8euZ9hgmfFg_O5mPR1Fh"; 
+        const asuDb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Global Veritabanı Değişkeni
-        let asuDb = null;
-
-        const loginContainer = document.getElementById('login-container'); 
-        const registerContainer = document.getElementById('register-container'); 
-        const forgotContainer = document.getElementById('forgot-container');
-
-        // Sayfa Geçişleri
-        window.showRegister = () => { loginContainer.classList.add('hidden-form'); forgotContainer.classList.add('hidden-form'); registerContainer.classList.remove('hidden-form'); history.pushState(null, null, '#register'); }
-        window.showLogin = () => { registerContainer.classList.add('hidden-form'); forgotContainer.classList.add('hidden-form'); loginContainer.classList.remove('hidden-form'); history.pushState(null, null, '#login'); }
-        window.showForgot = () => { loginContainer.classList.add('hidden-form'); registerContainer.classList.add('hidden-form'); forgotContainer.classList.remove('hidden-form'); }
-        
-        // --- BAŞLATMA (LOAD) ---
-        window.addEventListener('load', () => {
-            if(window.location.hash === '#register') showRegister();
-            else showLogin();
-
-            // Supabase'i Başlat
-            try {
-                if (typeof window.supabase !== 'undefined') {
-                    const { createClient } = window.supabase;
-                    // asuDb değişkenine atıyoruz ki çakışma olmasın
-                    asuDb = createClient(SUPABASE_URL, SUPABASE_KEY);
-                    console.log("Veritabanı bağlantısı hazır.");
-                } else {
-                    alert("Veritabanı kütüphanesi yüklenemedi! Lütfen sayfayı yenileyin.");
-                }
-            } catch (err) {
-                console.error("Başlatma hatası:", err);
+        // Tab Değiştirme
+        function switchTab(tab) {
+            if(tab === 'login') {
+                document.getElementById('loginForm').classList.remove('hidden');
+                document.getElementById('registerForm').classList.add('hidden');
+                document.getElementById('tab-login').className = "flex-1 py-2 rounded-md text-sm font-bold bg-asuPurple text-white transition-all";
+                document.getElementById('tab-register').className = "flex-1 py-2 rounded-md text-sm font-bold text-slate-400 hover:text-white transition-all";
+            } else {
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('registerForm').classList.remove('hidden');
+                document.getElementById('tab-login').className = "flex-1 py-2 rounded-md text-sm font-bold text-slate-400 hover:text-white transition-all";
+                document.getElementById('tab-register').className = "flex-1 py-2 rounded-md text-sm font-bold bg-green-600 text-white transition-all";
             }
-        });
+        }
 
-        // --- KAYIT OL ---
-        window.handleRegister = async (e) => {
+        // Giriş Yapma
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            if (!asuDb) { alert("Veritabanı henüz yüklenmedi, lütfen bekleyin veya sayfayı yenileyin."); return; }
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPass').value;
+            const btn = document.getElementById('loginBtn');
 
-            const email = document.getElementById('regEmail').value.trim();
-            const password = document.getElementById('regPassword').value;
-
-            if (!email.endsWith('@aksaray.edu.tr')) {
-                alert("Sadece @aksaray.edu.tr maili kabul edilmektedir.");
-                return;
-            }
-            if (password.length < 6) {
-                alert("Şifre en az 6 karakter olmalı.");
-                return;
-            }
-
-            try {
-                // asuDb kullanıyoruz
-                const { data, error } = await asuDb.auth.signUp({ email, password });
-                if (error) throw error;
-
-                alert("Kayıt Başarılı! 🎉 Giriş yapabilirsiniz.");
-                showLogin();
-            } catch (error) {
-                console.error(error);
-                alert("Kayıt Hatası: " + error.message);
-            }
-        };
-
-        // --- GİRİŞ YAP ---
-        window.handleLogin = async (e) => {
-            e.preventDefault();
-            if (!asuDb) { alert("Veritabanı yüklenmedi!"); return; }
-
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
-
-            // Admin
             if(email === 'admin' && password === 'asu123') {
                 localStorage.setItem('isAdmin', 'true');
                 window.location.href = 'admin.html';
                 return;
             }
 
-            try {
-                const { data, error } = await asuDb.auth.signInWithPassword({ email, password });
-                if (error) throw error;
+            btn.innerText = "Giriş yapılıyor..."; btn.disabled = true;
 
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('userEmail', data.user.email);
-                window.location.href = 'index.html';
-            } catch (error) {
-                alert("Giriş Başarısız: " + error.message);
-            }
-        };
+            const { data, error } = await asuDb.auth.signInWithPassword({ email, password });
 
-        // --- ŞİFRE UNUTTUM ---
-        window.handleForgot = async (e) => {
-            e.preventDefault();
-            if (!asuDb) return;
-            const email = document.getElementById('forgotEmail').value.trim();
-            try {
-                const { error } = await asuDb.auth.resetPasswordForEmail(email);
-                if (error) throw error;
-                alert("Sıfırlama maili gönderildi.");
-                showLogin();
-            } catch (error) {
+            if (error) {
                 alert("Hata: " + error.message);
+                btn.innerText = "Giriş Yap"; btn.disabled = false;
+            } else {
+                const { data: profile } = await asuDb.from('profiles').select('is_banned').eq('email', email).single();
+                if(profile && profile.is_banned) {
+                    alert("Hesabınız YASAKLANMIŞTIR. Yönetici ile iletişime geçin.");
+                    btn.innerText = "Giriş Yap"; btn.disabled = false;
+                    return;
+                }
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userEmail', email);
+                window.location.href = 'index.html';
             }
-        };
+        });
+
+        // Kayıt Olma
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPass').value;
+            const btn = document.getElementById('regBtn');
+
+            if(password.length < 6) return alert("Şifre en az 6 karakter olmalı!");
+
+            btn.innerText = "Oluşturuluyor..."; btn.disabled = true;
+
+            const { data, error } = await asuDb.auth.signUp({ email, password });
+
+            if (error) {
+                alert("Hata: " + error.message);
+                btn.innerText = "Hesap Oluştur"; btn.disabled = false;
+            } else {
+                // Profili Oluştur (Otomatik)
+                await asuDb.from('profiles').insert([{ email: email }]);
+                alert("Kayıt başarılı! Giriş yapabilirsiniz.");
+                switchTab('login');
+                btn.innerText = "Hesap Oluştur"; btn.disabled = false;
+            }
+        });
+
+        // Şifre Sıfırlama
+        async function resetPassword() {
+            const email = document.getElementById('resetEmail').value;
+            if(!email) return alert("E-posta giriniz.");
+            
+            const { data, error } = await asuDb.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin + '/profile.html',
+            });
+            
+            if(error) alert("Hata: " + error.message);
+            else {
+                alert("Sıfırlama linki e-postana gönderildi! (Spam kutusunu kontrol et)");
+                document.getElementById('forgotModal').classList.add('hidden');
+            }
+        }
     </script>
 </body>
 </html>
-
