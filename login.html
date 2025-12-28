@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giriş Yap & Kayıt Ol - ASÜ Student Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: { colors: { asuDark: '#0f172a', asuCard: '#1e293b', asuPurple: '#6366f1', asuPurpleDark: '#4338ca' }, fontFamily: { sans: ['Inter', 'sans-serif'] } }
+            }
+        }
+    </script>
+    <style>.hidden-form { display: none; } .bg-pattern { background-color: #0f172a; background-image: radial-gradient(#334155 1px, transparent 1px); background-size: 30px 30px; }</style>
+</head>
+<body class="bg-pattern min-h-screen flex items-center justify-center p-4 text-slate-200">
+    <div class="w-full max-w-md bg-asuCard border border-slate-700 rounded-2xl shadow-2xl overflow-hidden relative">
+        <div class="bg-slate-900/50 p-6 text-center border-b border-slate-700">
+            <a href="index.html" class="inline-flex items-center justify-center h-16 w-16 mb-3 transition-transform hover:scale-105"><img src="asu_logo.png" alt="ASÜ Logo" class="h-full w-full object-contain filter drop-shadow-lg"></a>
+            <h2 class="text-2xl font-bold text-white">ASÜ Student Hub</h2><p class="text-sm text-slate-400 mt-1">Öğrenci Ağına Katıl</p>
+        </div>
+        <div class="p-8">
+            <div id="login-container">
+                <form id="form-login" class="space-y-5" onsubmit="handleLogin(event)">
+                    <div id="loginError" class="hidden bg-red-500/10 border border-red-500/50 text-red-400 text-xs p-3 rounded flex items-center gap-2 animate-pulse"><i class="fa-solid fa-circle-exclamation"></i><span id="loginErrorText">Hata mesajı</span></div>
+                    <div><label class="block text-sm text-slate-400 mb-1">E-posta</label><input type="text" id="loginEmail" placeholder="ogrenci@aksaray.edu.tr" class="w-full bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2.5 outline-none focus:border-asuPurple transition-colors"></div>
+                    <div><div class="flex justify-between mb-1"><label class="block text-sm text-slate-400">Şifre</label><button type="button" onclick="showForgot()" class="text-xs text-asuPurple hover:text-white transition-colors">Şifremi Unuttum</button></div><input type="password" id="loginPassword" placeholder="••••••••" class="w-full bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2.5 outline-none focus:border-asuPurple transition-colors"></div>
+                    <button type="submit" class="w-full text-white bg-asuPurple hover:bg-asuPurpleDark font-medium rounded-lg text-sm px-5 py-3 shadow-lg transition-all">Giriş Yap</button>
+                    <p class="text-sm text-center text-slate-400 mt-4">Hesabın yok mu? <button type="button" onclick="showRegister()" class="text-asuPurple font-bold hover:underline">Kayıt Ol</button></p>
+                </form>
+            </div>
+            <div id="register-container" class="hidden-form">
+                <h3 class="text-xl font-semibold text-white mb-6">Hesap Oluştur 🚀</h3>
+                <form id="form-register" class="space-y-5" onsubmit="handleRegister(event)">
+                    <div id="registerError" class="hidden bg-red-500/10 border border-red-500/50 text-red-400 text-xs p-3 rounded flex items-center gap-2"><i class="fa-solid fa-circle-exclamation"></i><span id="registerErrorText">Hata mesajı</span></div>
+                    <div class="bg-indigo-900/30 border border-indigo-500/30 text-indigo-300 px-3 py-2 rounded text-xs"><i class="fa-solid fa-circle-info mr-1"></i>Sadece <b>@aksaray.edu.tr</b></div>
+                    <div><label class="block text-sm text-slate-400 mb-1">Okul E-postası</label><input type="text" id="regEmail" placeholder="no@aksaray.edu.tr" class="w-full bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2.5 outline-none focus:border-asuPurple"></div>
+                    <div><label class="block text-sm text-slate-400 mb-1">Şifre Belirle</label><input type="password" id="regPassword" class="w-full bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2.5 outline-none focus:border-asuPurple"></div>
+                    <button type="submit" class="w-full text-white bg-asuPurple hover:bg-asuPurpleDark font-medium rounded-lg text-sm px-5 py-3 shadow-lg transition-all">Hesap Oluştur</button>
+                    <p class="text-sm text-center text-slate-400 mt-4">Zaten hesabın var mı? <button type="button" onclick="showLogin()" class="text-asuPurple font-bold hover:underline">Giriş Yap</button></p>
+                </form>
+            </div>
+            <div id="forgot-container" class="hidden-form">
+                <div class="text-center mb-6"><div class="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3 text-asuPurple"><i class="fa-solid fa-lock-open text-xl"></i></div><h3 class="text-xl font-semibold text-white">Şifreni Sıfırla</h3><p class="text-xs text-slate-400 mt-2">Okul e-posta adresini gir, sana sıfırlama linki gönderelim.</p></div>
+                <form id="form-forgot" class="space-y-5" onsubmit="handleForgot(event)">
+                    <div><label class="block text-sm text-slate-400 mb-1">Okul E-postası</label><input type="text" id="forgotEmail" placeholder="no@aksaray.edu.tr" class="w-full bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2.5 outline-none focus:border-asuPurple"></div>
+                    <button type="submit" class="w-full text-white bg-asuPurple hover:bg-asuPurpleDark font-medium rounded-lg text-sm px-5 py-3 shadow-lg transition-all">Sıfırlama Linki Gönder</button>
+                    <button type="button" onclick="showLogin()" class="w-full text-slate-400 hover:text-white font-medium text-sm py-2 transition-colors"><i class="fa-solid fa-arrow-left mr-1"></i> Giriş'e Dön</button>
+                </form>
+            </div>
+        </div>
+        <div class="bg-slate-900/50 p-4 text-center border-t border-slate-700 text-sm"><a href="index.html" class="text-slate-500 hover:text-white transition-colors"><i class="fa-solid fa-arrow-left mr-1"></i> Ana Sayfaya Dön</a></div>
+    </div>
+    <script>
+        const loginContainer = document.getElementById('login-container'); const registerContainer = document.getElementById('register-container'); const forgotContainer = document.getElementById('forgot-container');
+        function showRegister() { loginContainer.classList.add('hidden-form'); forgotContainer.classList.add('hidden-form'); registerContainer.classList.remove('hidden-form'); history.pushState(null, null, '#register'); }
+        function showLogin() { registerContainer.classList.add('hidden-form'); forgotContainer.classList.add('hidden-form'); loginContainer.classList.remove('hidden-form'); history.pushState(null, null, '#login'); }
+        function showForgot() { loginContainer.classList.add('hidden-form'); registerContainer.classList.add('hidden-form'); forgotContainer.classList.remove('hidden-form'); }
+        window.addEventListener('load', () => { if(window.location.hash === '#register') { showRegister(); } else { showLogin(); } });
+        if(!localStorage.getItem('asuUsers')) { localStorage.setItem('asuUsers', JSON.stringify({})); }
+        
+        function handleLogin(e) { 
+            e.preventDefault(); 
+            const email = document.getElementById('loginEmail').value.trim(); 
+            const password = document.getElementById('loginPassword').value; 
+            const errorBox = document.getElementById('loginError'); 
+            errorBox.classList.add('hidden');
+            
+           
+            if(email === 'admin') { 
+                if(password === 'asu123') { 
+                    localStorage.setItem('isAdmin', 'true'); 
+                    window.location.href = 'admin.html'; 
+                } else { 
+                    showError("Hatalı admin şifresi!"); 
+                } 
+                return; 
+            }
+            
+            const users = JSON.parse(localStorage.getItem('asuUsers'));
+            if (users[email]) { 
+                if (users[email] === password) { 
+                    localStorage.setItem('isLoggedIn', 'true'); 
+                    
+                    window.location.href = 'index.html'; 
+                } else { 
+                    showError("Şifre hatalı! Lütfen tekrar deneyin."); 
+                } 
+            } else { 
+                showError("Bu e-posta kayıtlı değil. Lütfen aşağıdan 'Kayıt Ol' butonuna basarak hesap oluşturun."); 
+            }
+        }
+        
+        function showError(msg) { const errorBox = document.getElementById('loginError'); const errorText = document.getElementById('loginErrorText'); errorBox.classList.remove('hidden'); errorText.innerText = msg; }
+        function handleRegister(e) { e.preventDefault(); const email = document.getElementById('regEmail').value.trim().toLowerCase(); const password = document.getElementById('regPassword').value; const errorBox = document.getElementById('registerError'); const errorText = document.getElementById('registerErrorText'); errorBox.classList.add('hidden');
+            if (!email.endsWith('@aksaray.edu.tr')) { errorBox.classList.remove('hidden'); errorText.innerText = "Sadece okul maili (@aksaray.edu.tr) ile kayıt olabilirsiniz!"; return; }
+            if(password.length < 6) { errorBox.classList.remove('hidden'); errorText.innerText = "Şifreniz en az 6 karakter olmalıdır."; return; }
+            const users = JSON.parse(localStorage.getItem('asuUsers')); if(users[email]) { errorBox.classList.remove('hidden'); errorText.innerText = "Bu e-posta adresi zaten kayıtlı!"; return; }
+            users[email] = password; localStorage.setItem('asuUsers', JSON.stringify(users)); alert("Kayıt Başarılı! 🎉\nŞimdi giriş yapabilirsiniz."); showLogin(); document.getElementById('loginEmail').value = email;
+        }
+        function handleForgot(e) { e.preventDefault(); const email = document.getElementById('forgotEmail').value.trim(); if (!email.endsWith('@aksaray.edu.tr')) { alert("Lütfen geçerli bir okul mail adresi giriniz."); return; } alert(`Sıfırlama bağlantısı ${email} adresine gönderildi!`); showLogin(); }
+    </script>
+</body>
+</html>
