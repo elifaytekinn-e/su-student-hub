@@ -10,19 +10,49 @@
     <script>
         tailwind.config = { theme: { extend: { colors: { asuDark: '#0f172a', asuCard: '#1e293b', asuPurple: '#6366f1' } } } }
     </script>
+    <style>
+        /* Toast Animasyon */
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        .toast { animation: slideIn 0.3s ease-out forwards; }
+        .toast.hide { animation: fadeOut 0.3s ease-out forwards; }
+    </style>
 </head>
-<body class="bg-asuDark text-slate-200 min-h-screen">
+<body class="bg-asuDark text-slate-200 min-h-screen flex flex-col">
+
+    <div id="toast-container" class="fixed top-20 right-5 z-[99] flex flex-col gap-3"></div>
 
     <nav class="bg-asuCard border-b border-slate-700 p-4 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <a href="index.html" class="font-bold text-xl text-white flex items-center gap-2">
                 <img src="asu_logo.png" class="h-8"> ASÜ HUB
             </a>
-            <a href="index.html" class="hover:text-white text-sm"><i class="fa-solid fa-arrow-left mr-1"></i> Ana Sayfaya Dön</a>
+            
+            <div class="hidden md:flex items-center gap-4 text-sm">
+                <a href="index.html" class="hover:text-white">Ana Sayfa</a>
+                <a href="notes.html" class="hover:text-white">Ders Notları</a>
+                <a href="books.html" class="hover:text-white">ASÜ Sahaf</a>
+                <button onclick="logout()" class="bg-red-500/10 hover:bg-red-600 text-red-500 hover:text-white border border-red-500/50 px-4 py-1.5 rounded font-bold transition-all">
+                    Çıkış Yap
+                </button>
+            </div>
+
+            <div class="md:hidden">
+                <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="text-white text-2xl focus:outline-none">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="mobile-menu" class="hidden md:hidden bg-slate-800 border-t border-slate-700 mt-4 -mx-4 px-4 py-4 space-y-3">
+            <a href="index.html" class="block text-slate-300 hover:text-white">Ana Sayfa</a>
+            <a href="notes.html" class="block text-slate-300 hover:text-white">Ders Notları</a>
+            <a href="books.html" class="block text-slate-300 hover:text-white">ASÜ Sahaf</a>
+            <button onclick="logout()" class="block w-full text-left text-red-400 font-bold">Çıkış Yap</button>
         </div>
     </nav>
 
-    <div class="max-w-6xl mx-auto p-6 space-y-8">
+    <div class="max-w-6xl mx-auto p-6 space-y-8 flex-1">
         
         <div class="bg-gradient-to-r from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-2xl flex flex-col md:flex-row items-center gap-8 shadow-2xl relative overflow-hidden">
             <div class="absolute top-0 right-0 w-64 h-64 bg-asuPurple/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
@@ -42,14 +72,10 @@
                         <i class="fa-solid fa-graduation-cap text-asuPurple mr-1"></i> <span id="displayDept">Bölüm Yok</span>
                     </span>
                     <span class="bg-slate-800 border border-slate-600 px-3 py-1 rounded-full text-xs text-slate-300">
-                        <i class="fa-solid fa-star text-yellow-400 mr-1"></i> Öğrenci Puanı: 5.0
+                        <i class="fa-solid fa-star text-yellow-400 mr-1"></i> Üye
                     </span>
                 </div>
             </div>
-
-            <button onclick="logout()" class="bg-red-500/10 hover:bg-red-600 text-red-500 hover:text-white border border-red-500/50 px-6 py-3 rounded-xl transition-all font-bold z-10">
-                <i class="fa-solid fa-right-from-bracket mr-2"></i> Çıkış Yap
-            </button>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -59,7 +85,7 @@
                     <h3 class="font-bold text-white mb-4 border-b border-slate-700 pb-2"><i class="fa-solid fa-user-pen mr-2 text-blue-400"></i>Profili Düzenle</h3>
                     <div class="space-y-4">
                         <div>
-                            <label class="text-xs text-slate-400">Nickname (İsmin yerine görünür)</label>
+                            <label class="text-xs text-slate-400">Nickname</label>
                             <input type="text" id="inputNick" class="w-full bg-slate-900 border border-slate-600 rounded p-2.5 text-white text-sm outline-none focus:border-asuPurple transition-colors" placeholder="Örn: Mühendis06">
                         </div>
                         <div>
@@ -118,7 +144,18 @@
         const asuDb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const userEmail = localStorage.getItem('userEmail');
 
-        // Sayfa Yüklenince
+        // TOAST BİLDİRİMİ
+        function showToast(msg, type='success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bg = type==='success'?'bg-green-600':'bg-red-600';
+            const icon = type==='success'?'<i class="fa-solid fa-check-circle"></i>':'<i class="fa-solid fa-circle-exclamation"></i>';
+            toast.className = `toast ${bg} text-white px-6 py-3 rounded-lg shadow-xl flex items-center gap-3 border border-white/10 backdrop-blur-md min-w-[300px]`;
+            toast.innerHTML = `${icon} <span class="font-medium text-sm">${msg}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.add('hide'); setTimeout(()=>toast.remove(),300); }, 3000);
+        }
+
         window.onload = async () => {
             if(!userEmail) window.location.href = 'login.html';
             
@@ -129,11 +166,8 @@
             await loadMyContent();
         };
 
-        // 1. Profil Bilgilerini Çek (Nickname & Bölüm)
         async function loadProfileData() {
-            // Önce profili var mı diye bak
-            const { data, error } = await asuDb.from('profiles').select('*').eq('email', userEmail).single();
-            
+            const { data } = await asuDb.from('profiles').select('*').eq('email', userEmail).single();
             if(data) {
                 if(data.nickname) {
                     document.getElementById('displayNick').innerText = data.nickname;
@@ -141,51 +175,44 @@
                 } else {
                     document.getElementById('displayNick').innerText = userEmail.split('@')[0];
                 }
-
                 if(data.department) {
                     document.getElementById('displayDept').innerText = data.department;
                     document.getElementById('inputDept').value = data.department;
                 }
             } else {
-                // Profil yoksa varsayılan göster
                 document.getElementById('displayNick').innerText = userEmail.split('@')[0];
             }
         }
 
-        // 2. Profili Kaydet / Güncelle
         async function saveProfile() {
             const nick = document.getElementById('inputNick').value;
             const dept = document.getElementById('inputDept').value;
             
-            // Upsert: Varsa güncelle, yoksa ekle
             const { error } = await asuDb.from('profiles').upsert(
                 { email: userEmail, nickname: nick, department: dept }, 
                 { onConflict: 'email' }
             );
 
-            if(error) {
-                alert("Hata oluştu: " + error.message);
-            } else {
-                alert("Profilin güncellendi! ✅");
-                location.reload();
+            if(error) showToast("Hata: " + error.message, 'error');
+            else {
+                showToast("Profilin güncellendi! ✅", 'success');
+                setTimeout(() => location.reload(), 1500);
             }
         }
 
-        // 3. Şifre Değiştir
         async function changePassword() {
             const newPass = document.getElementById('newPass').value;
-            if(newPass.length < 6) return alert("Şifre en az 6 karakter olmalı!");
+            if(newPass.length < 6) return showToast("Şifre en az 6 karakter olmalı!", 'error');
 
-            const { data, error } = await asuDb.auth.updateUser({ password: newPass });
+            const { error } = await asuDb.auth.updateUser({ password: newPass });
 
-            if(error) alert("Hata: " + error.message);
+            if(error) showToast("Hata: " + error.message, 'error');
             else {
-                alert("Şifren başarıyla değiştirildi! Lütfen tekrar giriş yap.");
-                logout();
+                showToast("Şifre değişti! Tekrar giriş yapın.", 'success');
+                setTimeout(() => logout(), 2000);
             }
         }
 
-        // 4. İçerikleri Getir ve Silme Fonksiyonu
         async function loadMyContent() {
             // Notlar
             const { data: notes } = await asuDb.from('notes').select('*').eq('uploader_email', userEmail);
@@ -193,8 +220,11 @@
                 document.getElementById('countNotes').innerText = notes.length;
                 document.getElementById('myNotesList').innerHTML = notes.map(n => `
                     <div class="bg-slate-800 p-3 rounded-lg flex justify-between items-center group">
-                        <span class="truncate text-sm text-slate-300 w-3/4">${n.title}</span>
-                        <button onclick="deleteItem('notes', ${n.id})" class="text-slate-500 hover:text-red-400 p-1"><i class="fa-solid fa-trash"></i></button>
+                        <div class="truncate w-3/4">
+                            <span class="text-sm text-slate-300">${n.title}</span>
+                            <span class="block text-[10px] ${n.is_approved ? 'text-green-500' : 'text-yellow-500'}">${n.is_approved ? 'Yayında' : 'Onay Bekliyor'}</span>
+                        </div>
+                        <button onclick="deleteItem('notes', ${n.id})" class="text-slate-500 hover:text-red-400 p-2"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 `).join('');
             }
@@ -205,8 +235,11 @@
                 document.getElementById('countBooks').innerText = books.length;
                 document.getElementById('myBooksList').innerHTML = books.map(b => `
                     <div class="bg-slate-800 p-3 rounded-lg flex justify-between items-center group">
-                        <span class="truncate text-sm text-slate-300 w-3/4">${b.title}</span>
-                        <button onclick="deleteItem('books', ${b.id})" class="text-slate-500 hover:text-red-400 p-1"><i class="fa-solid fa-trash"></i></button>
+                        <div class="truncate w-3/4">
+                            <span class="text-sm text-slate-300">${b.title}</span>
+                            <span class="block text-[10px] ${b.is_approved ? 'text-green-500' : 'text-yellow-500'}">${b.is_approved ? 'Yayında' : 'Onay Bekliyor'}</span>
+                        </div>
+                        <button onclick="deleteItem('books', ${b.id})" class="text-slate-500 hover:text-red-400 p-2"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 `).join('');
             }
