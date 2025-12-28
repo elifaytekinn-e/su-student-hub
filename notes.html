@@ -2,80 +2,93 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ders Notları | ASÜ Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>tailwind.config = { theme: { extend: { colors: { asuDark: '#0f172a', asuCard: '#1e293b', asuPurple: '#6366f1' } } } }</script>
-    <style>.toast { animation: slideIn 0.3s ease-out forwards; } @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } } .toast.hide { opacity: 0; }</style>
 </head>
-<body class="bg-asuDark text-slate-200 min-h-screen flex flex-col">
-    <div id="toast-container" class="fixed top-20 right-5 z-[99] flex flex-col gap-3"></div>
-    <nav class="bg-asuCard border-b border-slate-700 p-4 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <a href="index.html" class="font-bold text-xl text-white flex items-center gap-2"><img src="asu_logo.png" class="h-8"> ASÜ HUB</a>
-            <div class="hidden md:flex gap-4 items-center"><a href="index.html" class="hover:text-white text-sm">Ana Sayfa</a><button onclick="openUploadModal()" class="bg-asuPurple text-white px-4 py-1.5 rounded text-sm font-bold">Not Yükle</button></div>
-            <button class="md:hidden text-white text-2xl" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')"><i class="fa-solid fa-bars"></i></button>
+<body class="bg-gray-900 text-white min-h-screen">
+
+    <nav class="bg-red-600 p-4 sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="index.html" class="font-bold text-2xl">ASÜ HUB</a>
+            <div class="flex gap-4 items-center">
+                <a href="index.html" class="font-bold hover:text-black">ANA SAYFA</a>
+                <button onclick="openModal()" class="bg-white text-red-600 px-4 py-2 rounded font-bold hover:bg-gray-200">+ NOT YÜKLE</button>
+            </div>
         </div>
-        <div id="mobile-menu" class="hidden md:hidden bg-slate-800 p-4 space-y-3 mt-2"><a href="index.html" class="block text-white">Ana Sayfa</a><button onclick="openUploadModal()" class="text-asuPurple font-bold">Not Yükle</button></div>
     </nav>
-    <div class="max-w-7xl mx-auto p-6 grid grid-cols-1 md:grid-cols-4 gap-8 flex-1">
-        <div class="md:col-span-1 space-y-2"><h3 class="font-bold text-white mb-4">Fakülteler</h3><button onclick="filterNotes('Tümü')" class="w-full text-left px-4 py-3 bg-slate-800 rounded text-white">Tüm Notlar</button><button onclick="filterNotes('Mühendislik')" class="w-full text-left px-4 py-3 bg-slate-800 rounded text-slate-300">Mühendislik</button><button onclick="filterNotes('İİBF')" class="w-full text-left px-4 py-3 bg-slate-800 rounded text-slate-300">İİBF</button><button onclick="filterNotes('Eğitim')" class="w-full text-left px-4 py-3 bg-slate-800 rounded text-slate-300">Eğitim</button></div>
-        <div class="md:col-span-3"><h2 class="text-2xl font-bold text-white mb-6"><span id="currentCategory">Tüm Notlar</span> <span class="text-sm bg-slate-800 px-2 py-1 rounded" id="noteCount">0</span></h2><div id="notesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">Yükleniyor...</div></div>
+
+    <div class="container mx-auto p-8 grid grid-cols-4 gap-8">
+        <div class="col-span-1 space-y-2">
+            <h3 class="font-bold text-gray-400 mb-2">BÖLÜMLER</h3>
+            <button onclick="filter('Tümü')" class="w-full text-left p-3 bg-gray-800 hover:bg-gray-700 border-l-4 border-red-600">Tümü</button>
+            <button onclick="filter('Mühendislik')" class="w-full text-left p-3 bg-gray-800 hover:bg-gray-700">Mühendislik</button>
+            <button onclick="filter('İİBF')" class="w-full text-left p-3 bg-gray-800 hover:bg-gray-700">İİBF</button>
+            <button onclick="filter('Eğitim')" class="w-full text-left p-3 bg-gray-800 hover:bg-gray-700">Eğitim</button>
+        </div>
+
+        <div class="col-span-3">
+            <h2 class="text-2xl font-bold mb-6 border-b border-gray-700 pb-2" id="catTitle">Tüm Notlar</h2>
+            <div id="grid" class="grid grid-cols-3 gap-6">Yükleniyor...</div>
+        </div>
     </div>
-    <div id="uploadModal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-[60] p-4">
-        <div class="bg-asuCard border border-slate-700 p-6 rounded-xl w-full max-w-md relative">
-            <button onclick="document.getElementById('uploadModal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400"><i class="fa-solid fa-xmark"></i></button>
-            <h2 class="text-xl font-bold text-white mb-4">Not Paylaş</h2>
-            <form id="uploadForm" class="space-y-4">
-                <input type="text" id="noteTitle" placeholder="Ders Adı" class="w-full bg-slate-900 border border-slate-600 rounded p-3 text-white" required>
-                <select id="noteFaculty" class="w-full bg-slate-900 border border-slate-600 rounded p-3 text-white"><option value="Diğer">Fakülte Seç...</option><option value="Mühendislik">Mühendislik</option><option value="İİBF">İİBF</option><option value="Eğitim">Eğitim</option></select>
-                <textarea id="noteDesc" placeholder="Açıklama" class="w-full bg-slate-900 border border-slate-600 rounded p-3 text-white"></textarea>
-                <input type="file" id="noteFile" class="text-slate-400 text-sm" required>
-                <button type="submit" id="submitBtn" class="w-full bg-asuPurple text-white font-bold py-3 rounded">Gönder</button>
+
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-80 hidden flex items-center justify-center">
+        <div class="bg-gray-800 p-8 rounded w-96 border border-gray-600">
+            <h2 class="text-xl font-bold mb-4">Not Yükle</h2>
+            <form id="form" class="space-y-4">
+                <input type="text" id="title" placeholder="Ders Adı" class="w-full bg-gray-700 p-2 text-white border border-gray-600" required>
+                <select id="fac" class="w-full bg-gray-700 p-2 text-white border border-gray-600"><option>Mühendislik</option><option>İİBF</option><option>Eğitim</option></select>
+                <input type="file" id="file" class="text-white" required>
+                <div class="flex gap-2">
+                    <button type="submit" class="flex-1 bg-red-600 py-2 font-bold">GÖNDER</button>
+                    <button type="button" onclick="document.getElementById('modal').classList.add('hidden')" class="flex-1 bg-gray-600 py-2">İPTAL</button>
+                </div>
             </form>
         </div>
     </div>
+
     <script>
         const SUPABASE_URL = "https://kmzbywrcspzwuznexcla.supabase.co";
-        const SUPABASE_KEY = "sb_publishable_2mPJ390ssxg8euZ9hgmfFg_O5mPR1Fh"; 
-
+        const SUPABASE_KEY = "sb_publishable_z2fcMIygDFlXaZD3z1CxbA_YkPXzxNt";
         const asuDb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        const userEmail = localStorage.getItem('userEmail');
-        let allNotes=[];
+        let all = [];
 
-        function showToast(msg, type='success') { const t=document.createElement('div'); t.className=`toast ${type==='success'?'bg-green-600':'bg-red-600'} text-white px-6 py-3 rounded shadow flex gap-2`; t.innerText=msg; document.getElementById('toast-container').appendChild(t); setTimeout(()=>{t.classList.add('hide');setTimeout(()=>t.remove(),300)},3000); }
-
-        async function loadAllData() {
-            const { data } = await asuDb.from('notes').select('*').eq('is_approved', true).order('created_at', { ascending: false });
-            if(data) { allNotes = data; renderNotes(allNotes); }
+        async function load() {
+            const { data } = await asuDb.from('notes').select('*').eq('is_approved', true);
+            if(data) { all = data; render(all); }
             const q = new URLSearchParams(window.location.search).get('q');
-            if(q) { const f = allNotes.filter(n=>n.title.toLowerCase().includes(q.toLowerCase())); renderNotes(f); showToast(`${f.length} sonuç`, 'success'); }
+            if(q) render(all.filter(n=>n.title.toLowerCase().includes(q.toLowerCase())));
         }
-        function renderNotes(notes) {
-            document.getElementById('noteCount').innerText = notes.length;
-            const grid = document.getElementById('notesGrid');
-            if(!notes.length) { grid.innerHTML='<p class="text-slate-500">Not yok.</p>'; return; }
-            grid.innerHTML = notes.map(n => `<div class="bg-asuCard border border-slate-700 rounded-xl p-5 hover:border-asuPurple transition-all"><h3 class="font-bold text-white truncate">${n.title}</h3><p class="text-sm text-slate-400 line-clamp-2 mb-4">${n.description||''}</p><a href="${n.file_url}" target="_blank" class="bg-slate-800 text-white px-4 py-2 rounded text-sm block text-center">İncele</a></div>`).join('');
+        function render(notes) {
+            document.getElementById('grid').innerHTML = notes.length ? notes.map(n => `
+                <div class="bg-gray-800 p-4 rounded border-t-4 border-red-600 hover:bg-gray-750 transition">
+                    <h3 class="font-bold text-lg mb-1">${n.title}</h3>
+                    <p class="text-gray-400 text-sm mb-4">${n.faculty}</p>
+                    <a href="${n.file_url}" target="_blank" class="block text-center bg-gray-700 hover:bg-gray-600 py-2 rounded font-bold text-sm">İNCELE</a>
+                </div>
+            `).join('') : '<p class="text-gray-500">Not yok.</p>';
         }
-        function filterNotes(c) { renderNotes(c==='Tümü'?allNotes:allNotes.filter(n=>n.faculty===c)); }
-        function openUploadModal() { if(!userEmail) return showToast("Giriş yap!",'error'); document.getElementById('uploadModal').classList.remove('hidden'); }
-        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+        function filter(c) { 
+            document.getElementById('catTitle').innerText = c;
+            render(c==='Tümü'?all:all.filter(n=>n.faculty===c)); 
+        }
+        function openModal() {
+            if(!localStorage.getItem('userEmail')) return alert("Giriş yapmalısın!");
+            document.getElementById('modal').classList.remove('hidden');
+        }
+        document.getElementById('form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn=document.getElementById('submitBtn'); const file=document.getElementById('noteFile').files[0];
-            btn.disabled=true; btn.innerText="Yükleniyor...";
-            try {
-                const fileName=Date.now()+"_"+file.name.replace(/[^a-zA-Z0-9.]/g,'');
-                const {error:fe}=await asuDb.storage.from('ders-notlari').upload(fileName,file);
-                if(fe)throw fe;
-                const {data:pu}=asuDb.storage.from('ders-notlari').getPublicUrl(fileName);
-                const {error:db}=await asuDb.from('notes').insert([{ title:document.getElementById('noteTitle').value, description:document.getElementById('noteDesc').value, file_url:pu.publicUrl, uploader_email:userEmail, faculty:document.getElementById('noteFaculty').value }]);
-                if(db)throw db;
-                showToast("Gönderildi! Onay bekleniyor.",'success'); setTimeout(()=>location.reload(),2000);
-            } catch(err){ showToast("Hata:"+err.message,'error'); btn.disabled=false; btn.innerText="Gönder"; }
+            const f = document.getElementById('file').files[0];
+            const name = Date.now() + "_" + f.name.replace(/[^a-zA-Z0-9.]/g,'');
+            const { error: ue } = await asuDb.storage.from('ders-notlari').upload(name, f);
+            if(ue) return alert("Yükleme hatası");
+            const { data: pu } = asuDb.storage.from('ders-notlari').getPublicUrl(name);
+            await asuDb.from('notes').insert([{ title:document.getElementById('title').value, file_url:pu.publicUrl, faculty:document.getElementById('fac').value, uploader_email:localStorage.getItem('userEmail') }]);
+            alert("Gönderildi! Onay bekliyor."); location.reload();
         });
-        loadAllData();
+        load();
     </script>
 </body>
 </html>
