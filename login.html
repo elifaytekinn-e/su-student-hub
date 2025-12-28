@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
         tailwind.config = {
@@ -27,8 +27,6 @@
         </div>
         <div class="p-8">
             
-            <div id="globalError" class="hidden bg-red-600 text-white p-4 rounded-lg mb-4 text-sm font-bold animate-pulse"></div>
-
             <div id="login-container">
                 <form id="form-login" class="space-y-5" onsubmit="handleLogin(event)">
                     <div><label class="block text-sm text-slate-400 mb-1">E-posta</label><input type="text" id="loginEmail" placeholder="ogrenci@aksaray.edu.tr" class="w-full bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2.5 outline-none focus:border-asuPurple transition-colors"></div>
@@ -62,35 +60,82 @@
     </div>
 
     <script>
-        // --- SENİN RESİMDEKİ BİLGİLERİN (DOĞRULANDI) ---
+        // --- AYARLAR (İsim çakışmasını önlemek için asuDb adını kullandık) ---
         const SUPABASE_URL = "https://kmzbywrcspzwuznexcla.supabase.co";
         const SUPABASE_KEY = "sb_publishable_2mPJ390ssxg8euZ9hgmfFg_O5mPR1Fh"; 
 
-        // 1. KONTROL: Kütüphane Yüklendi mi?
-        if (typeof window.supabase === 'undefined') {
-            document.getElementById('globalError').innerText = "HATA: Supabase bağlantısı kurulamadı! Lütfen internet bağlantınızı kontrol edin veya sayfayı yenileyin.";
-            document.getElementById('globalError').classList.remove('hidden');
-        }
-
-        const { createClient } = window.supabase;
-        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+        // Global Veritabanı Değişkeni
+        let asuDb = null;
 
         const loginContainer = document.getElementById('login-container'); 
         const registerContainer = document.getElementById('register-container'); 
         const forgotContainer = document.getElementById('forgot-container');
 
-        // Form Geçişleri
+        // Sayfa Geçişleri
         window.showRegister = () => { loginContainer.classList.add('hidden-form'); forgotContainer.classList.add('hidden-form'); registerContainer.classList.remove('hidden-form'); history.pushState(null, null, '#register'); }
         window.showLogin = () => { registerContainer.classList.add('hidden-form'); forgotContainer.classList.add('hidden-form'); loginContainer.classList.remove('hidden-form'); history.pushState(null, null, '#login'); }
         window.showForgot = () => { loginContainer.classList.add('hidden-form'); registerContainer.classList.add('hidden-form'); forgotContainer.classList.remove('hidden-form'); }
-        window.addEventListener('load', () => { if(window.location.hash === '#register') { showRegister(); } else { showLogin(); } });
+        
+        // --- BAŞLATMA (LOAD) ---
+        window.addEventListener('load', () => {
+            if(window.location.hash === '#register') showRegister();
+            else showLogin();
 
-        // --- GİRİŞ YAPMA ---
+            // Supabase'i Başlat
+            try {
+                if (typeof window.supabase !== 'undefined') {
+                    const { createClient } = window.supabase;
+                    // asuDb değişkenine atıyoruz ki çakışma olmasın
+                    asuDb = createClient(SUPABASE_URL, SUPABASE_KEY);
+                    console.log("Veritabanı bağlantısı hazır.");
+                } else {
+                    alert("Veritabanı kütüphanesi yüklenemedi! Lütfen sayfayı yenileyin.");
+                }
+            } catch (err) {
+                console.error("Başlatma hatası:", err);
+            }
+        });
+
+        // --- KAYIT OL ---
+        window.handleRegister = async (e) => {
+            e.preventDefault();
+            
+            if (!asuDb) { alert("Veritabanı henüz yüklenmedi, lütfen bekleyin veya sayfayı yenileyin."); return; }
+
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+
+            if (!email.endsWith('@aksaray.edu.tr')) {
+                alert("Sadece @aksaray.edu.tr maili kabul edilmektedir.");
+                return;
+            }
+            if (password.length < 6) {
+                alert("Şifre en az 6 karakter olmalı.");
+                return;
+            }
+
+            try {
+                // asuDb kullanıyoruz
+                const { data, error } = await asuDb.auth.signUp({ email, password });
+                if (error) throw error;
+
+                alert("Kayıt Başarılı! 🎉 Giriş yapabilirsiniz.");
+                showLogin();
+            } catch (error) {
+                console.error(error);
+                alert("Kayıt Hatası: " + error.message);
+            }
+        };
+
+        // --- GİRİŞ YAP ---
         window.handleLogin = async (e) => {
             e.preventDefault();
+            if (!asuDb) { alert("Veritabanı yüklenmedi!"); return; }
+
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
-            
+
+            // Admin
             if(email === 'admin' && password === 'asu123') {
                 localStorage.setItem('isAdmin', 'true');
                 window.location.href = 'admin.html';
@@ -98,58 +143,29 @@
             }
 
             try {
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                const { data, error } = await asuDb.auth.signInWithPassword({ email, password });
                 if (error) throw error;
-                
-                // Giriş Başarılı
+
                 localStorage.setItem('isLoggedIn', 'true');
                 localStorage.setItem('userEmail', data.user.email);
-                alert("Giriş Başarılı! Yönlendiriliyorsunuz...");
                 window.location.href = 'index.html';
             } catch (error) {
-                console.error(error);
-                alert("GİRİŞ HATASI: " + error.message);
+                alert("Giriş Başarısız: " + error.message);
             }
         };
 
-        // --- KAYIT OLMA ---
-        window.handleRegister = async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('regEmail').value.trim();
-            const password = document.getElementById('regPassword').value;
-
-            if (!email.endsWith('@aksaray.edu.tr')) {
-                alert("HATA: Sadece @aksaray.edu.tr uzantılı mail ile kayıt olabilirsiniz!");
-                return;
-            }
-            if (password.length < 6) {
-                alert("HATA: Şifreniz en az 6 karakter olmalıdır!");
-                return;
-            }
-
-            try {
-                const { data, error } = await supabase.auth.signUp({ email, password });
-                if (error) throw error;
-
-                alert("✅ KAYIT BAŞARILI! Şimdi 'Giriş Yap' ekranından giriş yapabilirsiniz.");
-                showLogin();
-            } catch (error) {
-                console.error(error);
-                alert("KAYIT HATASI: " + error.message);
-            }
-        };
-
-        // --- ŞİFRE SIFIRLAMA ---
+        // --- ŞİFRE UNUTTUM ---
         window.handleForgot = async (e) => {
             e.preventDefault();
+            if (!asuDb) return;
             const email = document.getElementById('forgotEmail').value.trim();
             try {
-                const { error } = await supabase.auth.resetPasswordForEmail(email);
+                const { error } = await asuDb.auth.resetPasswordForEmail(email);
                 if (error) throw error;
-                alert("Sıfırlama bağlantısı e-posta adresinize gönderildi!");
+                alert("Sıfırlama maili gönderildi.");
                 showLogin();
             } catch (error) {
-                alert("HATA: " + error.message);
+                alert("Hata: " + error.message);
             }
         };
     </script>
