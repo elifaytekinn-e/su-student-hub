@@ -2,61 +2,61 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ASÜ Student Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>tailwind.config = { theme: { extend: { colors: { asuDark: '#0f172a', asuCard: '#1e293b', asuPurple: '#6366f1' } } } }</script>
-    <style> .bg-grid { background-image: radial-gradient(#334155 1px, transparent 1px); background-size: 40px 40px; } </style>
+    <script>tailwind.config = { theme: { extend: { colors: { asuPrimary: '#e11d48', asuDark: '#0f172a' } } } }</script>
 </head>
-<body class="bg-asuDark text-slate-200 min-h-screen flex flex-col bg-grid">
-    <nav class="bg-asuCard/90 backdrop-blur-md border-b border-slate-700 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 flex justify-between h-20 items-center">
-            <a href="index.html" class="flex items-center gap-3"><img src="asu_logo.png" class="h-10"><div><h1 class="text-xl font-bold text-white">ASÜ<span class="text-asuPurple">HUB</span></h1></div></a>
-            <div class="hidden md:flex space-x-6 text-sm font-medium items-center">
-                <a href="index.html" class="text-white">Ana Sayfa</a>
-                <a href="notes.html" class="text-slate-400 hover:text-white">Ders Notları</a>
-                <a href="books.html" class="text-slate-400 hover:text-white">ASÜ Sahaf</a>
-                <a href="faq.html" class="text-slate-400 hover:text-white">S.S.S</a>
-                <div id="auth-buttons" class="flex gap-4 ml-4"><a href="login.html" class="text-slate-400">Giriş</a><a href="login.html" class="bg-asuPurple text-white px-5 py-2.5 rounded-md">Kayıt Ol</a></div>
-                <div id="user-profile" class="hidden"><a href="profile.html" class="w-10 h-10 rounded-full bg-indigo-900 flex items-center justify-center text-white font-bold" id="userAvatar">..</a></div>
+<body class="bg-gray-50 flex flex-col min-h-screen">
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold text-gray-800">ASÜ <span class="text-asuPrimary">HUB</span></a>
+            <div class="hidden md:flex space-x-6 font-medium">
+                <a href="index.html" class="text-asuPrimary">Ana Sayfa</a>
+                <a href="notes.html" class="text-gray-600 hover:text-asuPrimary">Ders Notları</a>
+                <a href="books.html" class="text-gray-600 hover:text-asuPrimary">Sahaf</a>
+                <a href="faq.html" class="text-gray-600 hover:text-asuPrimary">S.S.S</a>
             </div>
-            <button class="md:hidden text-white text-2xl" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')"><i class="fa-solid fa-bars"></i></button>
-        </div>
-        <div id="mobile-menu" class="hidden md:hidden bg-slate-900 border-t border-slate-700 p-4 space-y-3">
-            <a href="index.html" class="block text-white">Ana Sayfa</a>
-            <a href="notes.html" class="block text-slate-300">Ders Notları</a>
-            <a href="books.html" class="block text-slate-300">ASÜ Sahaf</a>
-            <a href="faq.html" class="block text-slate-300">S.S.S</a>
-            <a href="login.html" class="block text-asuPurple font-bold">Giriş / Kayıt</a>
+            <div id="authBtns" class="flex gap-2">
+                <a href="login.html" class="bg-asuPrimary text-white px-4 py-2 rounded hover:bg-red-700">Giriş</a>
+            </div>
         </div>
     </nav>
-    <header class="pt-20 pb-16 text-center relative">
-        <h2 class="text-5xl font-bold text-white mb-6">Kampüsün Dijital <span class="text-asuPurple">Hafızası.</span></h2>
-        <div class="max-w-2xl mx-auto relative group mb-16">
-            <div class="relative flex bg-asuCard rounded-lg overflow-hidden border border-slate-600 shadow-2xl">
-                <input type="text" id="searchInput" class="w-full bg-transparent text-white px-4 py-4 outline-none" placeholder="Ders notu veya kitap ara...">
-                <button onclick="window.location.href=`notes.html?q=${document.getElementById('searchInput').value}`" class="bg-asuPurple text-white px-8 font-medium">ARA</button>
-            </div>
-        </div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto border-t border-slate-800 pt-8">
-            <div><div class="text-3xl font-bold text-white" id="statNotes">0</div><div class="text-xs text-slate-500 uppercase mt-1">Not</div></div>
-            <div><div class="text-3xl font-bold text-white" id="statBooks">0</div><div class="text-xs text-slate-500 uppercase mt-1">Kitap</div></div>
+
+    <header class="bg-asuDark text-white py-20 text-center px-4">
+        <h1 class="text-4xl md:text-5xl font-bold mb-6">Kampüsün Dijital Hafızası</h1>
+        <p class="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">Ders notlarını paylaş, kitaplarını takas et, kampüs hayatını kolaylaştır.</p>
+        
+        <div class="max-w-2xl mx-auto bg-white rounded-lg p-2 flex shadow-xl">
+            <input type="text" id="mainSearch" placeholder="Hangi ders notunu veya kitabı arıyorsun?" class="flex-1 p-3 text-gray-700 outline-none rounded-l">
+            <button onclick="window.location.href='notes.html?q='+document.getElementById('mainSearch').value" class="bg-asuPrimary text-white px-8 py-3 rounded font-bold hover:bg-red-700">ARA</button>
         </div>
     </header>
+
+    <section class="py-16 max-w-7xl mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div class="p-6 bg-white rounded-xl shadow hover:shadow-lg transition">
+                <div class="w-16 h-16 bg-red-100 text-asuPrimary rounded-full flex items-center justify-center text-2xl mx-auto mb-4"><i class="fa-solid fa-upload"></i></div>
+                <h3 class="text-xl font-bold mb-2">1. Yükle & Paylaş</h3>
+                <p class="text-gray-500">Kendi ders notlarını sisteme yükle veya satmak istediğin kitapların fotoğrafını çekip ilan ver.</p>
+            </div>
+            <div class="p-6 bg-white rounded-xl shadow hover:shadow-lg transition">
+                <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-2xl mx-auto mb-4"><i class="fa-solid fa-magnifying-glass"></i></div>
+                <h3 class="text-xl font-bold mb-2">2. Ara & Bul</h3>
+                <p class="text-gray-500">İhtiyacın olan ders notunu fakülte bazlı filtrele veya aradığın kitabı sahaf bölümünde bul.</p>
+            </div>
+            <div class="p-6 bg-white rounded-xl shadow hover:shadow-lg transition">
+                <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-2xl mx-auto mb-4"><i class="fa-solid fa-comments"></i></div>
+                <h3 class="text-xl font-bold mb-2">3. İletişime Geç</h3>
+                <p class="text-gray-500">Notlara yorum yap, puan ver. Kitaplar için satıcıyla WhatsApp üzerinden direkt konuş.</p>
+            </div>
+        </div>
+    </section>
+
     <script>
-        const SUPABASE_URL = "https://kmzbywrcspzwuznexcla.supabase.co";
-        const SUPABASE_KEY = "sb_publishable_z2fcMIygDFlXaZD3z1CxbA_YkPXzxNt"; 
-        const asuDb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        window.addEventListener('load', async () => {
-            const userEmail = localStorage.getItem('userEmail');
-            if(userEmail) { document.getElementById('auth-buttons').classList.add('hidden'); document.getElementById('user-profile').classList.remove('hidden'); document.getElementById('userAvatar').innerText = userEmail.substring(0,2).toUpperCase(); }
-            const { count: n } = await asuDb.from('notes').select('*', { count: 'exact', head: true }).eq('is_approved', true);
-            const { count: b } = await asuDb.from('books').select('*', { count: 'exact', head: true }).eq('is_approved', true);
-            if(n!==null) document.getElementById('statNotes').innerText = n;
-            if(b!==null) document.getElementById('statBooks').innerText = b;
-        });
+        if(localStorage.getItem('userEmail')) {
+            document.getElementById('authBtns').innerHTML = '<a href="profile.html" class="bg-gray-800 text-white px-4 py-2 rounded">Profilim</a>';
+        }
     </script>
 </body>
 </html>
