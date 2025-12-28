@@ -22,7 +22,7 @@
             </div>
             <button class="md:hidden text-white text-2xl" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')"><i class="fa-solid fa-bars"></i></button>
         </div>
-        <div id="mobile-menu" class="hidden md:hidden bg-slate-800 p-4 space-y-3 mt-2"><a href="index.html" class="block text-white">Ana Sayfa</a><button onclick="openUploadModal()" class="text-asuPurple font-bold">Not Yükle</button></div>
+        <div id="mobile-menu" class="hidden md:hidden bg-slate-800 p-4 space-y-3 mt-2"><a href="index.html" class="block text-white">Ana Sayfa</a><a href="faq.html" class="block text-slate-300">S.S.S</a><button onclick="openUploadModal()" class="text-asuPurple font-bold">Not Yükle</button></div>
     </nav>
     <div class="max-w-7xl mx-auto p-6 grid grid-cols-1 md:grid-cols-4 gap-8 flex-1">
         <div class="md:col-span-1 space-y-2"><h3 class="font-bold text-white mb-4">Fakülteler</h3><button onclick="filterNotes('Tümü')" class="w-full text-left px-4 py-3 bg-slate-800 rounded text-white">Tüm Notlar</button><button onclick="filterNotes('Mühendislik')" class="w-full text-left px-4 py-3 bg-slate-800 rounded text-slate-300">Mühendislik</button><button onclick="filterNotes('İİBF')" class="w-full text-left px-4 py-3 bg-slate-800 rounded text-slate-300">İİBF</button><button onclick="filterNotes('Eğitim')" class="w-full text-left px-4 py-3 bg-slate-800 rounded text-slate-300">Eğitim</button></div>
@@ -43,17 +43,12 @@
     </div>
     <script>
         const SUPABASE_URL = "https://kmzbywrcspzwuznexcla.supabase.co";
-        // YENİ ANAHTAR:
         const SUPABASE_KEY = "sb_publishable_z2fcMIygDFlXaZD3z1CxbA_YkPXzxNt"; 
-
         const asuDb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const userEmail = localStorage.getItem('userEmail');
         let allNotes=[];
-
         function showToast(msg, type='success') { const t=document.createElement('div'); t.className=`toast ${type==='success'?'bg-green-600':'bg-red-600'} text-white px-6 py-3 rounded shadow flex gap-2`; t.innerText=msg; document.getElementById('toast-container').appendChild(t); setTimeout(()=>{t.classList.add('hide');setTimeout(()=>t.remove(),300)},3000); }
-
         async function loadAllData() {
-            // Sadece ONAYLI olanları getir
             const { data } = await asuDb.from('notes').select('*').eq('is_approved', true).order('created_at', { ascending: false });
             if(data) { allNotes = data; renderNotes(allNotes); }
             const q = new URLSearchParams(window.location.search).get('q');
@@ -76,7 +71,6 @@
                 const {error:fe}=await asuDb.storage.from('ders-notlari').upload(fileName,file);
                 if(fe)throw fe;
                 const {data:pu}=asuDb.storage.from('ders-notlari').getPublicUrl(fileName);
-                // Onay durumu default olarak false eklenebilir, admin panelinden onaylanacak
                 const {error:db}=await asuDb.from('notes').insert([{ title:document.getElementById('noteTitle').value, description:document.getElementById('noteDesc').value, file_url:pu.publicUrl, uploader_email:userEmail, faculty:document.getElementById('noteFaculty').value }]);
                 if(db)throw db;
                 showToast("Gönderildi! Onay bekleniyor.",'success'); setTimeout(()=>location.reload(),2000);
