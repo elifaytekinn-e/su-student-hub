@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
     <script>
         tailwind.config = {
@@ -27,9 +27,10 @@
         </div>
         <div class="p-8">
             
+            <div id="globalError" class="hidden bg-red-600 text-white p-4 rounded-lg mb-4 text-sm font-bold animate-pulse"></div>
+
             <div id="login-container">
                 <form id="form-login" class="space-y-5" onsubmit="handleLogin(event)">
-                    <div id="loginError" class="hidden bg-red-500/10 border border-red-500/50 text-red-400 text-xs p-3 rounded flex items-center gap-2 animate-pulse"><i class="fa-solid fa-circle-exclamation"></i><span id="loginErrorText">Hata mesajı</span></div>
                     <div><label class="block text-sm text-slate-400 mb-1">E-posta</label><input type="text" id="loginEmail" placeholder="ogrenci@aksaray.edu.tr" class="w-full bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2.5 outline-none focus:border-asuPurple transition-colors"></div>
                     <div><div class="flex justify-between mb-1"><label class="block text-sm text-slate-400">Şifre</label><button type="button" onclick="showForgot()" class="text-xs text-asuPurple hover:text-white transition-colors">Şifremi Unuttum</button></div><input type="password" id="loginPassword" placeholder="••••••••" class="w-full bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2.5 outline-none focus:border-asuPurple transition-colors"></div>
                     <button type="submit" class="w-full text-white bg-asuPurple hover:bg-asuPurpleDark font-medium rounded-lg text-sm px-5 py-3 shadow-lg transition-all">Giriş Yap</button>
@@ -40,7 +41,6 @@
             <div id="register-container" class="hidden-form">
                 <h3 class="text-xl font-semibold text-white mb-6">Hesap Oluştur 🚀</h3>
                 <form id="form-register" class="space-y-5" onsubmit="handleRegister(event)">
-                    <div id="registerError" class="hidden bg-red-500/10 border border-red-500/50 text-red-400 text-xs p-3 rounded flex items-center gap-2"><i class="fa-solid fa-circle-exclamation"></i><span id="registerErrorText">Hata mesajı</span></div>
                     <div class="bg-indigo-900/30 border border-indigo-500/30 text-indigo-300 px-3 py-2 rounded text-xs"><i class="fa-solid fa-circle-info mr-1"></i>Sadece <b>@aksaray.edu.tr</b></div>
                     <div><label class="block text-sm text-slate-400 mb-1">Okul E-postası</label><input type="text" id="regEmail" placeholder="no@aksaray.edu.tr" class="w-full bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2.5 outline-none focus:border-asuPurple"></div>
                     <div><label class="block text-sm text-slate-400 mb-1">Şifre Belirle</label><input type="password" id="regPassword" class="w-full bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2.5 outline-none focus:border-asuPurple"></div>
@@ -61,114 +61,97 @@
         <div class="bg-slate-900/50 p-4 text-center border-t border-slate-700 text-sm"><a href="index.html" class="text-slate-500 hover:text-white transition-colors"><i class="fa-solid fa-arrow-left mr-1"></i> Ana Sayfaya Dön</a></div>
     </div>
 
-  
-       
-        
-        
-       <script>
-    // URL ve KEY (Senin resimlerindeki bilgiler)
-    const SUPABASE_URL = "https://kmzbywrcspzwuznexcla.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_2mPJ390ssxg8euZ9hgmfFg_O5mPR1Fh"; // Resimdeki kodun tamamını buraya yapıştırdığından emin ol!
+    <script>
+        // --- SENİN RESİMDEKİ BİLGİLERİN (DOĞRULANDI) ---
+        const SUPABASE_URL = "https://kmzbywrcspzwuznexcla.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_2mPJ390ssxg8euZ9hgmfFg_O5mPR1Fh"; 
 
-    // Supabase Başlatma
-    const { createClient } = window.supabase;
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    const loginContainer = document.getElementById('login-container'); 
-    const registerContainer = document.getElementById('register-container'); 
-    const forgotContainer = document.getElementById('forgot-container');
-
-    // Form Geçişleri
-    window.showRegister = () => { loginContainer.classList.add('hidden-form'); forgotContainer.classList.add('hidden-form'); registerContainer.classList.remove('hidden-form'); history.pushState(null, null, '#register'); }
-    window.showLogin = () => { registerContainer.classList.add('hidden-form'); forgotContainer.classList.add('hidden-form'); loginContainer.classList.remove('hidden-form'); history.pushState(null, null, '#login'); }
-    window.showForgot = () => { loginContainer.classList.add('hidden-form'); registerContainer.classList.add('hidden-form'); forgotContainer.classList.remove('hidden-form'); }
-    window.addEventListener('load', () => { if(window.location.hash === '#register') { showRegister(); } else { showLogin(); } });
-
-    // --- GİRİŞ İŞLEMİ (LOGIN) ---
-    window.handleLogin = async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('loginEmail').value.trim();
-        const password = document.getElementById('loginPassword').value;
-        const errorBox = document.getElementById('loginError');
-        errorBox.classList.add('hidden');
-
-        // Admin Kontrolü
-        if(email === 'admin' && password === 'asu123') {
-            localStorage.setItem('isAdmin', 'true');
-            window.location.href = 'admin.html';
-            return;
+        // 1. KONTROL: Kütüphane Yüklendi mi?
+        if (typeof window.supabase === 'undefined') {
+            document.getElementById('globalError').innerText = "HATA: Supabase bağlantısı kurulamadı! Lütfen internet bağlantınızı kontrol edin veya sayfayı yenileyin.";
+            document.getElementById('globalError').classList.remove('hidden');
         }
 
-        try {
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: email,
-                password: password,
-            });
+        const { createClient } = window.supabase;
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-            if (error) throw error;
+        const loginContainer = document.getElementById('login-container'); 
+        const registerContainer = document.getElementById('register-container'); 
+        const forgotContainer = document.getElementById('forgot-container');
 
-            localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('userEmail', data.user.email);
-            window.location.href = 'index.html';
+        // Form Geçişleri
+        window.showRegister = () => { loginContainer.classList.add('hidden-form'); forgotContainer.classList.add('hidden-form'); registerContainer.classList.remove('hidden-form'); history.pushState(null, null, '#register'); }
+        window.showLogin = () => { registerContainer.classList.add('hidden-form'); forgotContainer.classList.add('hidden-form'); loginContainer.classList.remove('hidden-form'); history.pushState(null, null, '#login'); }
+        window.showForgot = () => { loginContainer.classList.add('hidden-form'); registerContainer.classList.add('hidden-form'); forgotContainer.classList.remove('hidden-form'); }
+        window.addEventListener('load', () => { if(window.location.hash === '#register') { showRegister(); } else { showLogin(); } });
 
-        } catch (error) {
-            console.error(error);
-            showError('login', 'Giriş yapılamadı: ' + error.message);
-        }
-    };
+        // --- GİRİŞ YAPMA ---
+        window.handleLogin = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            if(email === 'admin' && password === 'asu123') {
+                localStorage.setItem('isAdmin', 'true');
+                window.location.href = 'admin.html';
+                return;
+            }
 
-    // --- KAYIT İŞLEMİ (REGISTER) ---
-    window.handleRegister = async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('regEmail').value.trim();
-        const password = document.getElementById('regPassword').value;
-        const errorBox = document.getElementById('registerError');
-        errorBox.classList.add('hidden');
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+                
+                // Giriş Başarılı
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userEmail', data.user.email);
+                alert("Giriş Başarılı! Yönlendiriliyorsunuz...");
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error(error);
+                alert("GİRİŞ HATASI: " + error.message);
+            }
+        };
 
-        if (!email.endsWith('@aksaray.edu.tr')) {
-            showError('register', "Sadece @aksaray.edu.tr maili ile kayıt olabilirsiniz!");
-            return;
-        }
+        // --- KAYIT OLMA ---
+        window.handleRegister = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
 
-        try {
-            const { data, error } = await supabase.auth.signUp({
-                email: email,
-                password: password,
-            });
+            if (!email.endsWith('@aksaray.edu.tr')) {
+                alert("HATA: Sadece @aksaray.edu.tr uzantılı mail ile kayıt olabilirsiniz!");
+                return;
+            }
+            if (password.length < 6) {
+                alert("HATA: Şifreniz en az 6 karakter olmalıdır!");
+                return;
+            }
 
-            if (error) throw error;
+            try {
+                const { data, error } = await supabase.auth.signUp({ email, password });
+                if (error) throw error;
 
-            alert("Kayıt Başarılı! 🎉 Giriş yapabilirsiniz.");
-            window.showLogin();
+                alert("✅ KAYIT BAŞARILI! Şimdi 'Giriş Yap' ekranından giriş yapabilirsiniz.");
+                showLogin();
+            } catch (error) {
+                console.error(error);
+                alert("KAYIT HATASI: " + error.message);
+            }
+        };
 
-        } catch (error) {
-            console.error(error);
-            showError('register', 'Kayıt hatası: ' + error.message);
-        }
-    };
-
-    // --- ŞİFRE SIFIRLAMA ---
-    window.handleForgot = async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('forgotEmail').value.trim();
-        try {
-            const { error } = await supabase.auth.resetPasswordForEmail(email);
-            if (error) throw error;
-            alert(`Sıfırlama bağlantısı ${email} adresine gönderildi!`);
-            window.showLogin();
-        } catch (error) {
-            alert("Hata: " + error.message);
-        }
-    };
-
-    function showError(type, msg) { 
-        const errorBox = document.getElementById(type + 'Error'); 
-        const errorText = document.getElementById(type + 'ErrorText'); 
-        errorBox.classList.remove('hidden'); 
-        errorText.innerText = msg; 
-    }
-</script>
-    
+        // --- ŞİFRE SIFIRLAMA ---
+        window.handleForgot = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('forgotEmail').value.trim();
+            try {
+                const { error } = await supabase.auth.resetPasswordForEmail(email);
+                if (error) throw error;
+                alert("Sıfırlama bağlantısı e-posta adresinize gönderildi!");
+                showLogin();
+            } catch (error) {
+                alert("HATA: " + error.message);
+            }
+        };
+    </script>
 </body>
 </html>
-
