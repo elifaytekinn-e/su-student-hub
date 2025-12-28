@@ -2,134 +2,79 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Yönetici Paneli | ASÜ Hub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yönetim Merkezi | ASÜ Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>tailwind.config = { theme: { extend: { colors: { asuDark: '#0f172a', asuCard: '#1e293b', asuPurple: '#6366f1' } } } }</script>
+    <style>.glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); } .sidebar-link { cursor: pointer; transition: all 0.2s; } .sidebar-link:hover, .sidebar-link.active { background: rgba(99, 102, 241, 0.2); color: white; border-left: 4px solid #6366f1; }</style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen">
-
-    <nav class="bg-red-600 p-4 shadow-lg flex justify-between items-center">
-        <div class="flex items-center gap-3">
-            <div class="bg-white text-red-600 p-2 rounded-full"><i class="fa-solid fa-lock"></i></div>
-            <h1 class="text-xl font-bold uppercase tracking-wider">ADMİN PANELİ</h1>
+<body class="bg-asuDark text-slate-200 h-screen flex overflow-hidden">
+    <aside class="w-64 bg-asuCard border-r border-slate-700 flex flex-col">
+        <div class="p-6 flex items-center gap-3 border-b border-slate-700"><img src="asu_logo.png" class="h-8"><span class="font-bold text-white tracking-wide">YÖNETİM</span></div>
+        <nav class="flex-1 p-4 space-y-2">
+            <div onclick="showSection('dashboard')" id="nav-dashboard" class="sidebar-link active p-3 rounded flex items-center gap-3 text-slate-400"><i class="fa-solid fa-chart-pie w-5"></i> Özet Durum</div>
+            <div onclick="showSection('approvals')" id="nav-approvals" class="sidebar-link p-3 rounded flex items-center gap-3 text-slate-400 justify-between"><div class="flex items-center gap-3"><i class="fa-solid fa-clock w-5"></i> Onay Bekleyen</div><span id="pendingCount" class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full hidden">0</span></div>
+            <div onclick="showSection('users')" id="nav-users" class="sidebar-link p-3 rounded flex items-center gap-3 text-slate-400"><i class="fa-solid fa-users w-5"></i> Kullanıcılar</div>
+        </nav>
+        <div class="p-4 border-t border-slate-700"><button onclick="logout()" class="w-full bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white p-3 rounded transition-colors flex items-center justify-center gap-2"><i class="fa-solid fa-right-from-bracket"></i> Çıkış</button></div>
+    </aside>
+    <main class="flex-1 overflow-y-auto bg-asuDark relative">
+        <header class="h-16 bg-asuCard/50 backdrop-blur border-b border-slate-700 flex items-center justify-between px-8 sticky top-0 z-30"><h2 class="text-xl font-bold text-white" id="pageTitle">Kontrol Paneli</h2><a href="index.html" class="text-sm text-asuPurple hover:text-white"><i class="fa-solid fa-eye mr-1"></i> Siteye Git</a></header>
+        <div class="p-8">
+            <div id="sec-dashboard" class="section-content"><div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"><div class="glass-panel p-6 rounded-xl border-l-4 border-yellow-500"><p class="text-slate-400 text-xs uppercase">Onay Bekleyen</p><h3 class="text-3xl font-bold text-white mt-1" id="dashPending">0</h3></div><div class="glass-panel p-6 rounded-xl border-l-4 border-indigo-500"><p class="text-slate-400 text-xs uppercase">Toplam Not</p><h3 class="text-3xl font-bold text-white mt-1" id="dashNotes">0</h3></div><div class="glass-panel p-6 rounded-xl border-l-4 border-green-500"><p class="text-slate-400 text-xs uppercase">Satılık Kitap</p><h3 class="text-3xl font-bold text-white mt-1" id="dashBooks">0</h3></div><div class="glass-panel p-6 rounded-xl border-l-4 border-blue-500"><p class="text-slate-400 text-xs uppercase">Kullanıcı</p><h3 class="text-3xl font-bold text-white mt-1" id="dashUsers">0</h3></div></div><div class="glass-panel rounded-xl p-6"><h3 class="font-bold text-white mb-4">Sistem Mesajı</h3><p class="text-slate-400">Sistem aktif. Onay bekleyen içerikler burada listelenir.</p></div></div>
+            <div id="sec-approvals" class="section-content hidden space-y-6"><div class="glass-panel rounded-xl overflow-hidden"><div class="p-4 bg-slate-800/50 border-b border-slate-700 font-bold text-yellow-400 flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> İncelenecek Notlar</div><div id="pendingNotesList" class="p-4 space-y-3"><p class="text-slate-500 text-center">İncelenecek not yok.</p></div></div><div class="glass-panel rounded-xl overflow-hidden"><div class="p-4 bg-slate-800/50 border-b border-slate-700 font-bold text-yellow-400 flex items-center gap-2"><i class="fa-solid fa-book"></i> İncelenecek Kitaplar</div><div id="pendingBooksList" class="p-4 space-y-3"><p class="text-slate-500 text-center">İncelenecek kitap yok.</p></div></div></div>
+            <div id="sec-users" class="section-content hidden"><div class="glass-panel rounded-xl overflow-hidden"><div class="p-4 bg-slate-800/50 border-b border-slate-700 flex justify-between items-center"><h3 class="font-bold text-white">Kayıtlı Öğrenciler</h3><input type="text" id="userSearch" placeholder="Ara..." class="bg-slate-900 border border-slate-600 rounded px-3 py-1 text-sm text-white" onkeyup="filterUsers()"></div><div class="overflow-x-auto"><table class="w-full text-left"><thead class="text-xs text-slate-500 uppercase bg-slate-800"><tr><th class="p-3">Kullanıcı</th><th class="p-3">Bölüm</th><th class="p-3">Durum</th><th class="p-3 text-right">İşlem</th></tr></thead><tbody id="usersList" class="text-sm divide-y divide-slate-700"><tr><td colspan="4" class="p-4 text-center">Yükleniyor...</td></tr></tbody></table></div></div></div>
         </div>
-        <div class="flex gap-4">
-            <a href="index.html" class="bg-red-700 hover:bg-red-800 px-4 py-2 rounded text-sm font-bold"><i class="fa-solid fa-eye"></i> Siteyi Gör</a>
-            <button onclick="logout()" class="bg-white text-red-600 hover:bg-gray-200 px-4 py-2 rounded text-sm font-bold">Çıkış</button>
-        </div>
-    </nav>
-
-    <div class="max-w-7xl mx-auto p-8 space-y-8">
-        
-        <div class="grid grid-cols-3 gap-6">
-            <div class="bg-gray-800 p-6 rounded border border-gray-700 flex justify-between items-center">
-                <div><p class="text-gray-400 text-sm">Toplam Not</p><h3 class="text-3xl font-bold" id="statNotes">-</h3></div>
-                <i class="fa-solid fa-file-pdf text-4xl text-gray-600"></i>
-            </div>
-            <div class="bg-gray-800 p-6 rounded border border-gray-700 flex justify-between items-center">
-                <div><p class="text-gray-400 text-sm">Satılık Kitap</p><h3 class="text-3xl font-bold" id="statBooks">-</h3></div>
-                <i class="fa-solid fa-book text-4xl text-gray-600"></i>
-            </div>
-            <div class="bg-gray-800 p-6 rounded border border-gray-700 flex justify-between items-center">
-                <div><p class="text-gray-400 text-sm">Durum</p><h3 class="text-xl font-bold text-green-400">Aktif ●</h3></div>
-                <i class="fa-solid fa-server text-4xl text-gray-600"></i>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-8">
-            <div class="bg-gray-800 rounded border border-gray-700 h-[600px] flex flex-col">
-                <div class="p-4 border-b border-gray-700 flex justify-between bg-gray-750">
-                    <h3 class="font-bold"><i class="fa-solid fa-file-lines mr-2"></i>Not Yönetimi</h3>
-                    <span class="text-xs bg-yellow-600 px-2 py-1 rounded text-white" id="pendingNoteCount">0 Bekleyen</span>
-                </div>
-                <div class="p-4 overflow-y-auto flex-1 space-y-2" id="notesList">Yükleniyor...</div>
-            </div>
-
-            <div class="bg-gray-800 rounded border border-gray-700 h-[600px] flex flex-col">
-                <div class="p-4 border-b border-gray-700 flex justify-between bg-gray-750">
-                    <h3 class="font-bold"><i class="fa-solid fa-store mr-2"></i>Kitap Yönetimi</h3>
-                    <span class="text-xs bg-yellow-600 px-2 py-1 rounded text-white" id="pendingBookCount">0 Bekleyen</span>
-                </div>
-                <div class="p-4 overflow-y-auto flex-1 space-y-2" id="booksList">Yükleniyor...</div>
-            </div>
-        </div>
-        
-        <div class="bg-gray-800 rounded border border-gray-700 p-6">
-            <h3 class="font-bold mb-4 border-b border-gray-700 pb-2">Kullanıcı Listesi</h3>
-            <div id="userList" class="space-y-2 max-h-60 overflow-y-auto">Yükleniyor...</div>
-        </div>
-    </div>
-
+    </main>
     <script>
         const SUPABASE_URL = "https://kmzbywrcspzwuznexcla.supabase.co";
-        const SUPABASE_KEY = "sb_publishable_z2fcMIygDFlXaZD3z1CxbA_YkPXzxNt";
+        // YENİ ANAHTAR:
+        const SUPABASE_KEY = "sb_publishable_z2fcMIygDFlXaZD3z1CxbA_YkPXzxNt"; 
+
         const asuDb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         if(localStorage.getItem('isAdmin') !== 'true') window.location.href = 'login.html';
+        let globalUsers = [];
 
-        async function loadData() {
-            // İstatistikler
+        async function loadAll() {
             const { count: n } = await asuDb.from('notes').select('*', { count: 'exact', head: true });
             const { count: b } = await asuDb.from('books').select('*', { count: 'exact', head: true });
+            const { count: u } = await asuDb.from('profiles').select('*', { count: 'exact', head: true });
             const { count: pn } = await asuDb.from('notes').select('*', { count: 'exact', head: true }).eq('is_approved', false);
             const { count: pb } = await asuDb.from('books').select('*', { count: 'exact', head: true }).eq('is_approved', false);
-            
-            document.getElementById('statNotes').innerText = n || 0;
-            document.getElementById('statBooks').innerText = b || 0;
-            document.getElementById('pendingNoteCount').innerText = (pn || 0) + " Bekleyen";
-            document.getElementById('pendingBookCount').innerText = (pb || 0) + " Bekleyen";
+            const totalPending = (pn || 0) + (pb || 0);
 
-            // Notlar Listesi (Bekleyenler üstte)
-            const { data: notes } = await asuDb.from('notes').select('*').order('is_approved', { ascending: true });
-            document.getElementById('notesList').innerHTML = notes.map(n => `
-                <div class="flex justify-between items-center bg-gray-900 p-3 rounded border border-gray-700">
-                    <div class="truncate w-1/2">
-                        <div class="font-bold text-sm">${n.title}</div>
-                        <div class="text-xs text-gray-500">${n.uploader_email}</div>
-                    </div>
-                    <div class="flex gap-2">
-                        ${!n.is_approved ? `<button onclick="approve('notes',${n.id})" class="bg-green-600 text-white text-xs px-2 py-1 rounded">Onayla</button>` : '<span class="text-green-500 text-xs px-2">Yayında</span>'}
-                        <a href="${n.file_url}" target="_blank" class="text-blue-400 text-xs px-2 py-1"><i class="fa-solid fa-eye"></i></a>
-                        <button onclick="del('notes',${n.id})" class="bg-red-600 text-white text-xs px-2 py-1 rounded">Sil</button>
-                    </div>
-                </div>
-            `).join('');
-
-            // Kitaplar Listesi
-            const { data: books } = await asuDb.from('books').select('*').order('is_approved', { ascending: true });
-            document.getElementById('booksList').innerHTML = books.map(b => `
-                <div class="flex justify-between items-center bg-gray-900 p-3 rounded border border-gray-700">
-                    <div class="truncate w-1/2 flex items-center gap-2">
-                        <img src="${b.image_url}" class="w-6 h-6 rounded">
-                        <div>
-                            <div class="font-bold text-sm">${b.title}</div>
-                            <div class="text-xs text-gray-500">${b.seller_email}</div>
-                        </div>
-                    </div>
-                    <div class="flex gap-2">
-                        ${!b.is_approved ? `<button onclick="approve('books',${b.id})" class="bg-green-600 text-white text-xs px-2 py-1 rounded">Onayla</button>` : '<span class="text-green-500 text-xs px-2">Yayında</span>'}
-                        <button onclick="del('books',${b.id})" class="bg-red-600 text-white text-xs px-2 py-1 rounded">Sil</button>
-                    </div>
-                </div>
-            `).join('');
-
-            // Kullanıcılar
-            const { data: users } = await asuDb.from('profiles').select('*');
-            document.getElementById('userList').innerHTML = users.map(u => `
-                <div class="flex justify-between items-center bg-gray-900 p-2 rounded border border-gray-700 text-sm">
-                    <span>${u.email} (${u.nickname || '-'})</span>
-                    <button onclick="ban('${u.email}', ${!u.is_banned})" class="${u.is_banned ? 'bg-green-600' : 'bg-red-600'} text-white px-2 py-1 rounded text-xs">${u.is_banned ? 'Yasağı Kaldır' : 'Yasakla'}</button>
-                </div>
-            `).join('');
+            document.getElementById('dashNotes').innerText = n || 0; document.getElementById('dashBooks').innerText = b || 0; document.getElementById('dashUsers').innerText = u || 0; document.getElementById('dashPending').innerText = totalPending;
+            if(totalPending > 0) { document.getElementById('pendingCount').innerText = totalPending; document.getElementById('pendingCount').classList.remove('hidden'); }
+            loadPendingItems(); loadUsers();
         }
+        async function loadPendingItems() {
+            const { data: pNotes } = await asuDb.from('notes').select('*').eq('is_approved', false);
+            const nList = document.getElementById('pendingNotesList');
+            if(pNotes && pNotes.length > 0) {
+                nList.innerHTML = pNotes.map(n => `<div class="bg-slate-900 border border-slate-700 p-3 rounded flex justify-between items-center group"><div><p class="font-bold text-white text-sm"><a href="${n.file_url}" target="_blank" class="text-blue-400 hover:underline">${n.title}</a></p><p class="text-xs text-slate-500">${n.uploader_email} • ${n.faculty}</p></div><div class="flex gap-2"><button onclick="approveItem('notes', ${n.id})" class="bg-green-600 text-white px-3 py-1 rounded text-xs">Onayla</button><button onclick="deleteItem('notes', ${n.id})" class="bg-red-600 text-white px-3 py-1 rounded text-xs">Reddet</button></div></div>`).join('');
+            } else { nList.innerHTML = '<p class="text-slate-500 text-sm text-center">Bekleyen not yok.</p>'; }
 
-        async function approve(table, id) { await asuDb.from(table).update({ is_approved: true }).eq('id', id); loadData(); }
-        async function del(table, id) { if(confirm("Siliniyor?")) { await asuDb.from(table).delete().eq('id', id); loadData(); } }
-        async function ban(email, status) { if(confirm("Emin misin?")) { await asuDb.from('profiles').update({ is_banned: status }).eq('email', email); loadData(); } }
+            const { data: pBooks } = await asuDb.from('books').select('*').eq('is_approved', false);
+            const bList = document.getElementById('pendingBooksList');
+            if(pBooks && pBooks.length > 0) {
+                bList.innerHTML = pBooks.map(b => `<div class="bg-slate-900 border border-slate-700 p-3 rounded flex justify-between items-center group"><div class="flex items-center gap-3"><img src="${b.image_url}" class="w-8 h-8 rounded object-cover"><div><p class="font-bold text-white text-sm">${b.title}</p><p class="text-xs text-slate-500">${b.seller_email}</p></div></div><div class="flex gap-2"><button onclick="approveItem('books', ${b.id})" class="bg-green-600 text-white px-3 py-1 rounded text-xs">Onayla</button><button onclick="deleteItem('books', ${b.id})" class="bg-red-600 text-white px-3 py-1 rounded text-xs">Reddet</button></div></div>`).join('');
+            } else { bList.innerHTML = '<p class="text-slate-500 text-sm text-center">Bekleyen kitap yok.</p>'; }
+        }
+        async function loadUsers() { const { data: users } = await asuDb.from('profiles').select('*'); globalUsers = users || []; renderUsers(globalUsers); }
+        function renderUsers(users) {
+            const list = document.getElementById('usersList');
+            if(users.length === 0) { list.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-500">Kullanıcı yok.</td></tr>'; return; }
+            list.innerHTML = users.map(u => `<tr class="hover:bg-slate-800/50 transition"><td class="p-3"><div class="font-bold text-white">${u.nickname || 'İsimsiz'}</div><div class="text-xs text-slate-500">${u.email}</div></td><td class="p-3 text-slate-400 text-sm">${u.department || '-'}</td><td class="p-3">${u.is_banned ? '<span class="bg-red-900 text-red-300 px-2 py-0.5 rounded text-xs">Yasaklı 🚫</span>' : '<span class="bg-green-900 text-green-300 px-2 py-0.5 rounded text-xs">Aktif ✅</span>'}</td><td class="p-3 text-right">${u.is_banned ? `<button onclick="toggleBan('${u.email}', false)" class="text-green-400 border border-green-400 px-2 py-1 rounded text-xs">Yasağı Kaldır</button>` : `<button onclick="toggleBan('${u.email}', true)" class="text-red-400 border border-red-400 px-2 py-1 rounded text-xs">Yasakla</button>`}</td></tr>`).join('');
+        }
+        async function approveItem(table, id) { if(!confirm("Yayınlansın mı?")) return; await asuDb.from(table).update({ is_approved: true }).eq('id', id); loadAll(); }
+        async function deleteItem(table, id) { if(!confirm("Silinecek. Emin misin?")) return; await asuDb.from(table).delete().eq('id', id); loadAll(); }
+        async function toggleBan(email, banStatus) { if(!confirm("Emin misin?")) return; await asuDb.from('profiles').update({ is_banned: banStatus }).eq('email', email); loadAll(); }
+        function filterUsers() { const q = document.getElementById('userSearch').value.toLowerCase(); renderUsers(globalUsers.filter(u => (u.nickname && u.nickname.toLowerCase().includes(q)) || (u.email && u.email.toLowerCase().includes(q)))); }
         function logout() { localStorage.removeItem('isAdmin'); window.location.href = 'index.html'; }
-        
-        loadData();
+        loadAll();
     </script>
 </body>
 </html>
