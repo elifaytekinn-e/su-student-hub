@@ -7,223 +7,157 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: { asuDark: '#0f172a', asuCard: '#1e293b', asuPurple: '#6366f1', asuPurpleDark: '#4338ca', asuText: '#e2e8f0', asuGray: '#94a3b8' },
-                    fontFamily: { sans: ['Inter', 'sans-serif'] }
-                }
-            }
-        }
+        tailwind.config = { theme: { extend: { colors: { asuDark: '#0f172a', asuCard: '#1e293b', asuPurple: '#6366f1', asuRed: '#ef4444' } } } }
     </script>
-    <style>
-        .hidden-tab { display: none; }
-        .active-nav-item { background-color: rgba(99, 102, 241, 0.1); color: #6366f1; border: 1px solid rgba(99, 102, 241, 0.2); }
-        .inactive-nav-item { color: #94a3b8; border: 1px solid transparent; }
-        .inactive-nav-item:hover { color: white; background-color: #1e293b; }
-    </style>
 </head>
-<body class="bg-asuDark text-asuText min-h-screen flex flex-col">
+<body class="bg-[#0f172a] min-h-screen text-slate-200 font-sans">
 
-    <nav class="bg-asuCard/90 backdrop-blur-md border-b border-slate-700 sticky top-0 z-50">
+    <nav class="bg-asuCard border-b border-slate-700 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-20">
-                <a href="index.html" class="flex items-center gap-3 group">
-                    <div class="h-12 w-12 flex items-center justify-center transition-transform group-hover:scale-105"><img src="asu_logo.png" alt="ASÜ Logo" class="h-full w-full object-contain filter drop-shadow-lg"></div>
-                    <div><h1 class="text-xl font-bold tracking-tight text-white">ASÜ<span class="text-asuPurple">HUB</span></h1><p class="text-xs text-asuGray">Student Network</p></div>
-                </a>
-                <div class="hidden md:flex space-x-6">
-                    <a href="index.html" class="text-asuGray hover:text-white transition-colors font-medium">Ana Sayfa</a>
-                    <a href="notes.html" class="text-asuGray hover:text-white transition-colors font-medium">Ders Notları</a>
-                    <a href="books.html" class="text-asuGray hover:text-white transition-colors font-medium">Kitap Borsası</a>
-                    <a href="faq.html" class="text-asuGray hover:text-white transition-colors font-medium">S.S.S.</a>
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <img src="asu_logo.png" alt="Logo" class="h-10 w-10">
+                    <span class="font-bold text-xl text-white tracking-tight">Profilim</span>
                 </div>
                 <div class="flex items-center gap-4">
-                    <div class="relative">
-                        <button onclick="window.location.href='index.html'" class="text-slate-400 hover:text-white mr-4 text-sm"><i class="fa-solid fa-arrow-left mr-1"></i> Siteye Dön</button>
-                        <button class="w-10 h-10 rounded-full bg-indigo-900 border border-indigo-500 overflow-hidden flex items-center justify-center text-indigo-300 font-bold text-sm cursor-pointer hover:bg-indigo-800 transition-colors" id="nav-avatar-btn">
-                            <img id="nav-avatar-img" src="" class="w-full h-full object-cover hidden">
-                            <span id="nav-avatar-text">AK</span>
-                        </button>
-                    </div>
+                    <a href="index.html" class="text-slate-300 hover:text-white transition-colors"><i class="fa-solid fa-home"></i> Ana Sayfa</a>
                 </div>
             </div>
         </div>
     </nav>
 
-    <div class="max-w-5xl mx-auto px-4 py-10 w-full flex-grow">
-        <h1 class="text-3xl font-bold text-white mb-8">Hesabım</h1>
+    <div class="max-w-5xl mx-auto px-4 py-8">
+        
+        <div class="bg-gradient-to-r from-slate-800 to-slate-900 p-8 rounded-2xl border border-slate-700 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
+            <div class="flex items-center gap-6">
+                <div class="w-20 h-20 bg-asuPurple rounded-full flex items-center justify-center text-3xl font-bold text-white shadow-lg shadow-indigo-500/50">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-white" id="profileName">Yükleniyor...</h1>
+                    <p class="text-slate-400" id="profileEmail">...</p>
+                </div>
+            </div>
+            <button onclick="logout()" class="bg-slate-700 hover:bg-red-600 text-white px-6 py-3 rounded-xl transition-all flex items-center gap-2 border border-slate-600 hover:border-red-500">
+                <i class="fa-solid fa-right-from-bracket"></i> Çıkış Yap
+            </button>
+        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             
-            <div class="md:col-span-1 space-y-4">
-                <div class="bg-asuCard border border-slate-700 rounded-xl p-4">
-                    <nav class="space-y-1">
-                        <button onclick="switchTab('edit')" id="btn-edit" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors active-nav-item">
-                            <i class="fa-solid fa-user-gear"></i> Profili Düzenle
-                        </button>
-                        <button onclick="switchTab('security')" id="btn-security" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors inactive-nav-item">
-                            <i class="fa-solid fa-shield-halved"></i> Şifre ve Güvenlik
-                        </button>
-                        <button onclick="switchTab('listings')" id="btn-listings" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors inactive-nav-item">
-                            <i class="fa-solid fa-list-check"></i> İlanlarım / Notlarım
-                        </button>
-                        <button onclick="switchTab('notifications')" id="btn-notifications" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors inactive-nav-item">
-                            <i class="fa-solid fa-bell"></i> Bildirimler
-                        </button>
-                    </nav>
-                </div>
-                <button onclick="handleLogout()" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-900/20 text-red-400 border border-red-900/30 rounded-xl hover:bg-red-900/40 transition-colors text-sm font-medium">
-                    <i class="fa-solid fa-right-from-bracket"></i> Oturumu Kapat
-                </button>
-            </div>
-
-            <div class="md:col-span-2">
-                <div class="bg-asuCard border border-slate-700 rounded-xl p-8 shadow-lg relative overflow-hidden min-h-[500px]">
-                    <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-r from-indigo-900 to-slate-900 opacity-50"></div>
-
-                    <div id="tab-edit" class="relative mt-4">
-                        <div class="relative mb-8 flex flex-col items-center sm:items-start sm:flex-row sm:gap-6">
-                            <div class="relative group">
-                                <div class="w-28 h-28 rounded-full border-4 border-asuCard bg-slate-800 flex items-center justify-center overflow-hidden shadow-2xl">
-                                    <img id="profile-preview" src="https://via.placeholder.com/150?text=USER" class="w-full h-full object-cover">
-                                </div>
-                                <label for="file-upload" class="absolute bottom-0 right-0 bg-asuPurple hover:bg-asuPurpleDark text-white p-2 rounded-full cursor-pointer shadow-lg transition-colors border border-asuCard"><i class="fa-solid fa-camera text-sm"></i></label>
-                                <input id="file-upload" type="file" class="hidden" accept="image/*" onchange="previewImage(event)">
-                            </div>
-                            <div class="mt-4 sm:mt-8 text-center sm:text-left">
-                                <h2 class="text-xl font-bold text-white" id="display-name-header">Kullanıcı Adı</h2>
-                                <p class="text-sm text-slate-400">Profil fotoğrafı yüklemek için kamera ikonuna tıkla.</p>
-                            </div>
-                        </div>
-
-                        <form onsubmit="saveProfile(event)" class="space-y-6">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div><label class="block text-xs font-medium text-slate-400 mb-1.5">Ad Soyad (Gerçek)</label><input type="text" class="w-full bg-slate-800/50 border border-slate-600 text-slate-500 text-sm rounded-lg p-2.5 cursor-not-allowed" value="Ahmet Yılmaz" disabled><p class="text-[10px] text-slate-600 mt-1">Okul kaydındaki isminiz değiştirilemez.</p></div>
-                                <div><label class="block text-xs font-medium text-asuPurple mb-1.5 flex items-center gap-1"><i class="fa-solid fa-mask"></i> Takma Ad (Nickname)</label><input type="text" id="nicknameInput" class="w-full bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2.5 focus:border-asuPurple outline-none" placeholder="Örn: KodYazanÖğrenci"></div>
-                            </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div><label class="block text-xs font-medium text-slate-400 mb-1.5">Okul E-postası</label><input type="email" class="w-full bg-slate-800/50 border border-slate-600 text-slate-500 text-sm rounded-lg p-2.5 cursor-not-allowed" value="20010101@aksaray.edu.tr" disabled></div>
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-400 mb-1.5">Bölümünüz</label>
-                                    <select id="deptInput" class="w-full bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2.5 focus:border-asuPurple outline-none">
-                                        <option value="">Seçiniz...</option>
-                                        <option value="Bilgisayar Müh.">Bilgisayar Müh.</option>
-                                        <option value="Elektrik-Elektronik Müh.">Elektrik-Elektronik Müh.</option>
-                                        <option value="Endüstri Müh.">Endüstri Müh.</option>
-                                        <option value="İnşaat Müh.">İnşaat Müh.</option>
-                                        <option value="Makine Müh.">Makine Müh.</option>
-                                        <option value="İktisat">İktisat</option>
-                                        <option value="İşletme">İşletme</option>
-                                        <option value="Maliye">Maliye</option>
-                                        <option value="YBS">Yönetim Bilişim Sis.</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div><label class="block text-xs font-medium text-slate-400 mb-1.5">Hakkımda</label><textarea id="bioInput" class="w-full bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2.5 h-28 resize-none focus:border-asuPurple outline-none" placeholder="Bölümün, ilgi alanların veya satmak istediğin kitaplar hakkında kısa bilgi..."></textarea></div>
-                            <div class="pt-4 border-t border-slate-700 flex justify-end">
-                                <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2"><i class="fa-solid fa-floppy-disk"></i> Değişiklikleri Kaydet</button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <div id="tab-security" class="hidden-tab relative mt-8">
-                        <h3 class="text-xl font-bold text-white mb-6">Şifre Değiştir</h3>
-                        <form onsubmit="changePassword(event)" class="space-y-6">
-                            <div><label class="block text-xs font-medium text-slate-400 mb-1.5">Mevcut Şifre</label><input type="password" class="w-full bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2.5 focus:border-asuPurple outline-none"></div>
-                            <div><label class="block text-xs font-medium text-slate-400 mb-1.5">Yeni Şifre</label><input type="password" class="w-full bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2.5 focus:border-asuPurple outline-none"></div>
-                            <div><label class="block text-xs font-medium text-slate-400 mb-1.5">Yeni Şifre (Tekrar)</label><input type="password" class="w-full bg-slate-800 border border-slate-600 text-white text-sm rounded-lg p-2.5 focus:border-asuPurple outline-none"></div>
-                            <div class="pt-4 border-t border-slate-700 flex justify-end">
-                                <button type="submit" class="bg-asuPurple hover:bg-asuPurpleDark text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all">Şifreyi Güncelle</button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <div id="tab-listings" class="hidden-tab relative mt-8">
-                        <h3 class="text-xl font-bold text-white mb-6">Paylaşımlarım</h3>
-                        <div class="space-y-4" id="my-listings-container">
-                            <div class="flex items-center justify-between bg-slate-800 p-4 rounded-lg border border-slate-700" id="item-1">
-                                <div class="flex items-center gap-4"><div class="w-12 h-12 bg-blue-900/30 text-blue-400 rounded-lg flex items-center justify-center text-xl border border-blue-500/30"><i class="fa-solid fa-book"></i></div><div><h4 class="font-bold text-white text-sm">Thomas Calculus</h4><p class="text-xs text-slate-400">Kitap İlanı • 250₺</p></div></div>
-                                <button onclick="deleteItem('item-1')" class="text-red-400 hover:bg-red-900/30 p-2 rounded-lg transition-colors text-sm"><i class="fa-solid fa-trash"></i> Kaldır</button>
-                            </div>
-                            <div class="flex items-center justify-between bg-slate-800 p-4 rounded-lg border border-slate-700" id="item-2">
-                                <div class="flex items-center gap-4"><div class="w-12 h-12 bg-purple-900/30 text-asuPurple rounded-lg flex items-center justify-center text-xl border border-asuPurple/30"><i class="fa-solid fa-file-pdf"></i></div><div><h4 class="font-bold text-white text-sm">Algoritma Analizi Notları</h4><p class="text-xs text-slate-400">Ders Notu • PDF</p></div></div>
-                                <button onclick="deleteItem('item-2')" class="text-red-400 hover:bg-red-900/30 p-2 rounded-lg transition-colors text-sm"><i class="fa-solid fa-trash"></i> Kaldır</button>
-                            </div>
-                        </div>
-                        <div id="empty-listings" class="hidden text-center py-10 text-slate-500"><i class="fa-solid fa-box-open text-3xl mb-2"></i><p>Henüz paylaşımın yok.</p></div>
-                    </div>
-
-                    <div id="tab-notifications" class="hidden-tab relative mt-8">
-                        <h3 class="text-xl font-bold text-white mb-6">Bildirim Ayarları</h3>
-                        <div class="space-y-6">
-                            <div class="flex items-center justify-between">
-                                <div><h4 class="text-white font-medium">E-posta Bildirimleri</h4><p class="text-xs text-slate-400">Yeni bir mesaj aldığımda mail gönder.</p></div>
-                                <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" checked class="sr-only peer"><div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-asuPurple"></div></label>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <div><h4 class="text-white font-medium">Kitap İlanı Eşleşmeleri</h4><p class="text-xs text-slate-400">Aradığım kitap eklendiğinde haber ver.</p></div>
-                                <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" class="sr-only peer"><div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-asuPurple"></div></label>
-                            </div>
-                            <div class="pt-4 border-t border-slate-700 flex justify-end">
-                                <button onclick="showToast('Ayarlar kaydedildi!')" class="bg-slate-700 hover:bg-slate-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all">Ayarları Kaydet</button>
-                            </div>
-                        </div>
-                    </div>
-
+            <div class="bg-asuCard p-6 rounded-2xl border border-slate-700">
+                <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                    <span class="bg-indigo-500/20 text-indigo-400 p-2 rounded"><i class="fa-solid fa-file-pdf"></i></span>
+                    Paylaştığım Notlar
+                </h2>
+                <div id="myNotesList" class="space-y-4">
+                    <div class="text-center py-4"><i class="fa-solid fa-spinner fa-spin text-slate-500"></i></div>
                 </div>
             </div>
+
+            <div class="bg-asuCard p-6 rounded-2xl border border-slate-700">
+                <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                    <span class="bg-emerald-500/20 text-emerald-400 p-2 rounded"><i class="fa-solid fa-book"></i></span>
+                    Satıştakiler
+                </h2>
+                <div id="myBooksList" class="space-y-4">
+                    <div class="text-center py-4"><i class="fa-solid fa-spinner fa-spin text-slate-500"></i></div>
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <div id="toast" class="fixed bottom-5 right-5 bg-slate-800 border border-slate-600 text-white px-4 py-3 rounded-lg shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-3"><i class="fa-solid fa-circle-check text-emerald-400"></i><span id="toast-msg">İşlem Başarılı</span></div>
-
     <script>
-        function switchTab(tabId) { document.querySelectorAll('[id^="tab-"]').forEach(el => el.classList.add('hidden-tab')); document.getElementById('tab-' + tabId).classList.remove('hidden-tab'); document.querySelectorAll('[id^="btn-"]').forEach(el => { el.className = "w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors inactive-nav-item"; }); document.getElementById('btn-' + tabId).className = "w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors active-nav-item"; }
+        // --- AYARLAR ---
+        const SUPABASE_URL = "https://kmzbywrcspzwuznexcla.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_2mPJ390ssxg8euZ9hgmfFg_O5mPR1Fh"; 
         
-        
-        window.addEventListener('load', () => { if(localStorage.getItem('isLoggedIn') !== 'true') { window.location.href = 'login.html'; return; } loadProfileData(); });
-        
-        function loadProfileData() {
-            const nickname = localStorage.getItem('userNickname') || '';
-            const bio = localStorage.getItem('userBio') || '';
-            const avatar = localStorage.getItem('userAvatar');
-            const dept = localStorage.getItem('userDept') || '';
-            
-            document.getElementById('nicknameInput').value = nickname;
-            document.getElementById('bioInput').value = bio;
-            document.getElementById('deptInput').value = dept; 
-            
-            if (avatar) { document.getElementById('profile-preview').src = avatar; updateNavbarAvatar(avatar); }
-            if (nickname) { document.getElementById('display-name-header').innerText = nickname; }
+        const { createClient } = window.supabase;
+        const asuDb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // 1. GİRİŞ KONTROLÜ
+        const userEmail = localStorage.getItem('userEmail');
+        if (!userEmail) {
+            window.location.href = 'login.html'; // Giriş yapmamışsa at
+        } else {
+            document.getElementById('profileName').innerText = userEmail.split('@')[0];
+            document.getElementById('profileEmail').innerText = userEmail;
         }
 
-        function previewImage(event) { const file = event.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = function(e) { const base64String = e.target.result; document.getElementById('profile-preview').src = base64String; window.tempAvatar = base64String; }; reader.readAsDataURL(file); } }
-        
-        function saveProfile(e) {
-            e.preventDefault();
-            const nickname = document.getElementById('nicknameInput').value;
-            const bio = document.getElementById('bioInput').value;
-            const dept = document.getElementById('deptInput').value; 
-            
-            localStorage.setItem('userNickname', nickname);
-            localStorage.setItem('userBio', bio);
-            localStorage.setItem('userDept', dept); 
-            
-            if (window.tempAvatar) { localStorage.setItem('userAvatar', window.tempAvatar); updateNavbarAvatar(window.tempAvatar); }
-            document.getElementById('display-name-header').innerText = nickname || "Kullanıcı Adı";
-            showToast("Profiliniz başarıyla güncellendi! 🎉");
+        // 2. ÇIKIŞ YAP FONKSİYONU
+        function logout() {
+            if(confirm("Çıkış yapmak istediğine emin misin?")) {
+                localStorage.clear();
+                window.location.href = 'index.html';
+            }
         }
 
-        function updateNavbarAvatar(src) { const imgEl = document.getElementById('nav-avatar-img'); const txtEl = document.getElementById('nav-avatar-text'); if(src) { imgEl.src = src; imgEl.classList.remove('hidden'); txtEl.classList.add('hidden'); } }
-        function changePassword(e) { e.preventDefault(); showToast("Şifreniz başarıyla değiştirildi."); e.target.reset(); }
-        function deleteItem(id) { if(confirm("Bu ilanı silmek istediğine emin misin?")) { document.getElementById(id).remove(); if(document.getElementById('my-listings-container').children.length === 0) { document.getElementById('empty-listings').classList.remove('hidden'); } showToast("İlan yayından kaldırıldı."); } }
-        
-        
-        function handleLogout() { if(confirm("Çıkış yapmak istediğinize emin misiniz?")) { localStorage.removeItem('isLoggedIn'); localStorage.removeItem('isAdmin'); window.location.href='index.html'; } }
-        
-        function showToast(msg) { const t = document.getElementById('toast'); document.getElementById('toast-msg').innerText = msg; t.classList.remove('translate-y-20', 'opacity-0'); setTimeout(() => t.classList.add('translate-y-20', 'opacity-0'), 3000); }
+        // 3. VERİLERİ SİLME FONKSİYONU
+        async function deleteItem(table, id) {
+            if(!confirm("Bu öğeyi silmek istediğine emin misin? Bu işlem geri alınamaz!")) return;
+
+            try {
+                const { error } = await asuDb.from(table).delete().eq('id', id);
+                if(error) throw error;
+                
+                alert("Silindi! 🗑️");
+                location.reload(); // Sayfayı yenile
+            } catch (error) {
+                alert("Hata: " + error.message);
+            }
+        }
+
+        // 4. VERİLERİ GETİR
+        async function loadMyContent() {
+            // A) Notları Çek
+            const { data: notes } = await asuDb.from('notes').select('*').eq('uploader_email', userEmail);
+            const notesList = document.getElementById('myNotesList');
+            
+            if(notes && notes.length > 0) {
+                notesList.innerHTML = notes.map(note => `
+                    <div class="bg-slate-800 p-4 rounded-lg flex items-center justify-between group">
+                        <div class="truncate pr-4">
+                            <h4 class="font-bold text-white truncate">${note.title}</h4>
+                            <p class="text-xs text-slate-400">${new Date(note.created_at).toLocaleDateString('tr-TR')}</p>
+                        </div>
+                        <button onclick="deleteItem('notes', ${note.id})" class="text-slate-500 hover:text-red-500 transition-colors p-2" title="Sil">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                `).join('');
+            } else {
+                notesList.innerHTML = '<div class="text-slate-500 text-sm text-center">Hiç not paylaşmamışsın.</div>';
+            }
+
+            // B) Kitapları Çek
+            const { data: books } = await asuDb.from('books').select('*').eq('seller_email', userEmail);
+            const booksList = document.getElementById('myBooksList');
+            
+            if(books && books.length > 0) {
+                booksList.innerHTML = books.map(book => `
+                    <div class="bg-slate-800 p-4 rounded-lg flex items-center justify-between group">
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            <img src="${book.image_url}" class="w-10 h-10 rounded object-cover">
+                            <div class="truncate">
+                                <h4 class="font-bold text-white truncate">${book.title}</h4>
+                                <span class="text-xs bg-green-900 text-green-300 px-1.5 py-0.5 rounded">${book.price}</span>
+                            </div>
+                        </div>
+                        <button onclick="deleteItem('books', ${book.id})" class="text-slate-500 hover:text-red-500 transition-colors p-2" title="Sil">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                `).join('');
+            } else {
+                booksList.innerHTML = '<div class="text-slate-500 text-sm text-center">Satılık kitabın yok.</div>';
+            }
+        }
+
+        loadMyContent();
     </script>
 </body>
 </html>
