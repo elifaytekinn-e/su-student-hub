@@ -19,7 +19,6 @@
                 <a href="notes.html" class="text-slate-400 hover:text-white">Ders Notları</a>
                 <a href="books.html" class="text-slate-400 hover:text-white">ASÜ Sahaf</a>
                 <a href="faq.html" class="text-slate-400 hover:text-white">S.S.S</a>
-                
                 <div id="auth-buttons" class="flex gap-4 ml-4"><a href="login.html" class="text-slate-400">Giriş</a><a href="login.html" class="bg-asuPurple text-white px-5 py-2.5 rounded-md">Kayıt Ol</a></div>
                 <div id="user-profile" class="hidden"><a href="profile.html" class="w-10 h-10 rounded-full bg-indigo-900 flex items-center justify-center text-white font-bold" id="userAvatar">..</a></div>
             </div>
@@ -48,9 +47,7 @@
     </header>
     <script>
         const SUPABASE_URL = "https://kmzbywrcspzwuznexcla.supabase.co";
-        // YENİ ANAHTAR:
         const SUPABASE_KEY = "sb_publishable_z2fcMIygDFlXaZD3z1CxbA_YkPXzxNt"; 
-
         const asuDb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         window.addEventListener('load', async () => {
             const userEmail = localStorage.getItem('userEmail');
