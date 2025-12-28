@@ -7,6 +7,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -23,6 +26,7 @@
             <h2 class="text-2xl font-bold text-white">ASÜ Student Hub</h2><p class="text-sm text-slate-400 mt-1">Öğrenci Ağına Katıl</p>
         </div>
         <div class="p-8">
+            
             <div id="login-container">
                 <form id="form-login" class="space-y-5" onsubmit="handleLogin(event)">
                     <div id="loginError" class="hidden bg-red-500/10 border border-red-500/50 text-red-400 text-xs p-3 rounded flex items-center gap-2 animate-pulse"><i class="fa-solid fa-circle-exclamation"></i><span id="loginErrorText">Hata mesajı</span></div>
@@ -32,6 +36,7 @@
                     <p class="text-sm text-center text-slate-400 mt-4">Hesabın yok mu? <button type="button" onclick="showRegister()" class="text-asuPurple font-bold hover:underline">Kayıt Ol</button></p>
                 </form>
             </div>
+
             <div id="register-container" class="hidden-form">
                 <h3 class="text-xl font-semibold text-white mb-6">Hesap Oluştur 🚀</h3>
                 <form id="form-register" class="space-y-5" onsubmit="handleRegister(event)">
@@ -43,6 +48,7 @@
                     <p class="text-sm text-center text-slate-400 mt-4">Zaten hesabın var mı? <button type="button" onclick="showLogin()" class="text-asuPurple font-bold hover:underline">Giriş Yap</button></p>
                 </form>
             </div>
+
             <div id="forgot-container" class="hidden-form">
                 <div class="text-center mb-6"><div class="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3 text-asuPurple"><i class="fa-solid fa-lock-open text-xl"></i></div><h3 class="text-xl font-semibold text-white">Şifreni Sıfırla</h3><p class="text-xs text-slate-400 mt-2">Okul e-posta adresini gir, sana sıfırlama linki gönderelim.</p></div>
                 <form id="form-forgot" class="space-y-5" onsubmit="handleForgot(event)">
@@ -54,54 +60,126 @@
         </div>
         <div class="bg-slate-900/50 p-4 text-center border-t border-slate-700 text-sm"><a href="index.html" class="text-slate-500 hover:text-white transition-colors"><i class="fa-solid fa-arrow-left mr-1"></i> Ana Sayfaya Dön</a></div>
     </div>
+
     <script>
-        const loginContainer = document.getElementById('login-container'); const registerContainer = document.getElementById('register-container'); const forgotContainer = document.getElementById('forgot-container');
-        function showRegister() { loginContainer.classList.add('hidden-form'); forgotContainer.classList.add('hidden-form'); registerContainer.classList.remove('hidden-form'); history.pushState(null, null, '#register'); }
-        function showLogin() { registerContainer.classList.add('hidden-form'); forgotContainer.classList.add('hidden-form'); loginContainer.classList.remove('hidden-form'); history.pushState(null, null, '#login'); }
-        function showForgot() { loginContainer.classList.add('hidden-form'); registerContainer.classList.add('hidden-form'); forgotContainer.classList.remove('hidden-form'); }
+       
+        const SUPABASE_URL = 'https://kmzbywrcspzwuznexcla.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_2mPJ39Ossxg8euZ9hgmfFg_O5mPR1Fh';
+        // ==========================================================
+
+        
+        const { createClient } = window.supabase;
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const loginContainer = document.getElementById('login-container'); 
+        const registerContainer = document.getElementById('register-container'); 
+        const forgotContainer = document.getElementById('forgot-container');
+
+        
+        window.showRegister = () => { loginContainer.classList.add('hidden-form'); forgotContainer.classList.add('hidden-form'); registerContainer.classList.remove('hidden-form'); history.pushState(null, null, '#register'); }
+        window.showLogin = () => { registerContainer.classList.add('hidden-form'); forgotContainer.classList.add('hidden-form'); loginContainer.classList.remove('hidden-form'); history.pushState(null, null, '#login'); }
+        window.showForgot = () => { loginContainer.classList.add('hidden-form'); registerContainer.classList.add('hidden-form'); forgotContainer.classList.remove('hidden-form'); }
         window.addEventListener('load', () => { if(window.location.hash === '#register') { showRegister(); } else { showLogin(); } });
-        if(!localStorage.getItem('asuUsers')) { localStorage.setItem('asuUsers', JSON.stringify({})); }
+
         
-        function handleLogin(e) { 
-            e.preventDefault(); 
-            const email = document.getElementById('loginEmail').value.trim(); 
-            const password = document.getElementById('loginPassword').value; 
-            const errorBox = document.getElementById('loginError'); 
+        window.handleLogin = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const errorBox = document.getElementById('loginError');
             errorBox.classList.add('hidden');
+
             
-           
-            if(email === 'admin') { 
-                if(password === 'asu123') { 
-                    localStorage.setItem('isAdmin', 'true'); 
-                    window.location.href = 'admin.html'; 
-                } else { 
-                    showError("Hatalı admin şifresi!"); 
-                } 
-                return; 
+            if(email === 'admin' && password === 'asu123') {
+                localStorage.setItem('isAdmin', 'true');
+                window.location.href = 'admin.html';
+                return;
             }
+
+            try {
+                
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password,
+                });
+
+                if (error) throw error;
+
+               
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userEmail', data.user.email);
+                localStorage.setItem('userId', data.user.id);
+                
+                window.location.href = 'index.html';
+
+            } catch (error) {
+                console.error(error);
+                showError('login', translateError(error.message));
+            }
+        };
+
+      
+        window.handleRegister = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const errorBox = document.getElementById('registerError');
+            errorBox.classList.add('hidden');
+
             
-            const users = JSON.parse(localStorage.getItem('asuUsers'));
-            if (users[email]) { 
-                if (users[email] === password) { 
-                    localStorage.setItem('isLoggedIn', 'true'); 
-                    
-                    window.location.href = 'index.html'; 
-                } else { 
-                    showError("Şifre hatalı! Lütfen tekrar deneyin."); 
-                } 
-            } else { 
-                showError("Bu e-posta kayıtlı değil. Lütfen aşağıdan 'Kayıt Ol' butonuna basarak hesap oluşturun."); 
+            if (!email.endsWith('@aksaray.edu.tr')) {
+                showError('register', "Sadece @aksaray.edu.tr maili ile kayıt olabilirsiniz!");
+                return;
             }
-        }
+
+            try {
+               
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                });
+
+                if (error) throw error;
+
+                alert("Kayıt Başarılı! 🎉\nArtık giriş yapabilirsiniz.");
+                showLogin();
+
+            } catch (error) {
+                console.error(error);
+                showError('register', translateError(error.message));
+            }
+        };
+
         
-        function showError(msg) { const errorBox = document.getElementById('loginError'); const errorText = document.getElementById('loginErrorText'); errorBox.classList.remove('hidden'); errorText.innerText = msg; }
-        function handleRegister(e) { e.preventDefault(); const email = document.getElementById('regEmail').value.trim().toLowerCase(); const password = document.getElementById('regPassword').value; const errorBox = document.getElementById('registerError'); const errorText = document.getElementById('registerErrorText'); errorBox.classList.add('hidden');
-            if (!email.endsWith('@aksaray.edu.tr')) { errorBox.classList.remove('hidden'); errorText.innerText = "Sadece okul maili (@aksaray.edu.tr) ile kayıt olabilirsiniz!"; return; }
-            if(password.length < 6) { errorBox.classList.remove('hidden'); errorText.innerText = "Şifreniz en az 6 karakter olmalıdır."; return; }
-            const users = JSON.parse(localStorage.getItem('asuUsers')); if(users[email]) { errorBox.classList.remove('hidden'); errorText.innerText = "Bu e-posta adresi zaten kayıtlı!"; return; }
-            users[email] = password; localStorage.setItem('asuUsers', JSON.stringify(users)); alert("Kayıt Başarılı! 🎉\nŞimdi giriş yapabilirsiniz."); showLogin(); document.getElementById('loginEmail').value = email;
+        window.handleForgot = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('forgotEmail').value.trim();
+            
+            try {
+                const { error } = await supabase.auth.resetPasswordForEmail(email);
+                if (error) throw error;
+                
+                alert(`Sıfırlama bağlantısı ${email} adresine gönderildi!`);
+                showLogin();
+            } catch (error) {
+                alert("Hata: " + translateError(error.message));
+            }
+        };
+
+        
+        function showError(type, msg) { 
+            const errorBox = document.getElementById(type + 'Error'); 
+            const errorText = document.getElementById(type + 'ErrorText'); 
+            errorBox.classList.remove('hidden'); 
+            errorText.innerText = msg; 
         }
-        function handleForgot(e) { e.preventDefault(); const email = document.getElementById('forgotEmail').value.trim(); if (!email.endsWith('@aksaray.edu.tr')) { alert("Lütfen geçerli bir okul mail adresi giriniz."); return; } alert(`Sıfırlama bağlantısı ${email} adresine gönderildi!`); showLogin(); }
+
+        function translateError(msg) {
+            if (msg.includes("Invalid login credentials")) return "E-posta veya şifre hatalı.";
+            if (msg.includes("User already registered")) return "Bu e-posta zaten kayıtlı.";
+            if (msg.includes("Password should be at least")) return "Şifre en az 6 karakter olmalı.";
+            return "Bir hata oluştu: " + msg;
+        }
     </script>
 </body>
 </html>
