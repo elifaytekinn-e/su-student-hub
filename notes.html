@@ -64,19 +64,16 @@
         const { createClient } = window.supabase;
         const asuDb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Kullanıcı Kontrolü
+        // Kullanıcı Kontrolü (Giriş yapmamışsa yükleme kısmını gizle)
         const userEmail = localStorage.getItem('userEmail');
         if (userEmail) {
             document.getElementById('uploadSection').classList.remove('hidden');
             document.getElementById('userDisplay').innerText = userEmail;
-        } else {
-            alert("Not yüklemek için önce giriş yapmalısın!");
-            window.location.href = 'login.html';
         }
 
         // Dosya İsmi Gösterme
         document.getElementById('noteFile').addEventListener('change', function(e) {
-            if(this.files[0]) document.getElementById('fileName').innerHTML = `<span class="text-white font-bold">${this.files[0].name}</span>`;
+            if(this.files[0]) document.getElementById('fileName').innerHTML = <span class="text-white font-bold">${this.files[0].name}</span>;
         });
 
         // --- NOT YÜKLEME ---
@@ -93,7 +90,7 @@
 
             try {
                 // 1. Dosyayı Storage'a Yükle
-                const fileName = `${Date.now()}_${file.name}`;
+                const fileName = ${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}; // Türkçe karakter sorununu önlemek için isim temizleme
                 const { data: fileData, error: fileError } = await asuDb.storage
                     .from('ders-notlari')
                     .upload(fileName, file);
@@ -125,39 +122,45 @@
         // --- NOTLARI LİSTELEME ---
         async function loadNotes() {
             document.getElementById('loader').classList.remove('hidden');
+            
+            // Veritabanından verileri çek
             const { data, error } = await asuDb.from('notes').select('*').order('created_at', { ascending: false });
             
             document.getElementById('loader').classList.add('hidden');
             const list = document.getElementById('notesList');
 
-            if (error) { console.error(error); return; }
+            if (error) { 
+                console.error("Listeleme hatası:", error);
+                list.innerHTML = '<div class="text-red-400">Notlar yüklenirken hata oluştu.</div>';
+                return; 
+            }
             
-            if (data.length === 0) {
-                list.innerHTML = '<div class="col-span-2 text-center text-slate-500">Henüz hiç not yüklenmemiş. İlk sen ol!</div>';
+            if (!data || data.length === 0) {
+                list.innerHTML = '<div class="col-span-2 text-center text-slate-500 py-10 bg-slate-900/50 rounded-xl border border-slate-800">Henüz hiç not yüklenmemiş.<br>İlk paylaşımı sen yap! 🚀</div>';
                 return;
             }
 
+            // Gelen verileri ekrana yaz
             list.innerHTML = data.map(note => `
-                <div class="bg-asuCard border border-slate-700 p-5 rounded-xl hover:border-asuPurple transition-colors group">
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <h3 class="font-bold text-lg text-white group-hover:text-asuPurple transition-colors">${note.title}</h3>
-                            <p class="text-sm text-slate-400 mt-1">${note.description || ''}</p>
-                            <div class="text-xs text-slate-500 mt-3 flex items-center gap-2">
-                                <i class="fa-solid fa-user-circle"></i> ${note.uploader_email.split('@')[0]}
-                            </div>
-                        </div>
-                        <div class="bg-slate-800 p-3 rounded-lg text-asuPurple">
-                            <i class="fa-solid fa-file-pdf text-xl"></i>
+                <div class="bg-asuCard border border-slate-700 p-5 rounded-xl hover:border-asuPurple transition-colors group relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <i class="fa-solid fa-file-lines text-6xl text-white"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <h3 class="font-bold text-lg text-white group-hover:text-asuPurple transition-colors">${note.title || 'Başlıksız'}</h3>
+                        <p class="text-sm text-slate-400 mt-1">${note.description || ''}</p>
+                        <div class="text-xs text-slate-500 mt-3 flex items-center gap-2 border-t border-slate-700/50 pt-3">
+                            <i class="fa-solid fa-user-circle"></i> ${note.uploader_email ? note.uploader_email.split('@')[0] : 'Anonim'}
                         </div>
                     </div>
-                    <a href="${note.file_url}" target="_blank" class="mt-4 block w-full bg-slate-800 hover:bg-asuPurple text-center py-2 rounded-lg text-sm text-white font-medium transition-colors">
-                        <i class="fa-solid fa-download mr-1"></i> İndir / Görüntüle
+                    <a href="${note.file_url}" target="_blank" class="mt-4 flex items-center justify-center w-full bg-slate-800 hover:bg-asuPurple text-white py-2.5 rounded-lg text-sm font-medium transition-all group-hover:shadow-lg relative z-10">
+                        <i class="fa-solid fa-download mr-2"></i> İndir / Görüntüle
                     </a>
                 </div>
             `).join('');
         }
 
+        // Sayfa açılınca notları getir
         loadNotes();
     </script>
 </body>
