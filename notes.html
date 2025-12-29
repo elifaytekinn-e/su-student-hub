@@ -155,34 +155,32 @@
 
         document.addEventListener('DOMContentLoaded', fetchNotes);
 
-       // notes.html içindeki fetchNotes fonksiyonunu bununla değiştir:
+       
 
 async function fetchNotes() {
     const container = document.getElementById('notesContainer');
     const spinner = document.getElementById('loadingSpinner');
     
-    // URL'deki aramayı yakala (Örn: notes.html?q=yazilim)
+
     const urlParams = new URLSearchParams(window.location.search);
     const searchTerm = urlParams.get('q');
 
-    // Eğer arama yapılmışsa başlığı güncelle
     if(searchTerm) {
         document.querySelector('h2').innerText = `"${searchTerm}" için Arama Sonuçları`;
-        // Arama kutusunu temizle/filtrelere gerek yok butonu koyabilirsin
+       
         document.querySelector('.btn-upload-new').insertAdjacentHTML('afterend', 
             '<a href="notes.html" class="btn btn-outline-secondary ms-2">Aramayı Temizle</a>'
         );
     }
     
     try {
-        // Sorguyu Hazırla
+        
         let query = client
             .from('notes')
             .select('*')
-            .eq('is_approved', true) // Sadece onaylılar
+            .eq('is_approved', true)
             .order('created_at', { ascending: false });
 
-        // Eğer arama kelimesi varsa filtrele (ilike = büyük/küçük harf duyarsız arama)
         if (searchTerm) {
             query = query.ilike('title', `%${searchTerm}%`);
         }
@@ -206,7 +204,7 @@ async function fetchNotes() {
     }
 }
 
-        // 2. LİSTELEME
+       
         function renderNotes(notes) {
             const container = document.getElementById('notesContainer');
             container.innerHTML = '';
@@ -245,13 +243,13 @@ async function fetchNotes() {
             });
         }
 
-        // 3. NOT YÜKLE
+        
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnSubmit');
             const originalText = btn.innerHTML;
             
-            // Oturum Kontrolü
+        
             const { data: { user } } = await client.auth.getUser();
             if (!user) {
                 alert("Not yüklemek için giriş yapmalısınız!");
@@ -269,33 +267,33 @@ async function fetchNotes() {
             const fileName = `note_${Date.now()}_${safeName}`;
 
             try {
-                // Dosya Yükle
+               
                 const { data: storageData, error: storageError } = await client.storage
                     .from('course_notes')
                     .upload(fileName, file);
 
                 if (storageError) throw storageError;
 
-                // URL Al
+               
                 const { data: publicUrlData } = client.storage
                     .from('course_notes')
                     .getPublicUrl(fileName);
                 
                 const publicURL = publicUrlData.publicUrl;
 
-                // Veritabanına Yaz (PRICE SÜTUNUNU SİLDİK)
+               
                 const { error: dbError } = await client
                     .from('notes')
                     .insert([{
-                        user_id: user.id, // Kullanıcı ID'si eklendi
+                        user_id: user.id, 
                         title: document.getElementById('noteTitle').value,
                         faculty: document.getElementById('noteFaculty').value,
                         department: document.getElementById('noteDept').value,
                         description: document.getElementById('noteDesc').value,
-                        // price: 0,  <-- BU SATIRI SİLDİK, ÇÜNKÜ TABLODA YOK
+                        
                         file_url: publicURL,
                         uploader_name: 'Öğrenci',
-                        is_approved: false // Varsayılan olarak onaysız
+                        is_approved: false 
                     }]);
 
                 if (dbError) throw dbError;
@@ -312,7 +310,7 @@ async function fetchNotes() {
             }
         });
 
-        // 4. YORUMLARI AÇ
+     
         async function openComments(noteId, noteTitle) {
             document.getElementById('commentModalTitle').innerText = noteTitle;
             document.getElementById('currentNoteId').value = noteId;
@@ -351,7 +349,7 @@ async function fetchNotes() {
             }
         }
 
-        // 5. YORUM GÖNDER
+        
         document.getElementById('commentForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const noteId = document.getElementById('currentNoteId').value;
@@ -372,7 +370,7 @@ async function fetchNotes() {
 
             if (!error) {
                 alert("Yorumunuz eklendi!");
-                // Modal'ı kapatmak yerine yorumları yenilemek daha şık olur ama şimdilik reload:
+               
                 location.reload(); 
             } else {
                 alert("Hata: " + error.message);
@@ -380,7 +378,7 @@ async function fetchNotes() {
             }
         });
 
-        // 6. FİLTRELEME
+       
         async function filterNotes() {
             const faculty = document.getElementById('filterFaculty').value;
             const container = document.getElementById('notesContainer');
@@ -404,4 +402,5 @@ async function fetchNotes() {
     </script>
 </body>
 </html>
+
 
