@@ -6,187 +6,30 @@
     <title>ASÜ Hub - Profilim</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
-        body {
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #333;
-        }
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background-color: #fff; padding: 15px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .navbar-brand { font-weight: 700; font-size: 1.5rem; color: #0d2346; }
+        .navbar-brand span { color: #dc3545; }
+        .nav-link { color: #555; font-weight: 500; margin: 0 10px; }
+        .nav-link:hover { color: #dc3545; }
+        
+        /* Çıkış Butonu */
+        .btn-logout { border: 1px solid #dc3545; color: #dc3545; font-weight: 600; padding: 8px 20px; border-radius: 6px; text-decoration: none; cursor: pointer; }
+        .btn-logout:hover { background-color: #dc3545; color: white; }
 
-        /* NAVBAR */
-        .navbar {
-            background-color: #ffffff;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            padding: 15px 0;
-        }
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.5rem;
-            color: #0d2346;
-        }
-        .navbar-brand span {
-            color: #dc3545;
-        }
-        .nav-link {
-            color: #555;
-            font-weight: 500;
-            margin: 0 10px;
-            transition: color 0.3s;
-        }
-        .nav-link:hover {
-            color: #dc3545;
-        }
-        .btn-logout {
-            border: 1px solid #dc3545;
-            color: #dc3545;
-            font-weight: 600;
-            padding: 8px 20px;
-            border-radius: 6px;
-            text-decoration: none;
-            transition: all 0.3s;
-        }
-        .btn-logout:hover {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        /* KARTLAR GENEL */
-        .custom-card {
-            background-color: #ffffff;
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            margin-bottom: 20px;
-        }
-
-        /* SOL PROFİL KARTI (Daha kompakt) */
-        .profile-sidebar {
-            text-align: center;
-            padding: 30px 20px;
-        }
-        .avatar-circle {
-            width: 90px;
-            height: 90px;
-            background-color: #0d6efd;
-            color: white;
-            font-size: 2.5rem;
-            font-weight: bold;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 15px auto;
-            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
-        }
-        .user-name {
-            font-weight: 700;
-            color: #0d2346;
-            margin-bottom: 5px;
-        }
-        .user-email {
-            font-size: 0.9rem;
-            color: #6c757d;
-            margin-bottom: 15px;
-        }
-
-        /* TAB MENÜSÜ (Ayarlar ve Şifre için) */
-        .nav-tabs .nav-link {
-            color: #555;
-            border: none;
-            font-weight: 600;
-            padding: 15px 20px;
-        }
-        .nav-tabs .nav-link.active {
-            color: #0d6efd;
-            border-bottom: 2px solid #0d6efd;
-            background: none;
-        }
-        .tab-content {
-            padding: 30px;
-        }
-
-        /* FORM ELEMANLARI */
-        .form-label {
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: #495057;
-        }
-        .form-control, .form-select {
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #dee2e6;
-        }
-        .form-control:focus, .form-select:focus {
-            border-color: #0d6efd;
-            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
-        }
-        .btn-save {
-            background-color: #0d6efd;
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: 600;
-            border: none;
-            width: 100%;
-        }
-        .btn-save:hover {
-            background-color: #0b5ed7;
-        }
-
-        /* İSTATİSTİK KUTUCUKLARI (Yatay) */
-        .stat-box {
-            background-color: #ffffff;
-            border-radius: 12px;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            height: 100%;
-            border-left: 4px solid #0d6efd;
-        }
-        .stat-title {
-            font-size: 0.9rem;
-            color: #6c757d;
-            font-weight: 600;
-        }
-        .stat-number {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: #333;
-        }
-        .stat-icon {
-            font-size: 1.5rem;
-            color: #e9ecef;
-        }
-
-        /* YORUM KARTI */
-        .review-item {
-            border-bottom: 1px solid #f1f1f1;
-            padding-bottom: 15px;
-            margin-bottom: 15px;
-        }
-        .review-item:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-        }
-        .star-rating {
-            color: #ffc107;
-            font-size: 0.8rem;
-        }
+        .profile-card { background: #fff; border-radius: 12px; padding: 30px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .avatar-circle { width: 100px; height: 100px; background: #0d6efd; color: white; font-size: 2.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; }
     </style>
 </head>
 <body>
 
     <nav class="navbar navbar-expand-lg">
         <div class="container">
-            <a class="navbar-brand" href="index.html">
-                <i class="fa-solid fa-graduation-cap me-2"></i>ASÜ <span>HUB</span>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+            <a class="navbar-brand" href="index.html">ASÜ <span>HUB</span></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                 <ul class="navbar-nav align-items-center">
                     <li class="nav-item"><a class="nav-link" href="index.html">Ana Sayfa</a></li>
@@ -194,185 +37,73 @@
                     <li class="nav-item"><a class="nav-link" href="books.html">Sahaf</a></li>
                     <li class="nav-item"><a class="nav-link" href="faq.html">S.S.S</a></li>
                     <li class="nav-item ms-lg-3">
-                        <a href="index.html" class="btn-logout">Çıkış Yap</a>
+                        <button onclick="logoutUser()" class="btn-logout bg-transparent">Çıkış Yap</button>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container py-4">
-        <div class="row g-4">
-            
-            <div class="col-lg-3">
-                <div class="custom-card profile-sidebar">
-                    <div class="avatar-circle">EL</div>
-                    <h5 class="user-name">elifnamiye.aytekin</h5>
-                    <p class="user-email">elifnamiye.aytekin@aksaray.edu.tr</p>
-                    <span class="badge bg-secondary px-3 py-2 rounded-pill mb-3">Bölüm Yok</span>
-                    <hr>
-                    <div class="text-start mt-4">
-                        <small class="text-muted fw-bold d-block mb-2">HESAP DURUMU</small>
-                        <div class="d-flex align-items-center text-success small">
-                            <i class="fa-solid fa-circle-check me-2"></i> Onaylı Hesap
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-9">
-                
-                <div class="row g-3 mb-4">
-                    <div class="col-md-4">
-                        <div class="stat-box">
-                            <div>
-                                <div class="stat-title">Yüklenen Notlar</div>
-                                <div class="stat-number">0</div>
-                            </div>
-                            <i class="fa-solid fa-file-arrow-up stat-icon text-primary"></i>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="stat-box" style="border-left-color: #198754;">
-                            <div>
-                                <div class="stat-title">Satılan Kitaplar</div>
-                                <div class="stat-number">0</div>
-                            </div>
-                            <i class="fa-solid fa-book stat-icon text-success"></i>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="stat-box" style="border-left-color: #ffc107;">
-                            <div>
-                                <div class="stat-title">Yaptığım Yorumlar</div>
-                                <div class="stat-number">0</div>
-                            </div>
-                            <i class="fa-solid fa-star stat-icon text-warning"></i>
-                        </div>
-                    </div>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div id="loading" class="text-center">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2">Profil bilgileri alınıyor...</p>
                 </div>
 
-                <div class="custom-card">
-                    <ul class="nav nav-tabs" id="myTab" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-content" type="button" role="tab">
-                                <i class="fa-solid fa-user-pen me-2"></i>Profil Bilgileri
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="password-tab" data-bs-toggle="tab" data-bs-target="#password-content" type="button" role="tab">
-                                <i class="fa-solid fa-lock me-2"></i>Şifre Değiştir
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews-content" type="button" role="tab">
-                                <i class="fa-solid fa-comments me-2"></i>Değerlendirmelerim
-                            </button>
-                        </li>
-                    </ul>
+                <div id="profileContent" style="display: none;">
+                    <div class="profile-card text-center mb-4">
+                        <div class="avatar-circle">EL</div>
+                        <h3 class="fw-bold mb-1" id="userEmailDisplay">kullanici@aksaray.edu.tr</h3>
+                        <p class="text-muted">Öğrenci</p>
+                    </div>
 
-                    <div class="tab-content" id="myTabContent">
-                        
-                        <div class="tab-pane fade show active" id="profile-content" role="tabpanel">
-                            <form>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">Nickname</label>
-                                        <input type="text" class="form-control" placeholder="Örn: Mühendis06">
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">E-Posta (Değiştirilemez)</label>
-                                        <input type="email" class="form-control" value="elifnamiye.aytekin@aksaray.edu.tr" disabled>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">Fakülte</label>
-                                        <select class="form-select" id="faculty" onchange="updateDepartments()">
-                                            <option value="" selected disabled>Seçiniz...</option>
-                                            <option value="muhendislik">Mühendislik Fakültesi</option>
-                                            <option value="iibf">İktisadi ve İdari Bilimler Fak.</option>
-                                            <option value="egitim">Eğitim Fakültesi</option>
-                                            <option value="fen">Fen Edebiyat Fakültesi</option>
-                                            <option value="saglik">Sağlık Bilimleri Fakültesi</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6 mb-4">
-                                        <label class="form-label">Bölüm</label>
-                                        <select class="form-select" id="department" disabled>
-                                            <option selected>Önce Fakülte Seçiniz</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <button type="button" class="btn btn-save">Değişiklikleri Kaydet</button>
-                            </form>
-                        </div>
-
-                        <div class="tab-pane fade" id="password-content" role="tabpanel">
-                            <form>
-                                <div class="mb-3">
-                                    <label class="form-label">Mevcut Şifre</label>
-                                    <input type="password" class="form-control" placeholder="********">
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">Yeni Şifre</label>
-                                        <input type="password" class="form-control" placeholder="En az 6 karakter">
-                                    </div>
-                                    <div class="col-md-6 mb-4">
-                                        <label class="form-label">Yeni Şifre (Tekrar)</label>
-                                        <input type="password" class="form-control" placeholder="Şifrenizi doğrulayın">
-                                    </div>
-                                </div>
-                                <button type="button" class="btn btn-save bg-secondary">Şifreyi Güncelle</button>
-                            </form>
-                        </div>
-
-                        <div class="tab-pane fade" id="reviews-content" role="tabpanel">
-                            
-                            <div class="text-center py-4 text-muted">
-                                <i class="fa-regular fa-comment-dots fa-3x mb-3"></i>
-                                <p>Henüz hiçbir not veya kitap için yorum yapmadınız.</p>
-                                <a href="notes.html" class="btn btn-sm btn-outline-primary">Ders Notlarına Git</a>
+                    <div class="profile-card">
+                        <h5 class="fw-bold border-bottom pb-2 mb-3">Hesap Bilgileri</h5>
+                        <form>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small fw-bold">E-Posta Adresi</label>
+                                <input type="text" class="form-control" id="emailInput" disabled>
                             </div>
-
-                            </div>
+                            <button type="button" class="btn btn-primary w-100" onclick="alert('Bilgiler kaydedildi!')">Güncelle</button>
+                        </form>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
     <script>
-        const departmentsData = {
-            "muhendislik": ["Bilgisayar Mühendisliği", "Elektrik-Elektronik Müh.", "Endüstri Mühendisliği", "İnşaat Mühendisliği", "Makine Mühendisliği", "Çevre Mühendisliği"],
-            "iibf": ["İktisat", "İşletme", "Maliye", "Yönetim Bilişim Sistemleri", "Siyaset Bilimi ve Kamu Yönetimi"],
-            "egitim": ["Sınıf Öğretmenliği", "Rehberlik ve PDR", "İngilizce Öğretmenliği", "Okul Öncesi Öğretmenliği"],
-            "fen": ["Matematik", "Biyoloji", "Fizik", "Kimya", "Tarih", "Sosyoloji"],
-            "saglik": ["Hemşirelik", "Ebelik", "Sağlık Yönetimi"]
-        };
+        const SUPABASE_URL = 'https://kmzbywrcspzwuznexcla.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_2mPJ39Ossxg8euZ9hgmfFg_O5mPR1Fh';
+        const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        function updateDepartments() {
-            const faculty = document.getElementById("faculty").value;
-            const deptSelect = document.getElementById("department");
-            
-            deptSelect.innerHTML = '<option selected disabled>Bölüm Seçiniz...</option>';
-            
-            if (faculty && departmentsData[faculty]) {
-                departmentsData[faculty].forEach(dept => {
-                    let option = document.createElement("option");
-                    option.text = dept;
-                    option.value = dept;
-                    deptSelect.add(option);
-                });
-                deptSelect.disabled = false;
+        // SAYFA YÜKLENİNCE KONTROL ET
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Oturumu kontrol et
+            const { data: { session } } = await client.auth.getSession();
+
+            if (!session) {
+                // Eğer giriş yapılmamışsa Login sayfasına at!
+                window.location.href = 'login.html';
             } else {
-                deptSelect.disabled = true;
-                deptSelect.innerHTML = '<option selected>Önce Fakülte Seçiniz</option>';
+                // Giriş yapılmışsa bilgileri doldur ve sayfayı göster
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('profileContent').style.display = 'block';
+                
+                const email = session.user.email;
+                document.getElementById('userEmailDisplay').innerText = email;
+                document.getElementById('emailInput').value = email;
+            }
+        });
+
+        // ÇIKIŞ YAP FONKSİYONU
+        async function logoutUser() {
+            if(confirm("Çıkış yapmak istediğinize emin misiniz?")) {
+                await client.auth.signOut();
+                window.location.href = 'login.html'; // Çıkış yapınca login'e at
             }
         }
     </script>
