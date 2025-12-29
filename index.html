@@ -101,9 +101,9 @@
             <p class="hero-subtitle">Ders notlarını paylaş, kitaplarını takas et, kampüs hayatını kolaylaştır.</p>
             
             <div class="search-box">
-    <input type="text" id="searchInput" class="search-input" placeholder="Hangi ders notunu arıyorsun?">
-    <button class="btn-search" onclick="handleSearch()">ARA</button>
-</div>
+                <input type="text" id="searchInput" class="search-input" placeholder="Hangi ders notunu arıyorsun?">
+                <button class="btn-search" onclick="handleSearch()">ARA</button>
+            </div>
         </div>
     </section>
 
@@ -151,29 +151,44 @@
         document.addEventListener('DOMContentLoaded', async () => {
             await checkUser();
             loadAnnouncement();
+            
+            // Enter tuşuna basınca da arama yapsın
+            document.getElementById('searchInput').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    handleSearch();
+                }
+            });
         });
 
-        // 1. KULLANICI & ADMİN KONTROLÜ
+        // 1. ARAMA İŞLEVİ (Bu eksikti, şimdi eklendi)
+        function handleSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (query) {
+                // Notlar sayfasına yönlendir ve aramayı URL'ye ekle
+                window.location.href = `notes.html?q=${encodeURIComponent(query)}`;
+            } else {
+                alert("Lütfen aranacak bir kelime yazın.");
+            }
+        }
+
+        // 2. KULLANICI & ADMİN KONTROLÜ
         async function checkUser() {
             const { data: { session } } = await client.auth.getSession();
             const authContainer = document.getElementById('authContainer');
             
             if (session) {
-                // Giriş yapılmışsa profil bilgilerini ve Adminlik durumunu çek
                 const { data: profile } = await client.from('profiles').select('is_admin').eq('id', session.user.id).single();
                 
                 let btnLink = "profile.html";
                 let btnText = "Profilim";
                 let btnClass = "btn-outline-dark";
 
-                // Eğer admin ise butonun rengini ve hedefini değiştir
                 if (profile && profile.is_admin) {
                     btnLink = "yonetim-paneli.html";
                     btnText = "Yönetim Paneli";
                     btnClass = "btn-danger text-white border-0";
                 }
 
-                // Butonları Yerleştir (Profil/Admin Butonu + Çıkış Butonu)
                 authContainer.innerHTML = `
                     <div class="d-flex gap-2">
                         <a href="${btnLink}" class="btn ${btnClass} px-3 rounded-pill fw-bold">${btnText}</a>
@@ -181,22 +196,21 @@
                     </div>
                 `;
             } else {
-                // Giriş yapılmamışsa sadece Giriş Yap butonu
                 authContainer.innerHTML = `
                     <a href="login.html" class="btn btn-outline-dark px-4 rounded-pill">Giriş Yap</a>
                 `;
             }
         }
 
-        // 2. GÜVENLİ ÇIKIŞ FONKSİYONU
+        // 3. GÜVENLİ ÇIKIŞ
         window.handleLogout = async function() {
             if(confirm("Çıkış yapmak istediğinize emin misiniz?")) {
                 await client.auth.signOut();
-                window.location.href = "index.html"; // Sayfayı yenile
+                window.location.href = "index.html"; 
             }
         }
 
-        // 3. DUYURU YÜKLEME
+        // 4. DUYURU YÜKLEME
         async function loadAnnouncement() {
             const { data: announcement } = await client
                 .from('announcements')
@@ -210,18 +224,6 @@
                 document.getElementById('announcementText').innerText = announcement.text;
             }
         }
-        // ARAMA FONKSİYONU (index.html script kısmına ekle)
-function handleSearch() {
-    const query = document.getElementById('searchInput').value.trim();
-    if (query) {
-        // Notlar sayfasına yönlendir ve aramayı URL'ye ekle (?q=yazilim gibi)
-        window.location.href = `notes.html?q=${encodeURIComponent(query)}`;
-    } else {
-        alert("Lütfen aranacak bir kelime yazın.");
-    }
-}
     </script>
 </body>
 </html>
-
-
