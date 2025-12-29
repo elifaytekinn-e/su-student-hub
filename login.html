@@ -3,96 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giriş Yap | ASÜ Hub</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Giriş Yap - ASÜ Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>tailwind.config = { theme: { extend: { colors: { asuPrimary: '#e11d48', asuDark: '#0f172a' } } } }</script>
+    <style>
+        body { background-color: #f0f2f5; display: flex; align-items: center; justify-content: center; height: 100vh; font-family: 'Segoe UI', sans-serif; }
+        .login-card { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 400px; }
+        .brand-logo { color: #0d2346; font-weight: 800; font-size: 2rem; text-align: center; margin-bottom: 30px; }
+        .brand-logo span { color: #dc3545; }
+        .btn-primary { background-color: #0d6efd; padding: 12px; font-weight: 600; }
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+<body>
 
-    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md">
-        <div class="text-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">ASÜ <span class="text-asuPrimary">HUB</span></h1>
-            <p class="text-gray-500 text-sm mt-1">Öğrenci Giriş Kapısı</p>
-        </div>
-
-        <div class="flex bg-gray-200 p-1 rounded mb-6">
-            <button onclick="toggleTab('login')" id="btnLogin" class="flex-1 py-2 rounded bg-white shadow text-asuPrimary font-bold text-sm">Giriş Yap</button>
-            <button onclick="toggleTab('register')" id="btnRegister" class="flex-1 py-2 rounded text-gray-500 font-bold text-sm hover:text-gray-700">Kayıt Ol</button>
-        </div>
-
-        <form id="loginForm" class="space-y-4">
-            <div>
-                <label class="block text-gray-600 text-xs font-bold mb-1">E-posta</label>
-                <div class="relative">
-                    <i class="fa-solid fa-envelope absolute left-3 top-3 text-gray-400"></i>
-                    <input type="email" id="email" class="w-full pl-10 pr-4 py-2 border rounded focus:outline-none focus:border-asuPrimary" placeholder="ogrenci@asu.edu.tr" required>
-                </div>
+    <div class="login-card">
+        <div class="brand-logo">ASÜ <span>HUB</span></div>
+        
+        <form id="authForm">
+            <div class="mb-3">
+                <label class="form-label fw-bold small text-muted">E-Posta Adresi</label>
+                <input type="email" class="form-control" id="email" placeholder="ogrenci@aksaray.edu.tr" required>
             </div>
-            <div>
-                <label class="block text-gray-600 text-xs font-bold mb-1">Şifre</label>
-                <div class="relative">
-                    <i class="fa-solid fa-lock absolute left-3 top-3 text-gray-400"></i>
-                    <input type="password" id="password" class="w-full pl-10 pr-4 py-2 border rounded focus:outline-none focus:border-asuPrimary" placeholder="******" required>
-                </div>
+            <div class="mb-4">
+                <label class="form-label fw-bold small text-muted">Şifre</label>
+                <input type="password" class="form-control" id="password" placeholder="********" required>
             </div>
-            <button type="submit" class="w-full bg-asuPrimary hover:bg-red-700 text-white font-bold py-3 rounded transition">GİRİŞ YAP</button>
+            
+            <button type="submit" class="btn btn-primary w-100 mb-3" id="loginBtn">Giriş Yap</button>
+            <button type="button" class="btn btn-outline-secondary w-100" id="signupBtn">Kayıt Ol</button>
         </form>
-
-        <form id="registerForm" class="space-y-4 hidden">
-            <div><label class="block text-gray-600 text-xs font-bold mb-1">E-posta</label><input type="email" id="regEmail" class="w-full p-2 border rounded" required></div>
-            <div><label class="block text-gray-600 text-xs font-bold mb-1">Şifre</label><input type="password" id="regPass" class="w-full p-2 border rounded" required></div>
-            <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded transition">HESAP OLUŞTUR</button>
-        </form>
+        
+        <div class="text-center mt-3">
+            <a href="index.html" class="text-decoration-none small text-muted">Ana Sayfaya Dön</a>
+        </div>
     </div>
 
     <script>
-        const SUPABASE_URL = "https://kmzbywrcspzwuznexcla.supabase.co";
-        const SUPABASE_KEY = "sb_publishable_z2fcMIygDFlXaZD3z1CxbA_YkPXzxNt";
-        const asuDb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const SUPABASE_URL = 'https://kmzbywrcspzwuznexcla.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_2mPJ39Ossxg8euZ9hgmfFg_O5mPR1Fh';
+        const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        function toggleTab(tab) {
-            if(tab==='login'){
-                document.getElementById('loginForm').classList.remove('hidden'); document.getElementById('registerForm').classList.add('hidden');
-                document.getElementById('btnLogin').className="flex-1 py-2 rounded bg-white shadow text-asuPrimary font-bold text-sm";
-                document.getElementById('btnRegister').className="flex-1 py-2 rounded text-gray-500 font-bold text-sm hover:text-gray-700";
-            } else {
-                document.getElementById('loginForm').classList.add('hidden'); document.getElementById('registerForm').classList.remove('hidden');
-                document.getElementById('btnLogin').className="flex-1 py-2 rounded text-gray-500 font-bold text-sm hover:text-gray-700";
-                document.getElementById('btnRegister').className="flex-1 py-2 rounded bg-white shadow text-green-600 font-bold text-sm";
-            }
-        }
-
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        // GİRİŞ YAPMA
+        document.getElementById('authForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+            const btn = document.getElementById('loginBtn');
 
-            // --- ADMIN GİRİŞİ BURADA ---
-            if(email === 'admin' && password === 'asu123') {
-                localStorage.setItem('isAdmin', 'true');
-                window.location.href = 'admin.html';
-                return; // Buradan sonrasını çalıştırma
-            }
+            btn.innerText = "Giriliyor..."; btn.disabled = true;
 
-            const { error } = await asuDb.auth.signInWithPassword({ email, password });
-            if (error) { alert("Hata: " + error.message); }
-            else { 
-                const { data } = await asuDb.from('profiles').select('*').eq('email', email).single();
-                if(data && data.is_banned) { await asuDb.auth.signOut(); return alert("Hesabınız engellendi."); }
-                localStorage.setItem('userEmail', email); 
-                window.location.href = 'index.html'; 
+            const { data, error } = await client.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                alert("Hata: " + error.message);
+                btn.innerText = "Giriş Yap"; btn.disabled = false;
+            } else {
+                window.location.href = 'profile.html'; // Başarılıysa Profile git
             }
         });
 
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('regEmail').value;
-            const password = document.getElementById('regPass').value;
-            const { error } = await asuDb.auth.signUp({ email, password });
-            if(error) alert(error.message);
-            else { await asuDb.from('profiles').insert([{ email }]); alert("Kayıt başarılı! Giriş yapın."); toggleTab('login'); }
+        // KAYIT OLMA
+        document.getElementById('signupBtn').addEventListener('click', async () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if(!email || !password) { alert("Lütfen e-posta ve şifre girin."); return; }
+
+            const { data, error } = await client.auth.signUp({ email, password });
+
+            if (error) {
+                alert("Kayıt Hatası: " + error.message);
+            } else {
+                alert("Kayıt başarılı! Şimdi giriş yapabilirsiniz.");
+            }
         });
     </script>
 </body>
