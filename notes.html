@@ -155,35 +155,56 @@
 
         document.addEventListener('DOMContentLoaded', fetchNotes);
 
-        // 1. NOTLARI ÇEK
-        async function fetchNotes() {
-            const container = document.getElementById('notesContainer');
-            const spinner = document.getElementById('loadingSpinner');
-            
-            try {
-                // Sadece ONAYLANMIŞ notları çek
-                const { data, error } = await client
-                    .from('notes')
-                    .select('*')
-                    .eq('is_approved', true) // Sadece onaylılar
-                    .order('created_at', { ascending: false });
+       // notes.html içindeki fetchNotes fonksiyonunu bununla değiştir:
 
-                if(spinner) spinner.style.display = 'none';
+async function fetchNotes() {
+    const container = document.getElementById('notesContainer');
+    const spinner = document.getElementById('loadingSpinner');
+    
+    // URL'deki aramayı yakala (Örn: notes.html?q=yazilim)
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchTerm = urlParams.get('q');
 
-                if (error) {
-                    console.error('Supabase Hatası:', error);
-                    container.innerHTML = `<div class="alert alert-danger">Hata: ${error.message}</div>`;
-                    return;
-                }
+    // Eğer arama yapılmışsa başlığı güncelle
+    if(searchTerm) {
+        document.querySelector('h2').innerText = `"${searchTerm}" için Arama Sonuçları`;
+        // Arama kutusunu temizle/filtrelere gerek yok butonu koyabilirsin
+        document.querySelector('.btn-upload-new').insertAdjacentHTML('afterend', 
+            '<a href="notes.html" class="btn btn-outline-secondary ms-2">Aramayı Temizle</a>'
+        );
+    }
+    
+    try {
+        // Sorguyu Hazırla
+        let query = client
+            .from('notes')
+            .select('*')
+            .eq('is_approved', true) // Sadece onaylılar
+            .order('created_at', { ascending: false });
 
-                renderNotes(data);
-
-            } catch (err) {
-                if(spinner) spinner.style.display = 'none';
-                console.error('Hata:', err);
-                container.innerHTML = '<div class="alert alert-danger">Beklenmedik bir hata oluştu.</div>';
-            }
+        // Eğer arama kelimesi varsa filtrele (ilike = büyük/küçük harf duyarsız arama)
+        if (searchTerm) {
+            query = query.ilike('title', `%${searchTerm}%`);
         }
+
+        const { data, error } = await query;
+
+        if(spinner) spinner.style.display = 'none';
+
+        if (error) {
+            console.error('Supabase Hatası:', error);
+            container.innerHTML = `<div class="alert alert-danger">Hata: ${error.message}</div>`;
+            return;
+        }
+
+        renderNotes(data);
+
+    } catch (err) {
+        if(spinner) spinner.style.display = 'none';
+        console.error('Hata:', err);
+        container.innerHTML = '<div class="alert alert-danger">Beklenmedik bir hata oluştu.</div>';
+    }
+}
 
         // 2. LİSTELEME
         function renderNotes(notes) {
@@ -383,3 +404,4 @@
     </script>
 </body>
 </html>
+
