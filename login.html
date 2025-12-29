@@ -11,89 +11,54 @@
         .login-card { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 400px; }
         .brand-logo { color: #0d2346; font-weight: 800; font-size: 2rem; text-align: center; margin-bottom: 30px; }
         .brand-logo span { color: #dc3545; }
-        .btn-primary { background-color: #0d6efd; padding: 12px; font-weight: 600; }
     </style>
 </head>
 <body>
-
     <div class="login-card">
         <div class="brand-logo">ASÜ <span>HUB</span></div>
-        
         <form id="authForm">
             <div class="mb-3">
                 <label class="form-label fw-bold small text-muted">E-Posta Adresi</label>
-                <input type="email" class="form-control" id="email" placeholder="ogrenci@aksaray.edu.tr" required>
+                <input type="email" id="email" class="form-control" required>
             </div>
             <div class="mb-4">
                 <label class="form-label fw-bold small text-muted">Şifre</label>
-                <input type="password" class="form-control" id="password" placeholder="********" required>
+                <input type="password" id="password" class="form-control" required>
             </div>
-            
             <button type="submit" class="btn btn-primary w-100 mb-3" id="loginBtn">Giriş Yap</button>
             <button type="button" class="btn btn-outline-secondary w-100" id="signupBtn">Kayıt Ol</button>
         </form>
-        
-        <div class="text-center mt-3">
-            <a href="index.html" class="text-decoration-none small text-muted">Ana Sayfaya Dön</a>
-        </div>
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://kmzbywrcspzwuznexcla.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_2mPJ39Ossxg8euZ9hgmfFg_O5mPR1Fh';
-        const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const client = supabase.createClient('https://kmzbywrcspzwuznexcla.supabase.co', 'sb_publishable_2mPJ39Ossxg8euZ9hgmfFg_O5mPR1Fh');
 
-        // GİRİŞ YAPMA VE AKILLI YÖNLENDİRME
         document.getElementById('authForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const btn = document.getElementById('loginBtn');
+            
+            const { data: { user }, error } = await client.auth.signInWithPassword({ email, password });
 
-            btn.innerText = "Kontrol ediliyor..."; btn.disabled = true;
-
-            // 1. Önce Auth girişi yapıyoruz
-            const { data: { user }, error: authError } = await client.auth.signInWithPassword({ email, password });
-
-            if (authError) {
-                alert("Hata: " + authError.message);
-                btn.innerText = "Giriş Yap"; btn.disabled = false;
-                return;
-            }
-
-            if (user) {
-                // 2. Başarılıysa, veritabanından 'is_admin' durumuna bakıyoruz
-                const { data: profile, error: profError } = await client
-                    .from('profiles')
-                    .select('is_admin')
-                    .eq('id', user.id)
-                    .single();
-
-                // Yönlendirme Mantığı
-                if (profile && profile.is_admin === true) {
-                    // YÖNETİCİ İSE:
-                    window.location.href = 'yonetim-paneli.html';
+            if (error) {
+                alert("Hata: " + error.message);
+            } else {
+                // KRİTİK NOKTA: Kullanıcının admin olup olmadığını kontrol et
+                const { data: profile } = await client.from('profiles').select('is_admin').eq('id', user.id).single();
+                
+                if (profile && profile.is_admin) {
+                    window.location.href = 'yonetim-paneli.html'; // Adminse buraya
                 } else {
-                    // ÖĞRENCİ İSE:
-                    window.location.href = 'profile.html';
+                    window.location.href = 'profile.html'; // Öğrenciyse buraya
                 }
             }
         });
 
-        // KAYIT OLMA
         document.getElementById('signupBtn').addEventListener('click', async () => {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            
-            if(!email || !password) { alert("Lütfen e-posta ve şifre girin."); return; }
-
-            const { data, error } = await client.auth.signUp({ email, password });
-
-            if (error) {
-                alert("Kayıt Hatası: " + error.message);
-            } else {
-                alert("Kayıt başarılı! Şimdi giriş yapabilirsiniz.");
-            }
+            const { error } = await client.auth.signUp({ email, password });
+            if (error) alert(error.message); else alert("Kayıt başarılı! Giriş yapabilirsiniz.");
         });
     </script>
 </body>
