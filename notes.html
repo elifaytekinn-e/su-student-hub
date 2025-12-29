@@ -103,7 +103,7 @@
                         <div class="mb-3"><label class="form-label">Açıklama</label><textarea class="form-control" id="noteDesc" placeholder="İçerik hakkında kısa bilgi..."></textarea></div>
                         
                         <div class="mb-3"><label class="form-label">Dosya Seç</label><input type="file" class="form-control" id="noteFile" required></div>
-                        <button type="submit" class="btn btn-primary w-100" id="btnSubmit">Paylaş</button>
+                        <button type="submit" class="btn btn-primary w-100" id="btnSubmit">Paylaş (Onaya Gönder)</button>
                     </form>
                 </div>
             </div>
@@ -149,13 +149,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
-        // --- SUPABASE AYARLARI ---
         const SUPABASE_URL = 'https://kmzbywrcspzwuznexcla.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_2mPJ39Ossxg8euZ9hgmfFg_O5mPR1Fh';
-        
         const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // --- SAYFA YÜKLENİNCE ---
         document.addEventListener('DOMContentLoaded', fetchNotes);
 
         // 1. NOTLARI ÇEK
@@ -164,9 +161,11 @@
             const spinner = document.getElementById('loadingSpinner');
             
             try {
+                // Sadece ONAYLANMIŞ notları çek
                 const { data, error } = await client
                     .from('notes')
                     .select('*')
+                    .eq('is_approved', true) // Sadece onaylılar
                     .order('created_at', { ascending: false });
 
                 if(spinner) spinner.style.display = 'none';
@@ -192,7 +191,7 @@
             container.innerHTML = '';
 
             if (!notes || notes.length === 0) {
-                container.innerHTML = '<div class="alert alert-light text-center border py-4">Henüz hiç not yüklenmemiş. İlk sen yükle!</div>';
+                container.innerHTML = '<div class="alert alert-light text-center border py-4">Henüz yayınlanmış not yok.</div>';
                 return;
             }
 
@@ -215,7 +214,7 @@
                             <a href="${note.file_url}" target="_blank" class="btn btn-sm btn-outline-primary w-100 mb-2">
                                 <i class="fa-solid fa-download me-1"></i> İndir
                             </a>
-                            <button class="btn btn-sm btn-outline-secondary w-100" onclick="openComments(${note.id}, '${note.title}')">
+                            <button class="btn btn-sm btn-outline-secondary w-100" onclick="openComments('${note.id}', '${note.title}')">
                                 <i class="fa-regular fa-comment me-1"></i> Yorumlar
                             </button>
                         </div>
@@ -230,6 +229,15 @@
             e.preventDefault();
             const btn = document.getElementById('btnSubmit');
             const originalText = btn.innerHTML;
+            
+            // Oturum Kontrolü
+            const { data: { user } } = await client.auth.getUser();
+            if (!user) {
+                alert("Not yüklemek için giriş yapmalısınız!");
+                window.location.href = "login.html";
+                return;
+            }
+
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Yükleniyor...'; 
             btn.disabled = true;
 
@@ -254,22 +262,24 @@
                 
                 const publicURL = publicUrlData.publicUrl;
 
-                // Veritabanına Yaz
+                // Veritabanına Yaz (PRICE SÜTUNUNU SİLDİK)
                 const { error: dbError } = await client
                     .from('notes')
                     .insert([{
+                        user_id: user.id, // Kullanıcı ID'si eklendi
                         title: document.getElementById('noteTitle').value,
                         faculty: document.getElementById('noteFaculty').value,
                         department: document.getElementById('noteDept').value,
                         description: document.getElementById('noteDesc').value,
-                        price: 0,
+                        // price: 0,  <-- BU SATIRI SİLDİK, ÇÜNKÜ TABLODA YOK
                         file_url: publicURL,
-                        uploader_name: 'Misafir Öğrenci'
+                        uploader_name: 'Öğrenci',
+                        is_approved: false // Varsayılan olarak onaysız
                     }]);
 
                 if (dbError) throw dbError;
 
-                alert('Not başarıyla yüklendi!');
+                alert('Not başarıyla yüklendi! Admin onayından sonra yayınlanacaktır.');
                 location.reload(); 
 
             } catch (err) {
@@ -341,6 +351,7 @@
 
             if (!error) {
                 alert("Yorumunuz eklendi!");
+                // Modal'ı kapatmak yerine yorumları yenilemek daha şık olur ama şimdilik reload:
                 location.reload(); 
             } else {
                 alert("Hata: " + error.message);
@@ -355,7 +366,7 @@
             
             container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
 
-            let query = client.from('notes').select('*').order('created_at', { ascending: false });
+            let query = client.from('notes').select('*').eq('is_approved', true).order('created_at', { ascending: false });
             
             if (faculty !== 'all') {
                 query = query.eq('faculty', faculty);
