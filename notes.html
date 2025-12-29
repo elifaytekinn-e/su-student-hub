@@ -147,60 +147,83 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <script>
-        // --- AYARLAR ---
-        // Burayı kendi Supabase URL ve Key bilgilerinle doldurmayı unutma!
-        const SUPABASE_URL = 'BURAYA_SUPABASE_URL_GELECEK';
-        const SUPABASE_KEY = 'BURAYA_SUPABASE_KEY_GELECEK';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // ---------------------------------------------------------
+        // 1. SUPABASE BAĞLANTISI (Burayı DOLDURMALISIN!)
+        // ---------------------------------------------------------
+        const SUPABASE_URL = sb_publishable_2mPJ39Ossxg8euZ9hgmfFg_O5mPR1Fh; // Örn: https://xyz.supabase.co
+        const SUPABASE_KEY = sb_secret_TtEtKVQJa01qyu4aS9tlwg_fNo78I3g; // Örn: eyJhbGciOiJIUzI1NiIsInR...
+        
+        // Düzeltme: Değişken adını 'client' yaptık ki karışıklık olmasın.
+        const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // --- BAŞLANGIÇ ---
+        // ---------------------------------------------------------
+        // 2. SAYFA AÇILINCA NOTLARI GETİR
+        // ---------------------------------------------------------
         document.addEventListener('DOMContentLoaded', fetchNotes);
 
-        // 1. NOTLARI ÇEK
         async function fetchNotes() {
             const container = document.getElementById('notesContainer');
             const spinner = document.getElementById('loadingSpinner');
             
-            const { data, error } = await supabase.from('notes').select('*').order('created_at', { ascending: false });
+            try {
+                // Notları çek
+                const { data, error } = await client
+                    .from('notes')
+                    .select('*')
+                    .order('created_at', { ascending: false });
 
-            spinner.style.display = 'none';
+                // Yükleniyor simgesini gizle
+                spinner.style.display = 'none';
 
-            if (error) {
-                console.error(error);
-                container.innerHTML = '<div class="alert alert-danger">Veriler yüklenemedi.</div>';
-                return;
+                if (error) {
+                    console.error('Supabase Hatası:', error);
+                    container.innerHTML = `<div class="alert alert-danger">Veri çekilemedi: ${error.message}</div>`;
+                    return;
+                }
+
+                renderNotes(data);
+
+            } catch (err) {
+                spinner.style.display = 'none';
+                console.error('Beklenmedik Hata:', err);
+                container.innerHTML = '<div class="alert alert-danger">Bir hata oluştu. Konsolu (F12) kontrol et.</div>';
             }
-            renderNotes(data);
         }
 
-        // 2. LİSTELEME (Fiyat Kısmı Düzenlendi)
+        // ---------------------------------------------------------
+        // 3. LİSTELEME FONKSİYONU
+        // ---------------------------------------------------------
         function renderNotes(notes) {
             const container = document.getElementById('notesContainer');
             container.innerHTML = '';
 
             if (!notes || notes.length === 0) {
-                container.innerHTML = '<div class="alert alert-light text-center border">Henüz not yok.</div>';
+                container.innerHTML = '<div class="alert alert-light text-center border py-4">Henüz hiç not yüklenmemiş. İlk sen yükle!</div>';
                 return;
             }
 
             notes.forEach(note => {
+                // Ücretsiz etiketi
+                const priceBadge = '<span class="badge bg-success mb-2">Ücretsiz</span>';
+
                 const html = `
                 <div class="note-card">
-                    <div class="d-flex justify-content-between">
-                        <div class="flex-grow-1">
-                            <h5 class="note-title">${note.title}</h5>
-                            <p class="text-muted small mb-1">
-                                <i class="fa-solid fa-building-columns me-1"></i>${note.faculty} | 
-                                <i class="fa-solid fa-graduation-cap me-1"></i>${note.department || 'Bölüm Yok'}
+                    <div class="d-flex justify-content-between flex-wrap">
+                        <div class="flex-grow-1 me-3">
+                            <h5 class="note-title mb-1">${note.title}</h5>
+                            <p class="text-muted small mb-2">
+                                <i class="fa-solid fa-building-columns me-1"></i>${note.faculty} 
+                                <span class="mx-1">|</span> 
+                                <i class="fa-solid fa-graduation-cap me-1"></i>${note.department || '-'}
                             </p>
-                            <p class="small text-muted mb-2">${note.description || ''}</p>
-                            <small class="text-secondary"><i class="fa-solid fa-user me-1"></i> ${note.uploader_name || 'Öğrenci'}</small>
+                            <p class="small text-secondary mb-2">${note.description || 'Açıklama yok.'}</p>
+                            <small class="text-muted"><i class="fa-solid fa-user me-1"></i> ${note.uploader_name || 'Öğrenci'}</small>
                         </div>
-                        <div class="text-end" style="min-width: 120px;">
-                            <div class="mb-3">
-                                <span class="badge bg-success" style="font-size: 0.9rem;">Ücretsiz</span>
-                            </div>
+                        <div class="text-end mt-2 mt-md-0" style="min-width: 130px;">
+                            ${priceBadge}
                             <a href="${note.file_url}" target="_blank" class="btn btn-sm btn-outline-primary w-100 mb-2">
                                 <i class="fa-solid fa-download me-1"></i> İndir
                             </a>
@@ -214,87 +237,123 @@
             });
         }
 
-        // 3. NOT YÜKLE (Otomatik Fiyat: 0)
+        // ---------------------------------------------------------
+        // 4. NOT YÜKLEME
+        // ---------------------------------------------------------
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnSubmit');
-            btn.innerHTML = 'Yükleniyor...'; btn.disabled = true;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Yükleniyor...'; 
+            btn.disabled = true;
 
             const file = document.getElementById('noteFile').files[0];
-            const fileName = `note_${Date.now()}_${file.name}`;
+            if (!file) { alert("Lütfen dosya seçin!"); btn.innerHTML = originalText; btn.disabled = false; return; }
+
+            // Türkçe karakterleri temizle (Dosya isminde sorun çıkmasın)
+            const safeName = file.name.replace(/[^a-zA-Z0-9.]/g, '_');
+            const fileName = `note_${Date.now()}_${safeName}`;
 
             try {
-                // a) Dosyayı yükle
-                const { data: storageData, error: storageError } = await supabase.storage.from('course_notes').upload(fileName, file);
+                // A) Dosyayı Yükle
+                const { data: storageData, error: storageError } = await client.storage
+                    .from('course_notes')
+                    .upload(fileName, file);
+
                 if (storageError) throw storageError;
 
-                // b) Link al
-                const { data: publicUrlData } = supabase.storage.from('course_notes').getPublicUrl(fileName);
+                // B) Linki Al
+                const { data: publicUrlData } = client.storage
+                    .from('course_notes')
+                    .getPublicUrl(fileName);
+                
                 const publicURL = publicUrlData.publicUrl;
 
-                // c) Veritabanına yaz (Price: 0 olarak sabitlendi)
-                const { error: dbError } = await supabase.from('notes').insert([{
-                    title: document.getElementById('noteTitle').value,
-                    faculty: document.getElementById('noteFaculty').value,
-                    department: document.getElementById('noteDept').value,
-                    description: document.getElementById('noteDesc').value,
-                    price: 0, // ÜCRETSİZ
-                    file_url: publicURL,
-                    uploader_name: 'Misafir Öğrenci'
-                }]);
+                // C) Veritabanına Yaz
+                const { error: dbError } = await client
+                    .from('notes')
+                    .insert([{
+                        title: document.getElementById('noteTitle').value,
+                        faculty: document.getElementById('noteFaculty').value,
+                        department: document.getElementById('noteDept').value,
+                        description: document.getElementById('noteDesc').value,
+                        price: 0,
+                        file_url: publicURL,
+                        uploader_name: 'Misafir Öğrenci'
+                    }]);
 
                 if (dbError) throw dbError;
 
                 alert('Not başarıyla yüklendi!');
-                location.reload();
+                location.reload(); 
+
             } catch (err) {
-                alert('Hata: ' + err.message);
+                console.error(err);
+                alert('Yükleme Başarısız: ' + err.message);
             } finally {
-                btn.innerHTML = 'Paylaş'; btn.disabled = false;
+                btn.innerHTML = originalText; 
+                btn.disabled = false;
             }
         });
 
-        // 4. YORUMLARI AÇ
+        // ---------------------------------------------------------
+        // 5. YORUMLARI AÇ (MODAL)
+        // ---------------------------------------------------------
         async function openComments(noteId, noteTitle) {
-            document.getElementById('commentModalTitle').innerText = noteTitle + " - Yorumlar";
+            document.getElementById('commentModalTitle').innerText = noteTitle;
             document.getElementById('currentNoteId').value = noteId;
-            const commentsList = document.getElementById('commentsList');
-            commentsList.innerHTML = '<p class="text-muted small">Yükleniyor...</p>';
+            const list = document.getElementById('commentsList');
             
+            // Modalı göster
             const modal = new bootstrap.Modal(document.getElementById('commentsModal'));
             modal.show();
+            
+            list.innerHTML = '<div class="text-center py-3"><i class="fa-solid fa-spinner fa-spin text-muted"></i></div>';
 
-            const { data, error } = await supabase.from('comments').select('*').eq('note_id', noteId).order('created_at', {ascending: false});
+            // Yorumları çek
+            const { data, error } = await client
+                .from('comments')
+                .select('*')
+                .eq('note_id', noteId)
+                .order('created_at', {ascending: false});
 
-            commentsList.innerHTML = '';
+            list.innerHTML = '';
+
             if (data && data.length > 0) {
                 data.forEach(c => {
                     let stars = '';
-                    for(let i=0; i<c.stars; i++) stars += '<i class="fa-solid fa-star text-warning"></i>';
+                    for(let i=0; i<c.stars; i++) stars += '<i class="fa-solid fa-star text-warning" style="font-size:0.7rem"></i>';
                     
-                    commentsList.innerHTML += `
+                    list.innerHTML += `
                         <div class="comment-box">
-                            <div class="d-flex justify-content-between">
-                                <span class="fw-bold small">${c.user_name || 'Anonim'}</span>
-                                <span class="small">${stars}</span>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="fw-bold small text-dark">${c.user_name || 'Öğrenci'}</span>
+                                <span>${stars}</span>
                             </div>
-                            <p class="mb-0 small mt-1">${c.comment_text}</p>
+                            <p class="mb-0 small text-secondary">${c.comment_text}</p>
                         </div>
                     `;
                 });
             } else {
-                commentsList.innerHTML = '<p class="text-muted small">İlk yorumu sen yap!</p>';
+                list.innerHTML = '<div class="text-center text-muted small py-3">Henüz yorum yapılmamış.</div>';
             }
         }
 
-        // 5. YORUM GÖNDER
+        // ---------------------------------------------------------
+        // 6. YORUM GÖNDER
+        // ---------------------------------------------------------
         document.getElementById('commentForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const noteId = document.getElementById('currentNoteId').value;
             const text = document.getElementById('commentText').value;
             const stars = document.getElementById('commentStars').value;
+            const btn = e.target.querySelector('button');
 
-            const { error } = await supabase.from('comments').insert([{
+            if(!text.trim()) return alert("Lütfen bir yorum yazın.");
+
+            btn.disabled = true; btn.innerText = "Gönderiliyor...";
+
+            const { error } = await client.from('comments').insert([{
                 note_id: noteId,
                 comment_text: text,
                 stars: stars,
@@ -302,25 +361,38 @@
             }]);
 
             if (!error) {
-                alert('Yorum gönderildi!');
-                location.reload(); 
+                alert("Yorumunuz eklendi!");
+                location.reload();
             } else {
-                alert('Hata: ' + error.message);
+                alert("Hata: " + error.message);
+                btn.disabled = false; btn.innerText = "Gönder";
             }
         });
 
-        // 6. FİLTRELEME
+        // ---------------------------------------------------------
+        // 7. FİLTRELEME
+        // ---------------------------------------------------------
         async function filterNotes() {
             const faculty = document.getElementById('filterFaculty').value;
             const container = document.getElementById('notesContainer');
+            
             container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
 
-            let query = supabase.from('notes').select('*');
-            if (faculty !== 'all') query = query.eq('faculty', faculty);
+            let query = client.from('notes').select('*').order('created_at', { ascending: false });
+            
+            if (faculty !== 'all') {
+                query = query.eq('faculty', faculty);
+            }
 
             const { data, error } = await query;
-            if(!error) renderNotes(data);
+            
+            if (error) {
+                container.innerHTML = `<div class="alert alert-danger">Hata: ${error.message}</div>`;
+            } else {
+                renderNotes(data);
+            }
         }
     </script>
 </body>
 </html>
+
