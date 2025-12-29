@@ -2,61 +2,204 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>ASÜ Student Hub</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASÜ Hub - Kampüsün Dijital Hafızası</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>tailwind.config = { theme: { extend: { colors: { asuPrimary: '#e11d48', asuDark: '#0f172a' } } } }</script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; }
+        
+        /* NAVBAR */
+        .navbar { background-color: #ffffff; padding: 15px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .navbar-brand { font-weight: 800; font-size: 1.6rem; color: #0d2346; }
+        .navbar-brand span { color: #dc3545; }
+        .nav-link { color: #555; font-weight: 500; margin: 0 10px; font-size: 1.05rem; }
+        .nav-link:hover, .nav-link.active { color: #dc3545; }
+        
+        /* HERO (Ana Başlık Alanı) */
+        .hero-section {
+            background-color: #0d2346; /* Koyu Lacivert */
+            color: white;
+            padding: 100px 0;
+            text-align: center;
+            background-image: url('https://www.transparenttextures.com/patterns/cubes.png'); /* Hafif desen */
+        }
+        .hero-title { font-weight: 800; font-size: 3.5rem; margin-bottom: 15px; }
+        .hero-subtitle { font-size: 1.2rem; opacity: 0.8; margin-bottom: 40px; font-weight: 300; }
+        
+        /* Arama Kutusu */
+        .search-box {
+            background: white;
+            padding: 8px;
+            border-radius: 50px;
+            display: flex;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .search-input {
+            border: none;
+            flex-grow: 1;
+            padding: 15px 25px;
+            font-size: 1rem;
+            border-radius: 50px;
+            outline: none;
+        }
+        .btn-search {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 50px;
+            font-weight: 700;
+            transition: 0.3s;
+        }
+        .btn-search:hover { background-color: #bb2d3b; }
+
+        /* Özellik Kartları */
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px 30px;
+            text-align: center;
+            height: 100%;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid #eee;
+        }
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.05);
+        }
+        .icon-box {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 25px;
+        }
+        .icon-red { background-color: #ffe5e7; color: #dc3545; }
+        .icon-blue { background-color: #e7f1ff; color: #0d6efd; }
+        .icon-green { background-color: #e0f8e9; color: #198754; }
+        
+        .feature-title { font-weight: 700; margin-bottom: 15px; color: #333; }
+        .feature-text { color: #6c757d; font-size: 0.95rem; line-height: 1.6; }
+    </style>
 </head>
-<body class="bg-gray-50 flex flex-col min-h-screen">
-    <nav class="bg-white shadow-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-            <a href="index.html" class="text-2xl font-bold text-gray-800">ASÜ <span class="text-asuPrimary">HUB</span></a>
-            <div class="hidden md:flex space-x-6 font-medium">
-                <a href="index.html" class="text-asuPrimary">Ana Sayfa</a>
-                <a href="notes.html" class="text-gray-600 hover:text-asuPrimary">Ders Notları</a>
-                <a href="books.html" class="text-gray-600 hover:text-asuPrimary">Sahaf</a>
-                <a href="faq.html" class="text-gray-600 hover:text-asuPrimary">S.S.S</a>
-            </div>
-            <div id="authBtns" class="flex gap-2">
-                <a href="login.html" class="bg-asuPrimary text-white px-4 py-2 rounded hover:bg-red-700">Giriş</a>
+<body>
+
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">ASÜ <span>HUB</span></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav align-items-center">
+                    <li class="nav-item"><a class="nav-link active" href="index.html">Ana Sayfa</a></li>
+                    <li class="nav-item"><a class="nav-link" href="notes.html">Ders Notları</a></li>
+                    <li class="nav-item"><a class="nav-link" href="books.html">Sahaf</a></li>
+                    <li class="nav-item"><a class="nav-link" href="faq.html">S.S.S</a></li>
+                    <li class="nav-item ms-lg-3">
+                        <a href="profile.html" id="authButton" class="btn btn-outline-dark px-4 rounded-pill">Profilim</a>
+                    </li>
+                </ul>
             </div>
         </div>
     </nav>
 
-    <header class="bg-asuDark text-white py-20 text-center px-4">
-        <h1 class="text-4xl md:text-5xl font-bold mb-6">Kampüsün Dijital Hafızası</h1>
-        <p class="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">Ders notlarını paylaş, kitaplarını takas et, kampüs hayatını kolaylaştır.</p>
-        
-        <div class="max-w-2xl mx-auto bg-white rounded-lg p-2 flex shadow-xl">
-            <input type="text" id="mainSearch" placeholder="Hangi ders notunu veya kitabı arıyorsun?" class="flex-1 p-3 text-gray-700 outline-none rounded-l">
-            <button onclick="window.location.href='notes.html?q='+document.getElementById('mainSearch').value" class="bg-asuPrimary text-white px-8 py-3 rounded font-bold hover:bg-red-700">ARA</button>
-        </div>
-    </header>
-
-    <section class="py-16 max-w-7xl mx-auto px-4">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            <div class="p-6 bg-white rounded-xl shadow hover:shadow-lg transition">
-                <div class="w-16 h-16 bg-red-100 text-asuPrimary rounded-full flex items-center justify-center text-2xl mx-auto mb-4"><i class="fa-solid fa-upload"></i></div>
-                <h3 class="text-xl font-bold mb-2">1. Yükle & Paylaş</h3>
-                <p class="text-gray-500">Kendi ders notlarını sisteme yükle veya satmak istediğin kitapların fotoğrafını çekip ilan ver.</p>
-            </div>
-            <div class="p-6 bg-white rounded-xl shadow hover:shadow-lg transition">
-                <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-2xl mx-auto mb-4"><i class="fa-solid fa-magnifying-glass"></i></div>
-                <h3 class="text-xl font-bold mb-2">2. Ara & Bul</h3>
-                <p class="text-gray-500">İhtiyacın olan ders notunu fakülte bazlı filtrele veya aradığın kitabı sahaf bölümünde bul.</p>
-            </div>
-            <div class="p-6 bg-white rounded-xl shadow hover:shadow-lg transition">
-                <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-2xl mx-auto mb-4"><i class="fa-solid fa-comments"></i></div>
-                <h3 class="text-xl font-bold mb-2">3. İletişime Geç</h3>
-                <p class="text-gray-500">Notlara yorum yap, puan ver. Kitaplar için satıcıyla WhatsApp üzerinden direkt konuş.</p>
+    <section class="hero-section">
+        <div class="container">
+            <h1 class="hero-title">Kampüsün Dijital Hafızası</h1>
+            <p class="hero-subtitle">Ders notlarını paylaş, kitaplarını takas et, kampüs hayatını kolaylaştır.</p>
+            
+            <div class="search-box">
+                <input type="text" class="search-input" placeholder="Hangi ders notunu veya kitabı arıyorsun?">
+                <button class="btn-search">ARA</button>
             </div>
         </div>
     </section>
 
+    <section class="py-5 my-5">
+        <div class="container">
+            <div class="row g-4">
+                
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="icon-box icon-red">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                        </div>
+                        <h4 class="feature-title">1. Yükle & Paylaş</h4>
+                        <p class="feature-text">
+                            Kendi ders notlarını sisteme yükle veya satmak istediğin kitapların fotoğrafını çekip ilan ver.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="icon-box icon-blue">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </div>
+                        <h4 class="feature-title">2. Ara & Bul</h4>
+                        <p class="feature-text">
+                            İhtiyacın olan ders notunu fakülte bazlı filtrele veya aradığın kitabı sahaf bölümünde bul.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="icon-box icon-green">
+                            <i class="fa-solid fa-comments"></i>
+                        </div>
+                        <h4 class="feature-title">3. İletişime Geç</h4>
+                        <p class="feature-text">
+                            Notlara yorum yap, puan ver. Kitaplar için satıcıyla WhatsApp üzerinden direkt konuş.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <footer class="text-center py-4 text-muted bg-white border-top">
+        <div class="container">
+            <small>&copy; 2025 ASÜ HUB. Öğrenciler için geliştirildi.</small>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
-        if(localStorage.getItem('userEmail')) {
-            document.getElementById('authBtns').innerHTML = '<a href="profile.html" class="bg-gray-800 text-white px-4 py-2 rounded">Profilim</a>';
-        }
+        // Supabase Bağlantısı
+        const SUPABASE_URL = 'https://kmzbywrcspzwuznexcla.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_2mPJ39Ossxg8euZ9hgmfFg_O5mPR1Fh';
+        const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Sayfa Yüklenince Kontrol Et
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { session } } = await client.auth.getSession();
+            const authBtn = document.getElementById('authButton');
+            
+            if (!session) {
+                // Giriş yapılmamışsa butonu değiştir
+                authBtn.innerText = "Giriş Yap";
+                authBtn.href = "login.html";
+                authBtn.classList.remove('btn-outline-dark');
+                authBtn.classList.add('btn-primary', 'text-white', 'border-0');
+            } else {
+                // Giriş yapılmışsa
+                authBtn.innerText = "Profilim";
+                authBtn.href = "profile.html";
+            }
+        });
     </script>
+
 </body>
 </html>
