@@ -8,14 +8,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* GENEL AYARLAR */
         body {
             background-color: #f8f9fa;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #333;
         }
 
-        /* NAVBAR (Linkler dosya isimlerine göre düzeltildi) */
+        /* NAVBAR */
         .navbar {
             background-color: #ffffff;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
@@ -52,32 +51,26 @@
             color: white;
         }
 
-        /* KARTLAR */
+        /* KARTLAR GENEL */
         .custom-card {
             background-color: #ffffff;
             border: none;
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            padding: 30px;
-            height: 100%;
+            margin-bottom: 20px;
         }
 
-        /* PROFIL BAŞLIK */
-        .profile-header-container {
-            background-color: #ffffff;
-            border-radius: 12px;
-            padding: 40px;
+        /* SOL PROFİL KARTI (Daha kompakt) */
+        .profile-sidebar {
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            margin-bottom: 30px;
-            border: 1px solid #f1f1f1;
+            padding: 30px 20px;
         }
         .avatar-circle {
-            width: 110px;
-            height: 110px;
+            width: 90px;
+            height: 90px;
             background-color: #0d6efd;
             color: white;
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: bold;
             border-radius: 50%;
             display: flex;
@@ -86,52 +79,101 @@
             margin: 0 auto 15px auto;
             box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
         }
+        .user-name {
+            font-weight: 700;
+            color: #0d2346;
+            margin-bottom: 5px;
+        }
+        .user-email {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
 
-        /* FORM */
+        /* TAB MENÜSÜ (Ayarlar ve Şifre için) */
+        .nav-tabs .nav-link {
+            color: #555;
+            border: none;
+            font-weight: 600;
+            padding: 15px 20px;
+        }
+        .nav-tabs .nav-link.active {
+            color: #0d6efd;
+            border-bottom: 2px solid #0d6efd;
+            background: none;
+        }
+        .tab-content {
+            padding: 30px;
+        }
+
+        /* FORM ELEMANLARI */
         .form-label {
             font-weight: 600;
             font-size: 0.9rem;
             color: #495057;
         }
         .form-control, .form-select {
-            background-color: #fff;
-            border: 1px solid #dee2e6;
             padding: 12px;
             border-radius: 8px;
+            border: 1px solid #dee2e6;
         }
         .form-control:focus, .form-select:focus {
             border-color: #0d6efd;
-            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
         }
         .btn-save {
             background-color: #0d6efd;
-            border: none;
-            padding: 12px;
-            font-weight: 600;
-            border-radius: 8px;
-            width: 100%;
             color: white;
-            transition: background 0.3s;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            width: 100%;
         }
         .btn-save:hover {
             background-color: #0b5ed7;
         }
 
-        /* İSTATİSTİKLER */
-        .stat-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        /* İSTATİSTİK KUTUCUKLARI (Yatay) */
+        .stat-box {
+            background-color: #ffffff;
+            border-radius: 12px;
             padding: 20px;
-            background-color: #f8f9fa;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            height: 100%;
+            border-left: 4px solid #0d6efd;
         }
-        .stat-value {
-            font-weight: bold;
-            font-size: 1.2rem;
-            color: #0d6efd;
+        .stat-title {
+            font-size: 0.9rem;
+            color: #6c757d;
+            font-weight: 600;
+        }
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #333;
+        }
+        .stat-icon {
+            font-size: 1.5rem;
+            color: #e9ecef;
+        }
+
+        /* YORUM KARTI */
+        .review-item {
+            border-bottom: 1px solid #f1f1f1;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .review-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .star-rating {
+            color: #ffc107;
+            font-size: 0.8rem;
         }
     </style>
 </head>
@@ -147,19 +189,11 @@
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                 <ul class="navbar-nav align-items-center">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html">Ana Sayfa</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="notes.html">Ders Notları</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="books.html">Sahaf</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="faq.html">S.S.S</a>
-                    </li>
-                    <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Ana Sayfa</a></li>
+                    <li class="nav-item"><a class="nav-link" href="notes.html">Ders Notları</a></li>
+                    <li class="nav-item"><a class="nav-link" href="books.html">Sahaf</a></li>
+                    <li class="nav-item"><a class="nav-link" href="faq.html">S.S.S</a></li>
+                    <li class="nav-item ms-lg-3">
                         <a href="index.html" class="btn-logout">Çıkış Yap</a>
                     </li>
                 </ul>
@@ -167,65 +201,146 @@
         </div>
     </nav>
 
-    <div class="container py-5">
-        
-        <div class="profile-header-container">
-            <div class="avatar-circle">EL</div>
-            <h2 class="fw-bold mb-1 text-dark">elifnamiye.aytekin</h2>
-            <p class="text-muted mb-3">elifnamiye.aytekin@aksaray.edu.tr</p>
-            <span class="badge bg-secondary px-3 py-2 rounded-pill">Bölüm Yok</span>
-        </div>
-
+    <div class="container py-4">
         <div class="row g-4">
-            <div class="col-lg-5">
-                <div class="custom-card">
-                    <h5 class="fw-bold mb-4 border-bottom pb-2">Profili Düzenle</h5>
-                    <form>
-                        <div class="mb-3">
-                            <label class="form-label">Nickname</label>
-                            <input type="text" class="form-control" placeholder="Örn: Mühendis06">
+            
+            <div class="col-lg-3">
+                <div class="custom-card profile-sidebar">
+                    <div class="avatar-circle">EL</div>
+                    <h5 class="user-name">elifnamiye.aytekin</h5>
+                    <p class="user-email">elifnamiye.aytekin@aksaray.edu.tr</p>
+                    <span class="badge bg-secondary px-3 py-2 rounded-pill mb-3">Bölüm Yok</span>
+                    <hr>
+                    <div class="text-start mt-4">
+                        <small class="text-muted fw-bold d-block mb-2">HESAP DURUMU</small>
+                        <div class="d-flex align-items-center text-success small">
+                            <i class="fa-solid fa-circle-check me-2"></i> Onaylı Hesap
                         </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Fakülte Seçiniz</label>
-                            <select class="form-select" id="faculty" onchange="updateDepartments()">
-                                <option value="" selected disabled>Fakülte Seç...</option>
-                                <option value="muhendislik">Mühendislik Fakültesi</option>
-                                <option value="iibf">İktisadi ve İdari Bilimler Fak.</option>
-                                <option value="egitim">Eğitim Fakültesi</option>
-                                <option value="fen">Fen Edebiyat Fakültesi</option>
-                                <option value="saglik">Sağlık Bilimleri Fakültesi</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="form-label">Bölüm Seçiniz</label>
-                            <select class="form-select" id="department" disabled>
-                                <option selected>Önce Fakülte Seçiniz</option>
-                            </select>
-                        </div>
-
-                        <button type="button" class="btn btn-save">
-                            <i class="fa-solid fa-floppy-disk me-2"></i>Kaydet
-                        </button>
-                    </form>
+                    </div>
                 </div>
             </div>
 
-            <div class="col-lg-7">
-                <div class="custom-card">
-                    <h5 class="fw-bold mb-4 border-bottom pb-2">İstatistiklerim</h5>
-                    
-                    <div class="stat-item">
-                        <span class="fw-bold text-secondary"><i class="fa-solid fa-file-lines me-2"></i>Paylaştığım Notlar</span>
-                        <span class="stat-value">0</span>
+            <div class="col-lg-9">
+                
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="stat-box">
+                            <div>
+                                <div class="stat-title">Yüklenen Notlar</div>
+                                <div class="stat-number">0</div>
+                            </div>
+                            <i class="fa-solid fa-file-arrow-up stat-icon text-primary"></i>
+                        </div>
                     </div>
-
-                    <div class="stat-item">
-                        <span class="fw-bold text-secondary"><i class="fa-solid fa-book me-2"></i>Satıştaki Kitaplarım</span>
-                        <span class="stat-value">0</span>
+                    <div class="col-md-4">
+                        <div class="stat-box" style="border-left-color: #198754;">
+                            <div>
+                                <div class="stat-title">Satılan Kitaplar</div>
+                                <div class="stat-number">0</div>
+                            </div>
+                            <i class="fa-solid fa-book stat-icon text-success"></i>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-box" style="border-left-color: #ffc107;">
+                            <div>
+                                <div class="stat-title">Yaptığım Yorumlar</div>
+                                <div class="stat-number">0</div>
+                            </div>
+                            <i class="fa-solid fa-star stat-icon text-warning"></i>
+                        </div>
                     </div>
                 </div>
+
+                <div class="custom-card">
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-content" type="button" role="tab">
+                                <i class="fa-solid fa-user-pen me-2"></i>Profil Bilgileri
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="password-tab" data-bs-toggle="tab" data-bs-target="#password-content" type="button" role="tab">
+                                <i class="fa-solid fa-lock me-2"></i>Şifre Değiştir
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews-content" type="button" role="tab">
+                                <i class="fa-solid fa-comments me-2"></i>Değerlendirmelerim
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="myTabContent">
+                        
+                        <div class="tab-pane fade show active" id="profile-content" role="tabpanel">
+                            <form>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Nickname</label>
+                                        <input type="text" class="form-control" placeholder="Örn: Mühendis06">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">E-Posta (Değiştirilemez)</label>
+                                        <input type="email" class="form-control" value="elifnamiye.aytekin@aksaray.edu.tr" disabled>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Fakülte</label>
+                                        <select class="form-select" id="faculty" onchange="updateDepartments()">
+                                            <option value="" selected disabled>Seçiniz...</option>
+                                            <option value="muhendislik">Mühendislik Fakültesi</option>
+                                            <option value="iibf">İktisadi ve İdari Bilimler Fak.</option>
+                                            <option value="egitim">Eğitim Fakültesi</option>
+                                            <option value="fen">Fen Edebiyat Fakültesi</option>
+                                            <option value="saglik">Sağlık Bilimleri Fakültesi</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label">Bölüm</label>
+                                        <select class="form-select" id="department" disabled>
+                                            <option selected>Önce Fakülte Seçiniz</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-save">Değişiklikleri Kaydet</button>
+                            </form>
+                        </div>
+
+                        <div class="tab-pane fade" id="password-content" role="tabpanel">
+                            <form>
+                                <div class="mb-3">
+                                    <label class="form-label">Mevcut Şifre</label>
+                                    <input type="password" class="form-control" placeholder="********">
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Yeni Şifre</label>
+                                        <input type="password" class="form-control" placeholder="En az 6 karakter">
+                                    </div>
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label">Yeni Şifre (Tekrar)</label>
+                                        <input type="password" class="form-control" placeholder="Şifrenizi doğrulayın">
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-save bg-secondary">Şifreyi Güncelle</button>
+                            </form>
+                        </div>
+
+                        <div class="tab-pane fade" id="reviews-content" role="tabpanel">
+                            
+                            <div class="text-center py-4 text-muted">
+                                <i class="fa-regular fa-comment-dots fa-3x mb-3"></i>
+                                <p>Henüz hiçbir not veya kitap için yorum yapmadınız.</p>
+                                <a href="notes.html" class="btn btn-sm btn-outline-primary">Ders Notlarına Git</a>
+                            </div>
+
+                            </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
