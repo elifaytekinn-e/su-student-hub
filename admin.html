@@ -11,169 +11,172 @@
     <style>
         body { background-color: #f8f9fa; font-family: 'Segoe UI', sans-serif; color: #333; }
         
-        /* NAVBAR (Diğer sayfalarla aynı) */
-        .navbar { background-color: #ffffff; padding: 15px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        /* NAVBAR */
+        .navbar { background-color: #fff; padding: 15px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .navbar-brand { font-weight: 700; font-size: 1.5rem; color: #0d2346; }
-        .navbar-brand span { color: #dc3545; }
-
-        /* SEKME MENÜSÜ */
-        .nav-pills { background: white; padding: 10px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); display: inline-flex; }
-        .nav-pills .nav-link { color: #555; font-weight: 600; padding: 10px 25px; border-radius: 8px; transition: 0.3s; }
-        .nav-pills .nav-link:hover { background-color: #f1f1f1; color: #333; }
-        .nav-pills .nav-link.active { background-color: #0d2346; color: white; }
-        .nav-pills .nav-link i { margin-right: 8px; }
-
-        /* KARTLAR */
-        .admin-card { background: #fff; border: none; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); height: 100%; }
-        .stat-value { font-size: 2.5rem; font-weight: 800; color: #0d2346; line-height: 1; }
-        .stat-label { color: #6c757d; font-weight: 500; font-size: 0.9rem; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .icon-box { width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 15px; }
         
-        .bg-icon-blue { background-color: #e7f1ff; color: #0d6efd; }
-        .bg-icon-green { background-color: #e0f8e9; color: #198754; }
-        .bg-icon-orange { background-color: #fff3cd; color: #ffc107; }
+        /* SOL MENÜ KARTI */
+        .admin-sidebar { background: #fff; border-radius: 12px; padding: 30px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); text-align: center; }
+        .admin-avatar { width: 80px; height: 80px; background: #dc3545; color: white; font-size: 2rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; }
+        
+        /* MENÜ BUTONLARI */
+        .nav-pills .nav-link { color: #555; font-weight: 600; padding: 12px 20px; text-align: left; border-radius: 8px; margin-bottom: 5px; transition: 0.2s; }
+        .nav-pills .nav-link:hover { background-color: #f1f1f1; color: #dc3545; }
+        .nav-pills .nav-link.active { background-color: #0d2346; color: white; }
+        .nav-pills .nav-link i { width: 25px; }
+
+        /* SAĞ İÇERİK KARTI */
+        .content-card { background: #fff; border-radius: 12px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); min-height: 500px; }
+
+        /* İSTATİSTİK KUTULARI */
+        .stat-box { background: #f8f9fa; border-radius: 10px; padding: 20px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #eee; }
+        .stat-number { font-size: 2rem; font-weight: 800; color: #0d2346; line-height: 1; }
+        .stat-label { font-size: 0.9rem; color: #6c757d; text-transform: uppercase; font-weight: 600; }
+        .stat-icon { font-size: 2rem; opacity: 0.2; }
 
         /* TABLOLAR */
-        .table-container { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
-        .table thead th { border-bottom: 2px solid #f0f0f0; color: #6c757d; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; }
+        .table thead th { border-bottom: 2px solid #eee; color: #6c757d; font-size: 0.85rem; text-transform: uppercase; }
         .btn-action { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; border: none; transition: 0.2s; }
         .btn-view { background: #e7f1ff; color: #0d6efd; margin-right: 5px; }
         .btn-delete { background: #ffe5e7; color: #dc3545; }
         .btn-delete:hover { background: #dc3545; color: white; }
-
-        /* Yükleniyor Ekranı */
-        #loadingScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; }
     </style>
 </head>
 <body>
 
-    <div id="loadingScreen">
-        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
-        <p class="mt-3 text-muted fw-bold">Admin yetkisi kontrol ediliyor...</p>
-    </div>
-
     <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
-            <a class="navbar-brand" href="index.html">ASÜ <span>ADMIN</span></a>
-            
+            <a class="navbar-brand" href="index.html">ASÜ <span style="color:#dc3545">ADMIN</span></a>
             <div class="d-flex align-items-center">
-                <a href="index.html" class="btn btn-outline-secondary btn-sm me-2 rounded-pill px-3">
-                    <i class="fa-solid fa-arrow-left me-2"></i>Siteye Dön
-                </a>
-                <button onclick="logoutAdmin()" class="btn btn-danger btn-sm rounded-pill px-3">
-                    <i class="fa-solid fa-power-off me-2"></i>Çıkış
-                </button>
+                <a href="index.html" class="btn btn-outline-secondary btn-sm me-2 rounded-pill px-3">Siteye Dön</a>
+                <button onclick="logoutAdmin()" class="btn btn-danger btn-sm rounded-pill px-3">Çıkış</button>
             </div>
         </div>
     </nav>
 
-    <div class="container py-4">
+    <div class="container py-5">
         
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-5">
-            <div class="mb-3 mb-md-0">
-                <h2 class="fw-bold text-dark mb-0">Yönetim Paneli</h2>
-                <p class="text-muted mb-0">İçerikleri buradan yönetebilirsin.</p>
-            </div>
+        <div id="loadingScreen" class="text-center py-5">
+            <div class="spinner-border text-danger" role="status"></div>
+            <p class="mt-2 text-muted fw-bold">Yetki kontrolü yapılıyor...</p>
+        </div>
+
+        <div class="row g-4" id="adminContent" style="display: none;">
             
-            <ul class="nav nav-pills" id="adminTabs">
-                <li class="nav-item">
-                    <a class="nav-link active" href="#" onclick="switchTab('dashboard', this)">
-                        <i class="fa-solid fa-chart-pie"></i>Genel Bakış
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="switchTab('notes', this)">
-                        <i class="fa-solid fa-file-pdf"></i>Ders Notları
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="switchTab('books', this)">
-                        <i class="fa-solid fa-book"></i>Sahaf İlanları
-                    </a>
-                </li>
-            </ul>
-        </div>
-
-        <div id="tab-dashboard" class="content-section">
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="admin-card">
-                        <div class="icon-box bg-icon-blue"><i class="fa-solid fa-users"></i></div>
-                        <div class="stat-value" id="statUsers">-</div>
-                        <div class="stat-label">Toplam Öğrenci</div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="admin-card">
-                        <div class="icon-box bg-icon-green"><i class="fa-solid fa-file-lines"></i></div>
-                        <div class="stat-value" id="statNotes">-</div>
-                        <div class="stat-label">Yüklenen Notlar</div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="admin-card">
-                        <div class="icon-box bg-icon-orange"><i class="fa-solid fa-book-open"></i></div>
-                        <div class="stat-value" id="statBooks">-</div>
-                        <div class="stat-label">Sahaf İlanları</div>
+            <div class="col-lg-3">
+                <div class="admin-sidebar mb-4">
+                    <div class="admin-avatar"><i class="fa-solid fa-user-shield"></i></div>
+                    <h5 class="fw-bold mb-1">Yönetici</h5>
+                    <p class="text-muted small mb-3">admin@aksaray.edu.tr</p>
+                    <hr>
+                    
+                    <div class="nav flex-column nav-pills" role="tablist">
+                        <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-dash" type="button" onclick="loadStats()">
+                            <i class="fa-solid fa-chart-pie"></i> Genel Bakış
+                        </button>
+                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-notes" type="button" onclick="loadNotesTable()">
+                            <i class="fa-solid fa-file-pdf"></i> Ders Notları
+                        </button>
+                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-books" type="button" onclick="loadBooksTable()">
+                            <i class="fa-solid fa-book"></i> Sahaf İlanları
+                        </button>
                     </div>
                 </div>
             </div>
-            
-            <div class="alert alert-light border mt-4 d-flex align-items-center">
-                <i class="fa-solid fa-circle-info text-primary me-3 fa-2x"></i>
-                <div>
-                    <strong>Sistem Bilgisi:</strong> Yukarıdaki menüden "Ders Notları" veya "Sahaf İlanları" sekmelerine tıklayarak yüklenen içerikleri inceleyebilir ve silebilirsin.
+
+            <div class="col-lg-9">
+                <div class="content-card">
+                    <div class="tab-content">
+                        
+                        <div class="tab-pane fade show active" id="tab-dash">
+                            <h4 class="fw-bold mb-4">Sistem Özeti</h4>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="stat-box">
+                                        <div>
+                                            <div class="stat-number" id="statUsers">-</div>
+                                            <div class="stat-label">Öğrenci</div>
+                                        </div>
+                                        <i class="fa-solid fa-users stat-icon text-primary"></i>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="stat-box">
+                                        <div>
+                                            <div class="stat-number" id="statNotes">-</div>
+                                            <div class="stat-label">Not</div>
+                                        </div>
+                                        <i class="fa-solid fa-file-lines stat-icon text-success"></i>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="stat-box">
+                                        <div>
+                                            <div class="stat-number" id="statBooks">-</div>
+                                            <div class="stat-label">Kitap</div>
+                                        </div>
+                                        <i class="fa-solid fa-book stat-icon text-warning"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-info mt-4 border-0">
+                                <i class="fa-solid fa-circle-info me-2"></i>
+                                Sol menüden <strong>Ders Notları</strong> veya <strong>Sahaf</strong> sekmelerine geçerek içerikleri yönetebilir ve silebilirsiniz.
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="tab-notes">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h4 class="fw-bold mb-0">Not Yönetimi</h4>
+                                <button class="btn btn-sm btn-outline-primary" onclick="loadNotesTable()"><i class="fa-solid fa-rotate"></i> Yenile</button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Başlık</th>
+                                            <th>Bölüm</th>
+                                            <th>Yükleyen</th>
+                                            <th class="text-end">İşlem</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="notesTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="tab-books">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h4 class="fw-bold mb-0">Sahaf Yönetimi</h4>
+                                <button class="btn btn-sm btn-outline-primary" onclick="loadBooksTable()"><i class="fa-solid fa-rotate"></i> Yenile</button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Görsel</th>
+                                            <th>Kitap Adı</th>
+                                            <th>Fiyat</th>
+                                            <th class="text-end">İşlem</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="booksTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </div>
-
-        <div id="tab-notes" class="content-section d-none">
-            <h4 class="fw-bold mb-3">Yüklenen Ders Notları</h4>
-            <div class="table-container table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead>
-                        <tr>
-                            <th>Başlık</th>
-                            <th>Bölüm / Fakülte</th>
-                            <th>Yükleyen</th>
-                            <th>Durum</th>
-                            <th class="text-end">İşlemler</th>
-                        </tr>
-                    </thead>
-                    <tbody id="notesTableBody">
-                        </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div id="tab-books" class="content-section d-none">
-            <h4 class="fw-bold mb-3">Sahaf İlanları</h4>
-            <div class="table-container table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead>
-                        <tr>
-                            <th style="width: 60px;">Görsel</th>
-                            <th>Kitap Adı</th>
-                            <th>Kategori</th>
-                            <th>Fiyat</th>
-                            <th class="text-end">İşlemler</th>
-                        </tr>
-                    </thead>
-                    <tbody id="booksTableBody">
-                        </tbody>
-                </table>
-            </div>
-        </div>
-
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // --- AYARLAR ---
+        // --- SUPABASE AYARLARI ---
         const SUPABASE_URL = 'https://kmzbywrcspzwuznexcla.supabase.co';
-        // Senin Key'in:
         const SUPABASE_KEY = 'sb_publishable_2mPJ39Ossxg8euZ9hgmfFg_O5mPR1Fh'; 
-        
         const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         // 1. GÜVENLİK KONTROLÜ
@@ -185,7 +188,7 @@
                 return;
             }
 
-            // Admin yetkisi var mı?
+            // Admin mi kontrol et
             const { data: profile, error } = await client
                 .from('profiles')
                 .select('is_admin')
@@ -193,18 +196,18 @@
                 .single();
 
             if (error || !profile || profile.is_admin !== true) {
-                alert("Yetkisiz Giriş! Yalnızca yöneticiler girebilir.");
+                alert("Yetkisiz Giriş! Sadece yöneticiler girebilir.");
                 window.location.href = 'index.html';
             } else {
-                // Admin ise
+                // Admin ise paneli aç
                 document.getElementById('loadingScreen').style.display = 'none';
-                loadAllData();
+                document.getElementById('adminContent').style.display = 'flex';
+                loadStats();
             }
         });
 
-        // 2. TÜM VERİLERİ ÇEK
-        async function loadAllData() {
-            // İstatistikler
+        // 2. İSTATİSTİKLERİ YÜKLE
+        async function loadStats() {
             const { count: usersCount } = await client.from('profiles').select('*', { count: 'exact', head: true });
             const { count: notesCount } = await client.from('notes').select('*', { count: 'exact', head: true });
             const { count: booksCount } = await client.from('books').select('*', { count: 'exact', head: true });
@@ -212,75 +215,63 @@
             document.getElementById('statUsers').innerText = usersCount || 0;
             document.getElementById('statNotes').innerText = notesCount || 0;
             document.getElementById('statBooks').innerText = booksCount || 0;
-
-            // Tabloları Yükle
-            loadNotesTable();
-            loadBooksTable();
         }
 
-        // 3. NOT TABLOSU
+        // 3. NOTLARI YÜKLE
         async function loadNotesTable() {
-            const { data: notes } = await client.from('notes').select('*').order('created_at', { ascending: false });
             const tbody = document.getElementById('notesTableBody');
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Yükleniyor...</td></tr>';
+            
+            const { data: notes } = await client.from('notes').select('*').order('created_at', { ascending: false });
             tbody.innerHTML = '';
 
-            if(notes) {
+            if(notes && notes.length > 0) {
                 notes.forEach(note => {
-                    const priceBadge = note.price > 0 ? `<span class="badge bg-secondary">${note.price} ₺</span>` : `<span class="badge bg-success">Ücretsiz</span>`;
-                    
                     tbody.innerHTML += `
                         <tr>
                             <td>
-                                <div class="fw-bold text-dark">${note.title}</div>
-                                <small class="text-muted">${new Date(note.created_at).toLocaleDateString()}</small>
+                                <a href="${note.file_url}" target="_blank" class="fw-bold text-dark text-decoration-none">${note.title}</a>
+                                <div class="small text-muted">${new Date(note.created_at).toLocaleDateString()}</div>
                             </td>
-                            <td>
-                                <span class="d-block small fw-bold">${note.faculty}</span>
-                                <span class="small text-muted">${note.department || '-'}</span>
-                            </td>
+                            <td>${note.faculty}</td>
                             <td>${note.uploader_name || 'Anonim'}</td>
-                            <td>${priceBadge}</td>
                             <td class="text-end">
-                                <a href="${note.file_url}" target="_blank" class="btn-action btn-view d-inline-flex text-decoration-none" title="İncele"><i class="fa-solid fa-eye"></i></a>
                                 <button onclick="deleteItem('notes', '${note.id}')" class="btn-action btn-delete d-inline-flex" title="Sil"><i class="fa-solid fa-trash"></i></button>
                             </td>
                         </tr>
                     `;
                 });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Kayıt bulunamadı.</td></tr>';
             }
         }
 
-        // 4. KİTAP TABLOSU
+        // 4. KİTAPLARI YÜKLE
         async function loadBooksTable() {
-            const { data: books } = await client.from('books').select('*').order('created_at', { ascending: false });
             const tbody = document.getElementById('booksTableBody');
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Yükleniyor...</td></tr>';
+
+            const { data: books } = await client.from('books').select('*').order('created_at', { ascending: false });
             tbody.innerHTML = '';
 
-            if(books) {
+            if(books && books.length > 0) {
                 books.forEach(book => {
-                    let catBadge = 'bg-primary';
-                    if(book.category === 'Satılık') catBadge = 'bg-success';
-                    if(book.category === 'Takaslık') catBadge = 'bg-warning text-dark';
-                    if(book.category === 'Bağış') catBadge = 'bg-info text-dark';
-
                     tbody.innerHTML += `
                         <tr>
+                            <td><img src="${book.image_url}" style="width:40px; height:50px; object-fit:cover; border-radius:4px;"></td>
                             <td>
-                                <img src="${book.image_url}" style="width:40px; height:55px; object-fit:cover; border-radius:4px; border:1px solid #eee;">
+                                <div class="fw-bold">${book.title}</div>
+                                <div class="small text-muted">${book.category}</div>
                             </td>
-                            <td>
-                                <div class="fw-bold text-dark">${book.title}</div>
-                                <small class="text-muted">${book.author || ''}</small>
-                            </td>
-                            <td><span class="badge ${catBadge}">${book.category}</span></td>
-                            <td class="fw-bold text-success">${book.price > 0 ? book.price + ' ₺' : 'Ücretsiz'}</td>
+                            <td class="fw-bold text-success">${book.price} ₺</td>
                             <td class="text-end">
-                                <a href="${book.image_url}" target="_blank" class="btn-action btn-view d-inline-flex text-decoration-none" title="Resmi Gör"><i class="fa-solid fa-image"></i></a>
                                 <button onclick="deleteItem('books', '${book.id}')" class="btn-action btn-delete d-inline-flex" title="Sil"><i class="fa-solid fa-trash"></i></button>
                             </td>
                         </tr>
                     `;
                 });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Kayıt bulunamadı.</td></tr>';
             }
         }
 
@@ -291,30 +282,16 @@
                 if(error) {
                     alert("Hata: " + error.message);
                 } else {
-                    // Listeyi yenile
+                    // Tabloyu yenile
                     if(table === 'notes') loadNotesTable();
                     if(table === 'books') loadBooksTable();
-                    
-                    // Sayıları güncelle
-                    const { count } = await client.from(table).select('*', { count: 'exact', head: true });
-                    if(table === 'notes') document.getElementById('statNotes').innerText = count;
-                    if(table === 'books') document.getElementById('statBooks').innerText = count;
+                    // İstatistikleri güncelle
+                    loadStats();
                 }
             }
         }
 
-        // 6. SEKME DEĞİŞTİRME
-        window.switchTab = function(tabName, link) {
-            // Link aktifliği
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            link.classList.add('active');
-
-            // İçerik gizle/göster
-            document.querySelectorAll('.content-section').forEach(section => section.classList.add('d-none'));
-            document.getElementById('tab-' + tabName).classList.remove('d-none');
-        }
-
-        // 7. ÇIKIŞ
+        // 6. ÇIKIŞ
         window.logoutAdmin = async function() {
             await client.auth.signOut();
             window.location.href = 'index.html';
