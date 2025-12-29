@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { background-color: #f8f9fa; font-family: 'Inter', sans-serif; color: #333; }
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', sans-serif; color: #333; }
         .navbar { background: #fff; border-bottom: 1px solid #edf2f7; padding: 1rem 0; }
         .admin-card { background: #fff; border-radius: 16px; border: 1px solid #edf2f7; padding: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
         .nav-link { color: #4a5568; font-weight: 600; padding: 12px; border-radius: 10px; margin-bottom: 5px; cursor: pointer; transition: 0.3s; }
@@ -39,6 +39,7 @@
                             <i class="fas fa-user-shield"></i>
                         </div>
                         <h6 class="mt-3 fw-bold mb-0">Süper Admin</h6>
+                        <small class="text-muted" id="adminEmail">...</small>
                     </div>
                     <div class="nav flex-column nav-pills">
                         <button class="nav-link active" onclick="switchTab('ozet', this)"><i class="fas fa-chart-line me-2"></i> Özet</button>
@@ -107,10 +108,26 @@
         const _client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         async function init() {
+            // 1. Oturum Kontrolü
             const { data: { session } } = await _client.auth.getSession();
             if(!session) { window.location.href = "login.html"; return; }
-            const { data: p } = await _client.from('profiles').select('is_admin').eq('id', session.user.id).single();
-            if(!p || !p.is_admin) { window.location.href = "index.html"; return; }
+
+            // 2. Admin Yetkisi Kontrolü
+            const { data: p, error } = await _client
+                .from('profiles')
+                .select('is_admin, email')
+                .eq('id', session.user.id)
+                .single();
+
+            // Eğer profil çekilemediyse veya admin değilse uyar ve at
+            if(error || !p || !p.is_admin) {
+                alert("YETKİSİZ ERİŞİM!\n\nVeritabanı kontrolünde hesabınızın 'Admin' yetkisi olmadığı görüldü.\nLütfen SQL kodunu çalıştırdığınızdan emin olun.\n\nMevcut Durum: " + (p ? "Admin Değil" : "Profil Bulunamadı"));
+                window.location.href = "index.html"; 
+                return; 
+            }
+
+            // Buraya geldiyse Admindir
+            document.getElementById('adminEmail').innerText = p.email;
             loadData();
         }
 
@@ -123,11 +140,15 @@
             document.getElementById('s-n').innerText = n || 0;
             document.getElementById('s-k').innerText = k || 0;
 
-            // Notları Listele (Onay butonlu)
+            // Notları Listele
             const { data: notes } = await _client.from('notes').select('*').order('created_at', {ascending: false});
             document.getElementById('list-notes').innerHTML = notes.map(i => `
                 <tr>
-                    <td><span class="fw-bold">${i.title}</span><br><small class="text-muted">${i.faculty}</small></td>
+                    <td>
+                        <span class="fw-bold">${i.title}</span><br>
+                        <small class="text-muted">${i.faculty} | ${i.uploader_name || '?'}</small>
+                        <a href="${i.file_url}" target="_blank" class="ms-2 text-primary"><i class="fas fa-link"></i></a>
+                    </td>
                     <td>${i.is_approved ? '<span class="badge bg-success">Yayında</span>' : '<span class="badge badge-pending">Onay Bekliyor</span>'}</td>
                     <td class="text-end">
                         ${!i.is_approved ? `<button class="btn btn-sm btn-success me-1" onclick="approveNote('${i.id}')">Onayla</button>` : ''}
@@ -146,7 +167,7 @@
             `).join('');
         }
 
-        // DUYURU YAYINLAMA FONKSİYONU
+        // DUYURU YAYINLAMA
         async function publishAnnouncement() {
             const text = document.getElementById('announcementText').value;
             if(!text) return alert("Duyuru metni boş olamaz!");
@@ -154,27 +175,30 @@
             const { error } = await _client.from('announcements').insert([{ text: text }]);
             if(error) alert("Hata: " + error.message);
             else {
-                alert("Duyuru başarıyla yayınlandı!");
+                alert("Duyuru yayınlandı!");
                 document.getElementById('announcementText').value = "";
             }
         }
 
-        // NOT ONAYLAMA FONKSİYONU
+        // NOT ONAYLAMA
         async function approveNote(id) {
             const { error } = await _client.from('notes').update({ is_approved: true }).eq('id', id);
             if(error) alert(error.message);
             else loadData();
         }
 
+        // SİLME
         async function del(t, id) { 
-            if(confirm('Bu içeriği kalıcı olarak silmek istediğinize emin misiniz?')) { 
+            if(confirm('Silmek istediğinize emin misiniz?')) { 
                 await _client.from(t).delete().eq('id', id); 
                 loadData(); 
             } 
         }
 
+        // ÇIKIŞ
         async function handleLogout() { await _client.auth.signOut(); window.location.href = "index.html"; }
 
+        // TAB DEĞİŞTİRME
         window.switchTab = (t, el) => {
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             el.classList.add('active');
