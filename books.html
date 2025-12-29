@@ -10,13 +10,15 @@
     
     <style>
         body { background-color: #f8f9fa; font-family: 'Segoe UI', sans-serif; color: #333; }
+        
+        /* NAVBAR TASARIMI */
         .navbar { background-color: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 15px 0; }
         .navbar-brand { font-weight: 700; font-size: 1.5rem; color: #0d2346; }
         .navbar-brand span { color: #dc3545; }
         .nav-link { color: #555; font-weight: 500; margin: 0 10px; }
         .nav-link:hover, .nav-link.active { color: #dc3545; }
-
-        /* Kitap Kartı */
+        
+        /* KİTAP KARTI */
         .book-card { background: #fff; border: none; border-radius: 12px; overflow: hidden; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.03); height: 100%; display: flex; flex-direction: column; }
         .book-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         .book-img { height: 250px; object-fit: cover; width: 100%; background: #eee; }
@@ -25,6 +27,7 @@
         .book-price { font-size: 1.25rem; font-weight: 800; color: #198754; margin-bottom: 15px; }
         .badge-category { position: absolute; top: 15px; right: 15px; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 0.8rem; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         
+        /* BUTONLAR */
         .btn-whatsapp { background-color: #25D366; color: white; border: none; font-weight: 600; width: 100%; margin-top: auto; }
         .btn-whatsapp:hover { background-color: #20bd5a; color: white; }
         .btn-add-book { background-color: #dc3545; color: white; padding: 10px 25px; border-radius: 8px; border: none; font-weight: 600; }
@@ -66,6 +69,7 @@
 
         <div id="loadingSpinner" class="text-center py-5">
             <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2 text-muted">Kitaplar yükleniyor...</p>
         </div>
 
         <div class="row g-4" id="booksContainer"></div>
@@ -97,9 +101,8 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">İletişim (Telefon)</label>
+                            <label class="form-label">Telefon (WP için)</label>
                             <input type="tel" class="form-control" id="bookContact" placeholder="555 123 45 67" required>
-                            <div class="form-text text-muted">WhatsApp linki için kullanılır.</div>
                         </div>
                         <div class="mb-3"><label class="form-label">Kitap Fotoğrafı</label><input type="file" class="form-control" id="bookImage" required accept="image/*"></div>
                         <button type="submit" class="btn btn-primary w-100" id="btnBookSubmit">İlanı Yayınla</button>
@@ -110,17 +113,16 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script>
-        // --- SUPABASE AYARLARI ---
+        // --- SUPABASE BAĞLANTISI ---
         const SUPABASE_URL = 'https://kmzbywrcspzwuznexcla.supabase.co';
-        // BURAYA KENDİ ANAHTARINI YAPIŞTIR:
-        const SUPABASE_KEY = 'BURAYA_ANON_KEY_GELECEK'; 
+        const SUPABASE_KEY = 'sb_publishable_2mPJ39Ossxg8euZ9hgmfFg_O5mPR1Fh';
         
         const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // --- BAŞLANGIÇ ---
+        // --- SAYFA YÜKLENİNCE ---
         document.addEventListener('DOMContentLoaded', fetchBooks);
-
         let allBooks = [];
 
         // 1. KİTAPLARI ÇEK
@@ -128,17 +130,24 @@
             const container = document.getElementById('booksContainer');
             const spinner = document.getElementById('loadingSpinner');
             
-            const { data, error } = await client.from('books').select('*').order('created_at', { ascending: false });
+            try {
+                const { data, error } = await client.from('books').select('*').order('created_at', { ascending: false });
 
-            spinner.style.display = 'none';
+                spinner.style.display = 'none';
 
-            if (error) {
-                container.innerHTML = '<div class="alert alert-danger w-100">Veriler yüklenemedi.</div>';
-                return;
+                if (error) {
+                    console.error("Supabase Hatası:", error);
+                    container.innerHTML = '<div class="alert alert-danger w-100">Veriler yüklenemedi.</div>';
+                    return;
+                }
+
+                allBooks = data;
+                renderBooks(allBooks);
+            } catch (err) {
+                spinner.style.display = 'none';
+                console.error(err);
+                container.innerHTML = '<div class="alert alert-danger w-100">Beklenmedik bir hata oluştu.</div>';
             }
-
-            allBooks = data;
-            renderBooks(allBooks);
         }
 
         // 2. LİSTELEME
@@ -146,8 +155,8 @@
             const container = document.getElementById('booksContainer');
             container.innerHTML = '';
 
-            if (books.length === 0) {
-                container.innerHTML = '<div class="alert alert-light text-center w-100 border">Henüz ilan yok.</div>';
+            if (!books || books.length === 0) {
+                container.innerHTML = '<div class="alert alert-light text-center w-100 border py-4">Henüz ilan yok. İlk ilanı sen ver!</div>';
                 return;
             }
 
@@ -157,9 +166,13 @@
                 if(book.category === 'Takaslık') badgeClass = 'bg-warning text-dark';
                 if(book.category === 'Bağış') badgeClass = 'bg-info text-dark';
 
-                // Telefon numarasını temizle (boşlukları sil)
+                // Telefon numarasını temizle
                 const phone = book.contact_info ? book.contact_info.replace(/\D/g,'') : '';
                 const wpLink = `https://wa.me/90${phone}`;
+
+                // Fiyat Gösterimi
+                let priceDisplay = book.price > 0 ? `${book.price} ₺` : 'Ücretsiz';
+                if(book.category === 'Takaslık') priceDisplay = 'Takas';
 
                 const html = `
                 <div class="col-md-6 col-lg-3">
@@ -167,12 +180,12 @@
                         <span class="badge badge-category ${badgeClass}">${book.category}</span>
                         <img src="${book.image_url}" class="book-img" alt="${book.title}">
                         <div class="book-body">
-                            <h5 class="book-title text-truncate">${book.title}</h5>
-                            <p class="text-muted small mb-2"><i class="fa-solid fa-user-pen me-1"></i> ${book.author || 'Yazar Belirtilmemiş'}</p>
-                            <div class="book-price">${book.price > 0 ? book.price + ' ₺' : 'Ücretsiz'}</div>
+                            <h5 class="book-title text-truncate" title="${book.title}">${book.title}</h5>
+                            <p class="text-muted small mb-2"><i class="fa-solid fa-user-pen me-1"></i> ${book.author || 'Yazar yok'}</p>
+                            <div class="book-price">${priceDisplay}</div>
                             
                             <a href="${wpLink}" target="_blank" class="btn btn-whatsapp">
-                                <i class="fa-brands fa-whatsapp me-2"></i>İletişime Geç
+                                <i class="fa-brands fa-whatsapp me-2"></i> İletişime Geç
                             </a>
                         </div>
                     </div>
@@ -218,14 +231,14 @@
 
             } catch (err) {
                 alert('Hata: ' + err.message);
+                console.error(err);
             } finally {
                 btn.innerHTML = originalText; btn.disabled = false;
             }
         });
 
         // 4. FİLTRELEME
-        function filterBooks(category, btnElement) {
-            // Buton aktiflik ayarı
+        window.filterBooks = function(category, btnElement) {
             document.querySelectorAll('.btn-outline-dark').forEach(btn => btn.classList.remove('active'));
             btnElement.classList.add('active');
 
