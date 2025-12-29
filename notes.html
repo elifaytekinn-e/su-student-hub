@@ -20,11 +20,9 @@
         .note-card { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid #eee; transition: all 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
         .note-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
         .note-title { font-weight: 700; color: #333; font-size: 1.1rem; }
-        .price-tag { font-weight: bold; color: #198754; font-size: 1.2rem; }
         
         /* Yorum Bölümü */
         .comment-box { background: #f8f9fa; border-radius: 8px; padding: 15px; margin-bottom: 10px; border-left: 4px solid #0d6efd; }
-        .star-rating i { color: #ffc107; font-size: 0.9rem; }
         
         .btn-upload-new { background-color: #dc3545; color: white; font-weight: 600; padding: 10px 25px; border-radius: 8px; border:none; }
         .btn-upload-new:hover { background-color: #bb2d3b; color: white; }
@@ -86,12 +84,12 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-bold">Not Yükle</h5>
+                    <h5 class="modal-title fw-bold">Ücretsiz Not Paylaş</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="uploadForm">
-                        <div class="mb-3"><label class="form-label">Başlık</label><input type="text" class="form-control" id="noteTitle" required></div>
+                        <div class="mb-3"><label class="form-label">Başlık</label><input type="text" class="form-control" id="noteTitle" required placeholder="Örn: Fizik 1 Final Notları"></div>
                         <div class="row mb-3">
                             <div class="col"><label class="form-label">Fakülte</label>
                                 <select class="form-select" id="noteFaculty">
@@ -101,12 +99,12 @@
                                     <option value="fen">Fen Ed.</option>
                                 </select>
                             </div>
-                            <div class="col"><label class="form-label">Bölüm</label><input type="text" class="form-control" id="noteDept"></div>
+                            <div class="col"><label class="form-label">Bölüm</label><input type="text" class="form-control" id="noteDept" placeholder="Bölüm Adı"></div>
                         </div>
-                        <div class="mb-3"><label class="form-label">Açıklama</label><textarea class="form-control" id="noteDesc"></textarea></div>
-                        <div class="mb-3"><label class="form-label">Fiyat (TL)</label><input type="number" class="form-control" id="notePrice" value="0"></div>
-                        <div class="mb-3"><label class="form-label">Dosya</label><input type="file" class="form-control" id="noteFile" required></div>
-                        <button type="submit" class="btn btn-primary w-100" id="btnSubmit">Yükle</button>
+                        <div class="mb-3"><label class="form-label">Açıklama</label><textarea class="form-control" id="noteDesc" placeholder="İçerik hakkında kısa bilgi..."></textarea></div>
+                        
+                        <div class="mb-3"><label class="form-label">Dosya Seç</label><input type="file" class="form-control" id="noteFile" required></div>
+                        <button type="submit" class="btn btn-primary w-100" id="btnSubmit">Paylaş</button>
                     </form>
                 </div>
             </div>
@@ -151,8 +149,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // --- AYARLAR ---
-        const SUPABASE_URL = 'BURAYA_URL_GELECEK';
-        const SUPABASE_KEY = 'BURAYA_KEY_GELECEK';
+        // Burayı kendi Supabase URL ve Key bilgilerinle doldurmayı unutma!
+        const SUPABASE_URL = 'BURAYA_SUPABASE_URL_GELECEK';
+        const SUPABASE_KEY = 'BURAYA_SUPABASE_KEY_GELECEK';
         const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         // --- BAŞLANGIÇ ---
@@ -163,7 +162,6 @@
             const container = document.getElementById('notesContainer');
             const spinner = document.getElementById('loadingSpinner');
             
-            // Notları veritabanından çek (tablo adı 'notes')
             const { data, error } = await supabase.from('notes').select('*').order('created_at', { ascending: false });
 
             spinner.style.display = 'none';
@@ -176,7 +174,7 @@
             renderNotes(data);
         }
 
-        // 2. LİSTELEME
+        // 2. LİSTELEME (Fiyat Kısmı Düzenlendi)
         function renderNotes(notes) {
             const container = document.getElementById('notesContainer');
             container.innerHTML = '';
@@ -200,7 +198,9 @@
                             <small class="text-secondary"><i class="fa-solid fa-user me-1"></i> ${note.uploader_name || 'Öğrenci'}</small>
                         </div>
                         <div class="text-end" style="min-width: 120px;">
-                            <div class="price-tag mb-3">${note.price > 0 ? note.price + ' ₺' : 'Ücretsiz'}</div>
+                            <div class="mb-3">
+                                <span class="badge bg-success" style="font-size: 0.9rem;">Ücretsiz</span>
+                            </div>
                             <a href="${note.file_url}" target="_blank" class="btn btn-sm btn-outline-primary w-100 mb-2">
                                 <i class="fa-solid fa-download me-1"></i> İndir
                             </a>
@@ -214,7 +214,7 @@
             });
         }
 
-        // 3. NOT YÜKLE
+        // 3. NOT YÜKLE (Otomatik Fiyat: 0)
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnSubmit');
@@ -224,23 +224,23 @@
             const fileName = `note_${Date.now()}_${file.name}`;
 
             try {
-                // a) Dosyayı 'course_notes' bucket'ına yükle
+                // a) Dosyayı yükle
                 const { data: storageData, error: storageError } = await supabase.storage.from('course_notes').upload(fileName, file);
                 if (storageError) throw storageError;
 
-                // b) Public URL al
+                // b) Link al
                 const { data: publicUrlData } = supabase.storage.from('course_notes').getPublicUrl(fileName);
                 const publicURL = publicUrlData.publicUrl;
 
-                // c) Veritabanına yaz
+                // c) Veritabanına yaz (Price: 0 olarak sabitlendi)
                 const { error: dbError } = await supabase.from('notes').insert([{
                     title: document.getElementById('noteTitle').value,
                     faculty: document.getElementById('noteFaculty').value,
                     department: document.getElementById('noteDept').value,
                     description: document.getElementById('noteDesc').value,
-                    price: document.getElementById('notePrice').value,
+                    price: 0, // ÜCRETSİZ
                     file_url: publicURL,
-                    uploader_name: 'Misafir Öğrenci' // Giriş sistemi olmadığı için şimdilik böyle
+                    uploader_name: 'Misafir Öğrenci'
                 }]);
 
                 if (dbError) throw dbError;
@@ -250,22 +250,20 @@
             } catch (err) {
                 alert('Hata: ' + err.message);
             } finally {
-                btn.innerHTML = 'Yükle'; btn.disabled = false;
+                btn.innerHTML = 'Paylaş'; btn.disabled = false;
             }
         });
 
-        // 4. YORUMLARI AÇ (MODAL)
+        // 4. YORUMLARI AÇ
         async function openComments(noteId, noteTitle) {
             document.getElementById('commentModalTitle').innerText = noteTitle + " - Yorumlar";
             document.getElementById('currentNoteId').value = noteId;
             const commentsList = document.getElementById('commentsList');
             commentsList.innerHTML = '<p class="text-muted small">Yükleniyor...</p>';
             
-            // Modal'ı aç
             const modal = new bootstrap.Modal(document.getElementById('commentsModal'));
             modal.show();
 
-            // Yorumları çek
             const { data, error } = await supabase.from('comments').select('*').eq('note_id', noteId).order('created_at', {ascending: false});
 
             commentsList.innerHTML = '';
@@ -305,8 +303,6 @@
 
             if (!error) {
                 alert('Yorum gönderildi!');
-                document.getElementById('commentText').value = '';
-                // Modalı kapatıp sayfayı yenilemek yerine yorumları tekrar çekebiliriz ama basitlik için:
                 location.reload(); 
             } else {
                 alert('Hata: ' + error.message);
