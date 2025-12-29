@@ -6,98 +6,152 @@
     <title>ASÜ Hub | Yönetim Paneli</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <style>
-        body { background-color: #f8f9fa; font-family: 'Segoe UI', sans-serif; color: #333; }
-        .navbar { background: #fff; border-bottom: 1px solid #edf2f7; padding: 1rem 0; }
-        .admin-card { background: #fff; border-radius: 16px; border: 1px solid #edf2f7; padding: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
-        .nav-link { color: #4a5568; font-weight: 600; padding: 12px; border-radius: 10px; margin-bottom: 5px; cursor: pointer; transition: 0.3s; }
-        .nav-link:hover { background: #f1f5f9; color: #0d2346; }
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', sans-serif; color: #333; }
+        .navbar { background: #fff; border-bottom: 1px solid #edf2f7; padding: 1rem 0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        
+        .admin-card { background: #fff; border-radius: 12px; border: none; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); margin-bottom: 20px; }
+        .nav-link { color: #64748b; font-weight: 600; padding: 12px 15px; border-radius: 8px; margin-bottom: 5px; transition: 0.2s; }
+        .nav-link:hover { background: #e2e8f0; color: #0f172a; }
         .nav-link.active { background-color: #0d2346 !important; color: white !important; }
-        .stat-widget { background: #fff; border-radius: 16px; padding: 20px; border: 1px solid #edf2f7; text-align: center; height: 100%; }
-        .stat-val { font-size: 1.8rem; font-weight: 800; color: #0d2346; }
-        .badge-pending { background-color: #fff3cd; color: #856404; font-size: 0.75rem; }
+        
+        /* İstatistik Kartları */
+        .stat-card { border-radius: 12px; padding: 20px; color: white; position: relative; overflow: hidden; height: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .stat-card h3 { font-size: 2.5rem; font-weight: 800; margin-bottom: 0; }
+        .stat-card p { font-size: 0.9rem; opacity: 0.9; margin-bottom: 0; }
+        .stat-card .icon-bg { position: absolute; right: -10px; bottom: -10px; font-size: 5rem; opacity: 0.2; transform: rotate(-15deg); }
+        
+        .bg-gradient-1 { background: linear-gradient(45deg, #4e54c8, #8f94fb); }
+        .bg-gradient-2 { background: linear-gradient(45deg, #11998e, #38ef7d); }
+        .bg-gradient-3 { background: linear-gradient(45deg, #ff9966, #ff5e62); }
+        .bg-gradient-4 { background: linear-gradient(45deg, #f09819, #edde5d); }
+
+        .table-custom th { background-color: #f8f9fa; font-size: 0.8rem; color: #6c757d; font-weight: 700; text-transform: uppercase; }
+        .avatar-sm { width: 32px; height: 32px; background: #e9ecef; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #495057; font-size: 0.8rem; }
     </style>
 </head>
 <body>
+
     <nav class="navbar sticky-top">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="index.html">ASÜ<span style="color:#dc3545">HUB</span></a>
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold" href="index.html">ASÜ<span style="color:#dc3545">HUB</span> <small class="text-muted fw-normal ms-2">Yönetim</small></a>
             <div class="d-flex gap-2">
-                <a href="index.html" class="btn btn-light btn-sm rounded-pill px-3 fw-bold">Siteye Dön</a>
-                <button onclick="handleLogout()" class="btn btn-danger btn-sm rounded-pill px-3 fw-bold">Çıkış</button>
+                <a href="index.html" class="btn btn-outline-dark btn-sm rounded-pill px-3">Siteye Dön</a>
+                <button onclick="handleLogout()" class="btn btn-danger btn-sm rounded-pill px-3">Çıkış</button>
             </div>
         </div>
     </nav>
 
-    <div class="container py-5">
+    <div class="container-fluid px-4 py-4">
         <div class="row g-4">
-            <div class="col-lg-3">
+            <div class="col-lg-2">
                 <div class="admin-card sticky-top" style="top: 100px;">
-                    <div class="text-center mb-4">
-                        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width:60px; height:60px; font-size:1.5rem">
+                    <div class="text-center mb-4 pb-3 border-bottom">
+                        <div class="bg-dark text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width:50px; height:50px; font-size:1.2rem">
                             <i class="fas fa-user-shield"></i>
                         </div>
-                        <h6 class="mt-3 fw-bold mb-0">Süper Admin</h6>
-                        <small class="text-muted" id="adminEmail">...</small>
+                        <h6 class="fw-bold mb-0">Yönetici</h6>
+                        <small class="text-muted" style="font-size: 0.75rem;" id="adminEmail">...</small>
                     </div>
                     <div class="nav flex-column nav-pills">
-                        <button class="nav-link active" onclick="switchTab('ozet', this)"><i class="fas fa-chart-line me-2"></i> Özet</button>
-                        <button class="nav-link" onclick="switchTab('duyuru', this)"><i class="fas fa-bullhorn me-2"></i> Duyuru Yayınla</button>
-                        <button class="nav-link" onclick="switchTab('notlar', this)"><i class="fas fa-file-pdf me-2"></i> Notları Yönet</button>
-                        <button class="nav-link" onclick="switchTab('kitaplar', this)"><i class="fas fa-book me-2"></i> Kitapları Yönet</button>
+                        <button class="nav-link active" onclick="switchTab('ozet', this)">Genel Bakış</button>
+                        <button class="nav-link" onclick="switchTab('duyuru', this)">Duyuru Yap</button>
+                        <button class="nav-link" onclick="switchTab('notlar', this)">Not Onayı <span class="badge bg-danger ms-auto" id="badge-pending" style="display:none">0</span></button>
+                        <button class="nav-link" onclick="switchTab('kitaplar', this)">Sahaf Yönetimi</button>
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-9">
+            <div class="col-lg-10">
+                
                 <div id="sec-ozet" class="admin-section">
-                    <h5 class="fw-bold mb-4">Genel İstatistikler</h5>
+                    
                     <div class="row g-3 mb-4">
-                        <div class="col-md-4"><div class="stat-widget"><span class="stat-val" id="s-u">0</span><br><small class="text-muted">Kayıtlı Öğrenci</small></div></div>
-                        <div class="col-md-4"><div class="stat-widget"><span class="stat-val" id="s-n">0</span><br><small class="text-muted">Toplam Not</small></div></div>
-                        <div class="col-md-4"><div class="stat-widget"><span class="stat-val" id="s-k">0</span><br><small class="text-muted">Kitap İlanı</small></div></div>
+                        <div class="col-md-3">
+                            <div class="stat-card bg-gradient-1">
+                                <h3 id="s-u">0</h3>
+                                <p>Kayıtlı Öğrenci</p>
+                                <i class="fas fa-users icon-bg"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card bg-gradient-2">
+                                <h3 id="s-n">0</h3>
+                                <p>Toplam Not</p>
+                                <i class="fas fa-file-pdf icon-bg"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card bg-gradient-3">
+                                <h3 id="s-k">0</h3>
+                                <p>Sahaf İlanı</p>
+                                <i class="fas fa-book-open icon-bg"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card bg-gradient-4">
+                                <h3 id="s-p">0</h3>
+                                <p>Onay Bekleyen</p>
+                                <i class="fas fa-clock icon-bg"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="admin-card h-100">
+                                <h6 class="fw-bold mb-3 text-secondary">FAKÜLTE DAĞILIMI (Gerçek Veri)</h6>
+                                <canvas id="facultyChart" style="max-height: 250px;"></canvas>
+                                <div id="chart-empty-msg" class="text-center text-muted mt-5" style="display:none;">Henüz grafik oluşturacak kadar veri yok.</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="admin-card h-100">
+                                <h6 class="fw-bold mb-3 text-secondary">SON KATILANLAR</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-custom table-hover mb-0">
+                                        <thead><tr><th>Kullanıcı</th><th>Tarih</th></tr></thead>
+                                        <tbody id="recent-users-list"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div id="sec-duyuru" class="admin-section d-none">
                     <div class="admin-card">
-                        <h5 class="fw-bold mb-4">Yeni Kampüs Duyurusu</h5>
-                        <div class="mb-3">
-                            <textarea id="announcementText" class="form-control" rows="3" placeholder="Tüm öğrencilere ne duyurmak istersiniz?"></textarea>
-                        </div>
-                        <button class="btn btn-primary fw-bold" onclick="publishAnnouncement()">Yayınla</button>
+                        <h4 class="fw-bold mb-4">Duyuru Yayınla</h4>
+                        <div class="alert alert-info">Duyurular veritabanına kaydedilir ve ana sayfada gösterilir.</div>
+                        <textarea id="announcementText" class="form-control mb-3" rows="4" placeholder="Mesajınız..."></textarea>
+                        <button class="btn btn-primary px-4" onclick="publishAnnouncement()">Yayına Al</button>
                     </div>
                 </div>
 
                 <div id="sec-notlar" class="admin-section d-none">
                     <div class="admin-card">
-                        <h5 class="fw-bold mb-4">Not Yönetimi & Onaylama</h5>
-                        <div class="table-responsive">
-                            <table class="table align-middle">
-                                <thead>
-                                    <tr class="small text-muted">
-                                        <th>BAŞLIK</th>
-                                        <th>DURUM</th>
-                                        <th class="text-end">İŞLEMLER</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="list-notes"></tbody>
-                            </table>
-                        </div>
+                        <h4 class="fw-bold mb-4">Not Onay İşlemleri</h4>
+                        <table class="table table-custom table-hover align-middle">
+                            <thead><tr><th>BAŞLIK</th><th>YÜKLEYEN</th><th>DURUM</th><th class="text-end">İŞLEMLER</th></tr></thead>
+                            <tbody id="list-notes"></tbody>
+                        </table>
                     </div>
                 </div>
 
                 <div id="sec-kitaplar" class="admin-section d-none">
                     <div class="admin-card">
-                        <h5 class="fw-bold mb-4">Kitap İlanlarını Yönet</h5>
-                        <div class="table-responsive">
-                            <table class="table align-middle">
-                                <tbody id="list-books"></tbody>
-                            </table>
-                        </div>
+                        <h4 class="fw-bold mb-4">Sahaf İlanları</h4>
+                        <table class="table table-custom table-hover align-middle">
+                            <thead><tr><th>GÖRSEL</th><th>BAŞLIK</th><th>FİYAT</th><th>SATICI</th><th class="text-end">SİL</th></tr></thead>
+                            <tbody id="list-books"></tbody>
+                        </table>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
@@ -107,98 +161,172 @@
         const SUPABASE_KEY = 'sb_publishable_2mPJ39Ossxg8euZ9hgmfFg_O5mPR1Fh'; 
         const _client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        // SAYFA AÇILINCA ÇALIŞACAKLAR
         async function init() {
-            // 1. Oturum Kontrolü
+            // 1. Oturum Kontrolü (Giriş yapmamışsa at)
             const { data: { session } } = await _client.auth.getSession();
             if(!session) { window.location.href = "login.html"; return; }
 
-            // 2. Admin Yetkisi Kontrolü
-            const { data: p, error } = await _client
-                .from('profiles')
-                .select('is_admin, email')
-                .eq('id', session.user.id)
-                .single();
+            // 2. Admin Kontrolü (Veritabanından gerçek kontrol)
+            const { data: p, error } = await _client.from('profiles').select('is_admin, email').eq('id', session.user.id).single();
 
-            // Eğer profil çekilemediyse veya admin değilse uyar ve at
             if(error || !p || !p.is_admin) {
-                alert("YETKİSİZ ERİŞİM!\n\nVeritabanı kontrolünde hesabınızın 'Admin' yetkisi olmadığı görüldü.\nLütfen SQL kodunu çalıştırdığınızdan emin olun.\n\nMevcut Durum: " + (p ? "Admin Değil" : "Profil Bulunamadı"));
+                alert("BU SAYFAYA ERİŞİM YETKİNİZ YOK.");
                 window.location.href = "index.html"; 
                 return; 
             }
 
-            // Buraya geldiyse Admindir
             document.getElementById('adminEmail').innerText = p.email;
-            loadData();
+            
+            // 3. VERİLERİ ÇEK
+            loadRealData();
         }
 
-        async function loadData() {
+        async function loadRealData() {
+            // --- A) İSTATİSTİKLER ---
+            // Supabase'den gerçek satır sayılarını sayıyoruz
             const { count: u } = await _client.from('profiles').select('*', { count: 'exact', head: true });
             const { count: n } = await _client.from('notes').select('*', { count: 'exact', head: true });
             const { count: k } = await _client.from('books').select('*', { count: 'exact', head: true });
-            
+            // Onay bekleyen not sayısı (is_approved = false olanlar)
+            const { count: p } = await _client.from('notes').select('*', { count: 'exact', head: true }).eq('is_approved', false);
+
             document.getElementById('s-u').innerText = u || 0;
             document.getElementById('s-n').innerText = n || 0;
             document.getElementById('s-k').innerText = k || 0;
+            document.getElementById('s-p').innerText = p || 0;
 
-            // Notları Listele
-            const { data: notes } = await _client.from('notes').select('*').order('created_at', {ascending: false});
-            document.getElementById('list-notes').innerHTML = notes.map(i => `
-                <tr>
-                    <td>
-                        <span class="fw-bold">${i.title}</span><br>
-                        <small class="text-muted">${i.faculty} | ${i.uploader_name || '?'}</small>
-                        <a href="${i.file_url}" target="_blank" class="ms-2 text-primary"><i class="fas fa-link"></i></a>
-                    </td>
-                    <td>${i.is_approved ? '<span class="badge bg-success">Yayında</span>' : '<span class="badge badge-pending">Onay Bekliyor</span>'}</td>
-                    <td class="text-end">
-                        ${!i.is_approved ? `<button class="btn btn-sm btn-success me-1" onclick="approveNote('${i.id}')">Onayla</button>` : ''}
-                        <button class="btn btn-sm btn-outline-danger" onclick="del('notes','${i.id}')"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>
-            `).join('');
+            // Kırmızı bildirim rozeti
+            if(p > 0) {
+                document.getElementById('badge-pending').style.display = 'inline-block';
+                document.getElementById('badge-pending').innerText = p;
+            }
+
+            // --- B) GRAFİK VERİSİ ---
+            // Sadece gerçek notların fakültelerini alıp sayıyoruz
+            const { data: notesData } = await _client.from('notes').select('faculty');
             
-            // Kitapları Listele
-            const { data: books } = await _client.from('books').select('*');
-            document.getElementById('list-books').innerHTML = books.map(i => `
-                <tr>
-                    <td><span class="fw-bold">${i.title}</span><br><small class="text-muted">${i.price} ₺</small></td>
-                    <td class="text-end"><button class="btn btn-sm btn-outline-danger" onclick="del('books','${i.id}')"><i class="fas fa-trash"></i> Sil</button></td>
-                </tr>
-            `).join('');
-        }
+            if(notesData && notesData.length > 0) {
+                const facultyCounts = {};
+                notesData.forEach(note => {
+                    const fac = note.faculty || 'Belirtilmemiş';
+                    facultyCounts[fac] = (facultyCounts[fac] || 0) + 1;
+                });
+                renderChart(facultyCounts);
+            } else {
+                document.getElementById('facultyChart').style.display = 'none';
+                document.getElementById('chart-empty-msg').style.display = 'block';
+            }
 
-        // DUYURU YAYINLAMA
-        async function publishAnnouncement() {
-            const text = document.getElementById('announcementText').value;
-            if(!text) return alert("Duyuru metni boş olamaz!");
+            // --- C) SON ÜYELER TABLOSU ---
+            const { data: users } = await _client.from('profiles').select('email, created_at').order('created_at', {ascending:false}).limit(5);
+            
+            const userTable = document.getElementById('recent-users-list');
+            userTable.innerHTML = ''; // Önce temizle
+            
+            if(users && users.length > 0) {
+                users.forEach(user => {
+                    userTable.innerHTML += `
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm me-2">${user.email.charAt(0).toUpperCase()}</div>
+                                    <span>${user.email.split('@')[0]}</span>
+                                </div>
+                            </td>
+                            <td class="small text-muted">${new Date(user.created_at).toLocaleDateString('tr-TR')}</td>
+                        </tr>`;
+                });
+            } else {
+                userTable.innerHTML = '<tr><td colspan="2" class="text-center text-muted">Henüz üye yok.</td></tr>';
+            }
 
-            const { error } = await _client.from('announcements').insert([{ text: text }]);
-            if(error) alert("Hata: " + error.message);
-            else {
-                alert("Duyuru yayınlandı!");
-                document.getElementById('announcementText').value = "";
+            // --- D) NOT YÖNETİMİ TABLOSU ---
+            const { data: allNotes } = await _client.from('notes').select('*').order('created_at', {ascending: false});
+            const notesTable = document.getElementById('list-notes');
+            notesTable.innerHTML = '';
+
+            if(allNotes && allNotes.length > 0) {
+                allNotes.forEach(i => {
+                    notesTable.innerHTML += `
+                    <tr>
+                        <td>
+                            <span class="fw-bold d-block text-dark">${i.title}</span>
+                            <small class="text-muted">${i.faculty} | ${i.department || '-'}</small>
+                            <a href="${i.file_url}" target="_blank" class="ms-1 text-primary small"><i class="fas fa-link"></i> Dosya</a>
+                        </td>
+                        <td>${i.uploader_name || 'Gizli'}</td>
+                        <td>${i.is_approved ? '<span class="badge bg-success">Yayında</span>' : '<span class="badge bg-warning text-dark">Onay Bekliyor</span>'}</td>
+                        <td class="text-end">
+                            ${!i.is_approved ? `<button class="btn btn-sm btn-success me-1" onclick="approveNote('${i.id}')">Onayla</button>` : ''}
+                            <button class="btn btn-sm btn-outline-danger" onclick="del('notes','${i.id}')"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+                });
+            } else {
+                notesTable.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Henüz yüklenen not yok.</td></tr>';
+            }
+
+            // --- E) SAHAF TABLOSU ---
+            const { data: books } = await _client.from('books').select('*').order('created_at', {ascending: false});
+            const booksTable = document.getElementById('list-books');
+            booksTable.innerHTML = '';
+
+            if(books && books.length > 0) {
+                books.forEach(i => {
+                    booksTable.innerHTML += `
+                    <tr>
+                        <td><img src="${i.image_url}" style="width:40px; height:40px; object-fit:cover; border-radius:4px; border:1px solid #eee;"></td>
+                        <td><span class="fw-bold text-dark">${i.title}</span><br><small class="text-muted">${i.author || ''}</small></td>
+                        <td><span class="badge bg-light text-dark border">${i.price > 0 ? i.price + ' ₺' : i.category}</span></td>
+                        <td>${i.seller_name || 'Öğrenci'}</td>
+                        <td class="text-end"><button class="btn btn-sm btn-outline-danger" onclick="del('books','${i.id}')"><i class="fas fa-trash"></i></button></td>
+                    </tr>`;
+                });
+            } else {
+                booksTable.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Henüz kitap ilanı yok.</td></tr>';
             }
         }
 
-        // NOT ONAYLAMA
-        async function approveNote(id) {
-            const { error } = await _client.from('notes').update({ is_approved: true }).eq('id', id);
-            if(error) alert(error.message);
-            else loadData();
+        // DİĞER FONKSİYONLAR
+        function renderChart(dataObj) {
+            const ctx = document.getElementById('facultyChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(dataObj),
+                    datasets: [{
+                        data: Object.values(dataObj),
+                        backgroundColor: ['#4e54c8', '#11998e', '#ff9966', '#f09819', '#343a40'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+            });
         }
 
-        // SİLME
+        async function publishAnnouncement() {
+            const text = document.getElementById('announcementText').value;
+            if(!text) return alert("Boş duyuru olmaz!");
+            const { error } = await _client.from('announcements').insert([{ text: text }]);
+            if(error) alert(error.message); else { alert("Duyuru Yayında!"); document.getElementById('announcementText').value = ""; }
+        }
+
+        async function approveNote(id) {
+            if(confirm("Bu notu onaylayıp yayına almak istiyor musun?")) {
+                const { error } = await _client.from('notes').update({ is_approved: true }).eq('id', id);
+                if(error) alert(error.message); else loadRealData();
+            }
+        }
+
         async function del(t, id) { 
-            if(confirm('Silmek istediğinize emin misiniz?')) { 
-                await _client.from(t).delete().eq('id', id); 
-                loadData(); 
+            if(confirm('Silmek istediğine emin misin?')) { 
+                await _client.from(t).delete().eq('id', id); loadRealData(); 
             } 
         }
 
-        // ÇIKIŞ
         async function handleLogout() { await _client.auth.signOut(); window.location.href = "index.html"; }
 
-        // TAB DEĞİŞTİRME
         window.switchTab = (t, el) => {
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             el.classList.add('active');
