@@ -11,6 +11,8 @@
         .login-card { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 400px; }
         .brand-logo { color: #0d2346; font-weight: 800; font-size: 2rem; text-align: center; margin-bottom: 30px; }
         .brand-logo span { color: #dc3545; }
+        .forgot-link { font-size: 0.85rem; text-decoration: none; color: #6c757d; transition: 0.3s; }
+        .forgot-link:hover { color: #0d2346; text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -21,77 +23,105 @@
                 <label class="form-label fw-bold small text-muted">E-Posta Adresi</label>
                 <input type="email" id="email" class="form-control" required>
             </div>
-            <div class="mb-4">
+            <div class="mb-2">
                 <label class="form-label fw-bold small text-muted">Şifre</label>
                 <input type="password" id="password" class="form-control" required>
             </div>
+            
+            <div class="text-end mb-4">
+                <a href="#" class="forgot-link" data-bs-toggle="modal" data-bs-target="#forgotModal">Şifremi Unuttum?</a>
+            </div>
+
             <button type="submit" class="btn btn-primary w-100 mb-3" id="loginBtn">Giriş Yap</button>
             <button type="button" class="btn btn-outline-secondary w-100" id="signupBtn">Kayıt Ol</button>
         </form>
     </div>
 
+    <div class="modal fade" id="forgotModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Şifre Sıfırlama</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small">Kayıtlı e-posta adresinizi girin. Size şifrenizi sıfırlamanız için bir bağlantı göndereceğiz.</p>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">E-Posta</label>
+                        <input type="email" id="resetEmail" class="form-control" placeholder="ornek@aksaray.edu.tr">
+                    </div>
+                    <button class="btn btn-dark w-100" onclick="sendResetLink()">Sıfırlama Bağlantısı Gönder</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const client = supabase.createClient('https://kmzbywrcspzwuznexcla.supabase.co', 'sb_publishable_2mPJ39Ossxg8euZ9hgmfFg_O5mPR1Fh');
 
+        // GİRİŞ İŞLEMİ
         document.getElementById('authForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const btn = document.getElementById('loginBtn');
 
-            // 1. UI Geri Bildirimi: Butonu kilitle
-            btn.disabled = true;
-            btn.innerText = "Giriş Yapılıyor...";
+            btn.disabled = true; btn.innerText = "Giriş Yapılıyor...";
             
-            // 2. Supabase ile Giriş Yap
             const { data: { user }, error } = await client.auth.signInWithPassword({ email, password });
 
             if (error) {
                 alert("Hata: " + error.message);
-                // Hata varsa butonu eski haline getir
-                btn.disabled = false;
-                btn.innerText = "Giriş Yap";
+                btn.disabled = false; btn.innerText = "Giriş Yap";
             } else {
-                // 3. Admin Kontrolü
-                
-                // A) Eğer mail admin@aksaray.edu.tr ise KESİN Admin Sayfasına git
                 if (email === 'admin@aksaray.edu.tr') {
                     window.location.href = 'yonetim-paneli.html';
                     return;
                 }
-
-                // B) Diğer adminler için veritabanını kontrol et
-                const { data: profile } = await client
-                    .from('profiles')
-                    .select('is_admin')
-                    .eq('id', user.id)
-                    .single();
+                const { data: profile } = await client.from('profiles').select('is_admin').eq('id', user.id).single();
                 
-                if (profile && profile.is_admin) {
-                    window.location.href = 'yonetim-paneli.html'; // Adminse panele
-                } else {
-                    window.location.href = 'profile.html'; // Öğrenciyse profile
-                }
+                if (profile && profile.is_admin) window.location.href = 'yonetim-paneli.html';
+                else window.location.href = 'profile.html';
             }
         });
 
+        // KAYIT İŞLEMİ
         document.getElementById('signupBtn').addEventListener('click', async () => {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            
-            if(!email || !password) {
-                alert("Lütfen kayıt olmak için e-posta ve şifre giriniz.");
-                return;
-            }
+            if(!email || !password) return alert("E-posta ve şifre giriniz.");
 
             const { error } = await client.auth.signUp({ email, password });
-            if (error) {
-                alert(error.message);
-            } else {
-                alert("Kayıt başarılı! Şimdi 'Giriş Yap' butonuna basarak girebilirsiniz.");
-            }
+            if (error) alert(error.message); else alert("Kayıt başarılı! Giriş yapabilirsiniz.");
         });
+
+        // ŞİFRE SIFIRLAMA LİNKİ GÖNDERME
+        async function sendResetLink() {
+            const email = document.getElementById('resetEmail').value;
+            if(!email) return alert("Lütfen e-posta adresinizi yazın.");
+
+            const btn = document.querySelector('#forgotModal button');
+            const originalText = btn.innerText;
+            btn.disabled = true; btn.innerText = "Gönderiliyor...";
+
+            // Şifre sıfırlama maili gönder
+            // redirectTo: Kullanıcı linke tıklayınca nereye gidecek? -> Profil sayfasına.
+            const { error } = await client.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin + window.location.pathname.replace('login.html', 'profile.html')
+            });
+
+            if (error) {
+                alert("Hata: " + error.message);
+            } else {
+                alert("E-posta gönderildi! Lütfen gelen kutunuzu (ve spam klasörünü) kontrol edin. Gelen linke tıkladığınızda otomatik giriş yapacaksınız. Profilim sayfasından yeni şifrenizi belirleyebilirsiniz.");
+                // Modalı kapat
+                const modalEl = document.getElementById('forgotModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                modal.hide();
+            }
+            btn.disabled = false; btn.innerText = originalText;
+        }
     </script>
 </body>
 </html>
