@@ -43,7 +43,7 @@
         .book-img { 
             width: 100%; 
             height: 100%; 
-            object-fit: cover; /* Resmi kutuya sığdırır */
+            object-fit: cover; 
         }
         
         .book-body { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
@@ -151,7 +151,7 @@
         document.addEventListener('DOMContentLoaded', fetchBooks);
         let allBooks = [];
 
-        // 1. KİTAPLARI ÇEK VE GÖSTER
+      
         async function fetchBooks() {
             const container = document.getElementById('booksContainer');
             const spinner = document.getElementById('loadingSpinner');
@@ -176,7 +176,7 @@
             }
         }
 
-        // 2. KARTLARI OLUŞTUR
+      
         function renderBooks(books) {
             const container = document.getElementById('booksContainer');
             container.innerHTML = '';
@@ -198,7 +198,7 @@
                 let priceDisplay = book.price > 0 ? `${book.price} ₺` : 'Ücretsiz';
                 if(book.category === 'Takaslık') priceDisplay = 'Takas';
 
-                // Varsayılan resim (Eğer resim yüklenmemişse)
+                
                 const imageUrl = book.image_url || 'https://via.placeholder.com/300x400?text=Resim+Yok';
 
                 const html = `
@@ -223,13 +223,12 @@
             });
         }
 
-        // 3. YENİ İLAN YÜKLEME (FOTOĞRAFLI)
         document.getElementById('bookForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnBookSubmit');
             const originalText = btn.innerHTML;
             
-            // 1. Giriş Kontrolü
+      
             const { data: { user } } = await client.auth.getUser();
             if (!user) {
                 alert("İlan vermek için giriş yapmalısınız!");
@@ -237,30 +236,29 @@
                 return;
             }
 
-            // 2. Butonu Kilitle
+        
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Fotoğraf Yükleniyor...'; 
             btn.disabled = true;
 
             const file = document.getElementById('bookImage').files[0];
             
-            // 3. Dosya İsmini Temizle (Türkçe karakter sorununu önlemek için)
-            // Örn: "fotoğraf.jpg" -> "fotograf.jpg"
+
             const safeName = file.name.replace(/[^a-zA-Z0-9.]/g, '_').toLowerCase();
             const fileName = `book_${Date.now()}_${safeName}`;
 
             try {
-                // A) Resmi Storage'a Yükle
+                /
                 const { error: uploadError } = await client.storage.from('book_images').upload(fileName, file);
                 
                 if (uploadError) {
                     throw new Error("Resim yüklenemedi: " + uploadError.message);
                 }
 
-                // B) Resmin Herkese Açık Linkini Al
+                
                 const { data: publicUrlData } = client.storage.from('book_images').getPublicUrl(fileName);
                 const publicURL = publicUrlData.publicUrl;
                 
-                // C) Veritabanına Kaydet (Link ile birlikte)
+               
                 const { error: dbError } = await client.from('books').insert([{
                     user_id: user.id,
                     title: document.getElementById('bookTitle').value,
@@ -268,7 +266,7 @@
                     category: document.getElementById('bookCategory').value,
                     price: document.getElementById('bookPrice').value,
                     contact_info: document.getElementById('bookContact').value,
-                    image_url: publicURL, // <-- İşte resim linki buraya gidiyor
+                    image_url: publicURL, 
                     seller_name: 'Öğrenci'
                 }]);
 
@@ -285,7 +283,7 @@
             }
         });
 
-        // FİLTRELEME
+      
         window.filterBooks = function(category, btnElement) {
             document.querySelectorAll('.btn-outline-dark').forEach(btn => btn.classList.remove('active'));
             btnElement.classList.add('active');
@@ -295,3 +293,4 @@
     </script>
 </body>
 </html>
+
