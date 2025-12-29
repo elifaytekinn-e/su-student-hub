@@ -18,7 +18,7 @@
         .nav-link:hover { background: #e2e8f0; color: #0f172a; }
         .nav-link.active { background-color: #0d2346 !important; color: white !important; }
         
-        /* İstatistik Kartları */
+        
         .stat-card { border-radius: 12px; padding: 20px; color: white; position: relative; overflow: hidden; height: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .stat-card h3 { font-size: 2.5rem; font-weight: 800; margin-bottom: 0; }
         .stat-card p { font-size: 0.9rem; opacity: 0.9; margin-bottom: 0; }
@@ -161,13 +161,13 @@
         const SUPABASE_KEY = 'sb_publishable_2mPJ39Ossxg8euZ9hgmfFg_O5mPR1Fh'; 
         const _client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // SAYFA AÇILINCA ÇALIŞACAKLAR
+        
         async function init() {
-            // 1. Oturum Kontrolü (Giriş yapmamışsa at)
+           
             const { data: { session } } = await _client.auth.getSession();
             if(!session) { window.location.href = "login.html"; return; }
 
-            // 2. Admin Kontrolü (Veritabanından gerçek kontrol)
+            
             const { data: p, error } = await _client.from('profiles').select('is_admin, email').eq('id', session.user.id).single();
 
             if(error || !p || !p.is_admin) {
@@ -178,17 +178,16 @@
 
             document.getElementById('adminEmail').innerText = p.email;
             
-            // 3. VERİLERİ ÇEK
+            
             loadRealData();
         }
 
         async function loadRealData() {
-            // --- A) İSTATİSTİKLER ---
-            // Supabase'den gerçek satır sayılarını sayıyoruz
+          
             const { count: u } = await _client.from('profiles').select('*', { count: 'exact', head: true });
             const { count: n } = await _client.from('notes').select('*', { count: 'exact', head: true });
             const { count: k } = await _client.from('books').select('*', { count: 'exact', head: true });
-            // Onay bekleyen not sayısı (is_approved = false olanlar)
+           
             const { count: p } = await _client.from('notes').select('*', { count: 'exact', head: true }).eq('is_approved', false);
 
             document.getElementById('s-u').innerText = u || 0;
@@ -196,14 +195,13 @@
             document.getElementById('s-k').innerText = k || 0;
             document.getElementById('s-p').innerText = p || 0;
 
-            // Kırmızı bildirim rozeti
+            
             if(p > 0) {
                 document.getElementById('badge-pending').style.display = 'inline-block';
                 document.getElementById('badge-pending').innerText = p;
             }
 
-            // --- B) GRAFİK VERİSİ ---
-            // Sadece gerçek notların fakültelerini alıp sayıyoruz
+        
             const { data: notesData } = await _client.from('notes').select('faculty');
             
             if(notesData && notesData.length > 0) {
@@ -218,11 +216,11 @@
                 document.getElementById('chart-empty-msg').style.display = 'block';
             }
 
-            // --- C) SON ÜYELER TABLOSU ---
+           
             const { data: users } = await _client.from('profiles').select('email, created_at').order('created_at', {ascending:false}).limit(5);
             
             const userTable = document.getElementById('recent-users-list');
-            userTable.innerHTML = ''; // Önce temizle
+            userTable.innerHTML = ''; 
             
             if(users && users.length > 0) {
                 users.forEach(user => {
@@ -241,7 +239,6 @@
                 userTable.innerHTML = '<tr><td colspan="2" class="text-center text-muted">Henüz üye yok.</td></tr>';
             }
 
-            // --- D) NOT YÖNETİMİ TABLOSU ---
             const { data: allNotes } = await _client.from('notes').select('*').order('created_at', {ascending: false});
             const notesTable = document.getElementById('list-notes');
             notesTable.innerHTML = '';
@@ -267,7 +264,7 @@
                 notesTable.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Henüz yüklenen not yok.</td></tr>';
             }
 
-            // --- E) SAHAF TABLOSU ---
+           
             const { data: books } = await _client.from('books').select('*').order('created_at', {ascending: false});
             const booksTable = document.getElementById('list-books');
             booksTable.innerHTML = '';
@@ -288,7 +285,7 @@
             }
         }
 
-        // DİĞER FONKSİYONLAR
+       
         function renderChart(dataObj) {
             const ctx = document.getElementById('facultyChart').getContext('2d');
             new Chart(ctx, {
