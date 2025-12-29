@@ -11,26 +11,26 @@
     <style>
         body { background-color: #f8f9fa; font-family: 'Segoe UI', sans-serif; }
         
-        /* NAVBAR */
+        
         .navbar { background-color: #fff; padding: 15px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .navbar-brand { font-weight: 700; font-size: 1.5rem; color: #0d2346; }
         .nav-link { color: #555; font-weight: 500; margin: 0 10px; }
         .nav-link:hover, .nav-link.active { color: #dc3545; }
 
-        /* SOL SIDEBAR */
+      
         .profile-sidebar { background: #fff; border-radius: 12px; padding: 30px 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .avatar-circle { width: 100px; height: 100px; background: #0d6efd; color: white; font-size: 2.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-weight: bold; }
         .user-email-text { font-size: 0.9rem; color: #6c757d; word-break: break-all; }
         
-        /* SAĞ İÇERİK */
+      
         .content-card { background: #fff; border-radius: 12px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); min-height: 400px; }
         
-        /* TAB BUTONLARI */
+   
         .nav-pills .nav-link { color: #555; font-weight: 600; border-radius: 8px; padding: 12px 20px; text-align: left; }
         .nav-pills .nav-link.active { background-color: #0d2346; color: white; }
         .nav-pills .nav-link i { width: 25px; }
 
-        /* YÜKLENENLER LİSTESİ */
+       
         .upload-item { border-bottom: 1px solid #eee; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
         .upload-item:last-child { border-bottom: none; }
     </style>
@@ -157,30 +157,29 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // --- SUPABASE AYARLARI ---
+      
         const SUPABASE_URL = 'https://kmzbywrcspzwuznexcla.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_2mPJ39Ossxg8euZ9hgmfFg_O5mPR1Fh';
         const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let currentUser = null;
 
-        // 1. OTURUM KONTROLÜ VE PROFİL GETİRME
         document.addEventListener('DOMContentLoaded', async () => {
             const { data: { session } } = await client.auth.getSession();
             
             if (!session) {
-                window.location.href = 'login.html'; // Giriş yoksa at
+                window.location.href = 'login.html'; 
                 return;
             }
 
             currentUser = session.user;
             
-            // Ekrana Temel Bilgileri Yaz
+            
             document.getElementById('displayEmail').innerText = currentUser.email;
             document.getElementById('inputEmail').value = currentUser.email;
             document.getElementById('avatarInitial').innerText = currentUser.email.charAt(0).toUpperCase();
 
-            // Profiller tablosundan ek bilgileri çek
+         
             const { data: profile, error } = await client
                 .from('profiles')
                 .select('*')
@@ -190,26 +189,24 @@
             if (profile) {
                 document.getElementById('displayNickname').innerText = profile.nickname || 'Kullanıcı';
                 document.getElementById('displayFaculty').innerText = profile.faculty || 'Bölüm Yok';
-                
-                // Formu doldur
+              
                 document.getElementById('inputNickname').value = profile.nickname || '';
                 document.getElementById('inputFaculty').value = profile.faculty || '';
                 document.getElementById('inputDept').value = profile.department || '';
             }
 
-            // Ekranı aç
             document.getElementById('fullPageLoader').style.display = 'none';
             document.getElementById('profileContainer').style.display = 'flex';
         });
 
-        // 2. PROFİL GÜNCELLEME (Nickname, Bölüm vb.)
+     
         document.getElementById('profileForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const nickname = document.getElementById('inputNickname').value;
             const faculty = document.getElementById('inputFaculty').value;
             const department = document.getElementById('inputDept').value;
 
-            // Upsert: Varsa güncelle, yoksa ekle
+            
             const { error } = await client
                 .from('profiles')
                 .upsert({
@@ -225,11 +222,11 @@
                 alert('Hata: ' + error.message);
             } else {
                 alert('Profil başarıyla güncellendi!');
-                location.reload(); // Değişiklikleri görmek için yenile
+                location.reload(); 
             }
         });
 
-        // 3. ŞİFRE DEĞİŞTİRME
+        
         document.getElementById('passwordForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const newPass = document.getElementById('newPassword').value;
@@ -248,31 +245,16 @@
             }
         });
 
-        // 4. YÜKLEDİKLERİMİ GETİR
+       
         async function fetchMyUploads() {
-            // NOTLAR
-            /* Not: Eğer notes tablosunda user_id sütunu henüz yoksa bu kısım boş gelebilir. 
-               SQL adımında user_id ekledik ama eski notlarda user_id NULL'dur. */
-            
-            // Notları çek (Email üzerinden eşleştirme yapıyoruz, daha basit)
-            // Not: İleride user_id ile yapmak daha güvenlidir. Şimdilik email ile yapalım (daha önceki kodda email kaydetmemiştik ama...)
-            // Düzeltme: Supabase'de Auth User ID'yi kullanacağız.
-            
-            // Önce Notları Çek (user_id varsa)
-            /* NOT: Eğer önceki adımlarda notlara user_id kaydetmediysen burası boş gelir. 
-               Yeni yükleyeceğin notlar buraya düşecektir. */
-            
-            // --- NOTLAR ---
+           
+    
             const notesContainer = document.getElementById('myNotesList');
-            // Notlar tablosunda 'user_id' sütunu olmayabilir diye hata vermesin,
-            // Şimdilik sadece sistemi kuruyoruz. İleride not yüklerken user_id ekleyeceğiz.
-            // Bu sorgu çalışmazsa tablo yapısı güncellenmeli.
-            
-            // Basitlik adına şimdilik statik bir mesaj yerine sorgu deneyelim:
+        
             const { data: notes, error: noteError } = await client
                 .from('notes')
                 .select('*')
-                .eq('user_id', currentUser.id); // user_id'si benim olanlar
+                .eq('user_id', currentUser.id); 
 
             if (!notes || notes.length === 0) {
                 notesContainer.innerHTML = '<div class="alert alert-light small">Henüz not yüklemediniz.</div>';
@@ -291,7 +273,6 @@
                 notesContainer.innerHTML = html;
             }
 
-            // --- KİTAPLAR ---
             const booksContainer = document.getElementById('myBooksList');
             const { data: books, error: bookError } = await client
                 .from('books')
@@ -316,7 +297,7 @@
             }
         }
 
-        // ÇIKIŞ YAP
+  
         async function logoutUser() {
             await client.auth.signOut();
             window.location.href = 'index.html';
@@ -324,3 +305,4 @@
     </script>
 </body>
 </html>
+
