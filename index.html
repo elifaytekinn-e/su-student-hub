@@ -16,7 +16,7 @@
         .nav-link { color: #555; font-weight: 500; margin: 0 10px; font-size: 1.05rem; }
         .nav-link:hover, .nav-link.active { color: #dc3545; }
         
-        /* DUYURU KUTUSU */
+        
         #announcementBox {
             display: none;
             background: #fff3cd;
@@ -152,7 +152,7 @@
             await checkUser();
             loadAnnouncement();
             
-            // Enter tuşuna basınca da arama yapsın
+            
             document.getElementById('searchInput').addEventListener('keypress', function (e) {
                 if (e.key === 'Enter') {
                     handleSearch();
@@ -160,18 +160,18 @@
             });
         });
 
-        // 1. ARAMA İŞLEVİ (Bu eksikti, şimdi eklendi)
+      
         function handleSearch() {
             const query = document.getElementById('searchInput').value.trim();
             if (query) {
-                // Notlar sayfasına yönlendir ve aramayı URL'ye ekle
+               
                 window.location.href = `notes.html?q=${encodeURIComponent(query)}`;
             } else {
                 alert("Lütfen aranacak bir kelime yazın.");
             }
         }
 
-        // 2. KULLANICI & ADMİN KONTROLÜ
+        
         async function checkUser() {
             const { data: { session } } = await client.auth.getSession();
             const authContainer = document.getElementById('authContainer');
@@ -202,7 +202,7 @@
             }
         }
 
-        // 3. GÜVENLİ ÇIKIŞ
+       
         window.handleLogout = async function() {
             if(confirm("Çıkış yapmak istediğinize emin misiniz?")) {
                 await client.auth.signOut();
@@ -210,7 +210,6 @@
             }
         }
 
-        // 4. DUYURU YÜKLEME
         async function loadAnnouncement() {
             const { data: announcement } = await client
                 .from('announcements')
@@ -227,3 +226,4 @@
     </script>
 </body>
 </html>
+
