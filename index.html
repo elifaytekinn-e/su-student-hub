@@ -210,7 +210,18 @@
                 document.getElementById('announcementText').innerText = announcement.text;
             }
         }
+        // ARAMA FONKSİYONU (index.html script kısmına ekle)
+function handleSearch() {
+    const query = document.getElementById('searchInput').value.trim();
+    if (query) {
+        // Notlar sayfasına yönlendir ve aramayı URL'ye ekle (?q=yazilim gibi)
+        window.location.href = `notes.html?q=${encodeURIComponent(query)}`;
+    } else {
+        alert("Lütfen aranacak bir kelime yazın.");
+    }
+}
     </script>
 </body>
 </html>
+
 
