@@ -11,23 +11,46 @@
     <style>
         body { background-color: #f8f9fa; font-family: 'Segoe UI', sans-serif; color: #333; }
         
-        /* NAVBAR TASARIMI */
         .navbar { background-color: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 15px 0; }
         .navbar-brand { font-weight: 700; font-size: 1.5rem; color: #0d2346; }
         .navbar-brand span { color: #dc3545; }
         .nav-link { color: #555; font-weight: 500; margin: 0 10px; }
         .nav-link:hover, .nav-link.active { color: #dc3545; }
         
-        /* KİTAP KARTI */
-        .book-card { background: #fff; border: none; border-radius: 12px; overflow: hidden; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.03); height: 100%; display: flex; flex-direction: column; }
+        /* KİTAP KARTI TASARIMI */
+        .book-card { 
+            background: #fff; 
+            border: none; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            transition: 0.3s; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03); 
+            height: 100%; 
+            display: flex; 
+            flex-direction: column; 
+        }
         .book-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .book-img { height: 250px; object-fit: cover; width: 100%; background: #eee; }
+        
+        /* Resim Alanı */
+        .book-img-container {
+            height: 250px;
+            overflow: hidden;
+            background-color: #f1f3f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .book-img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; /* Resmi kutuya sığdırır */
+        }
+        
         .book-body { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
         .book-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 5px; color: #0d2346; }
         .book-price { font-size: 1.25rem; font-weight: 800; color: #198754; margin-bottom: 15px; }
         .badge-category { position: absolute; top: 15px; right: 15px; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 0.8rem; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         
-        /* BUTONLAR */
         .btn-whatsapp { background-color: #25D366; color: white; border: none; font-weight: 600; width: 100%; margin-top: auto; }
         .btn-whatsapp:hover { background-color: #20bd5a; color: white; }
         .btn-add-book { background-color: #dc3545; color: white; padding: 10px 25px; border-radius: 8px; border: none; font-weight: 600; }
@@ -56,7 +79,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="fw-bold text-dark">Kampüs Sahafı</h2>
             <button class="btn-add-book" data-bs-toggle="modal" data-bs-target="#addBookModal">
-                <i class="fa-solid fa-plus me-2"></i>İlan Ver
+                <i class="fa-solid fa-camera me-2"></i>İlan Ver
             </button>
         </div>
 
@@ -101,10 +124,16 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Telefon (WP için)</label>
-                            <input type="tel" class="form-control" id="bookContact" placeholder="555 123 45 67" required>
+                            <label class="form-label">Telefon (WhatsApp için)</label>
+                            <input type="tel" class="form-control" id="bookContact" placeholder="5xx xxx xx xx" required>
                         </div>
-                        <div class="mb-3"><label class="form-label">Kitap Fotoğrafı</label><input type="file" class="form-control" id="bookImage" required accept="image/*"></div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-primary"><i class="fa-solid fa-image me-1"></i>Kitap Fotoğrafı</label>
+                            <input type="file" class="form-control" id="bookImage" accept="image/png, image/jpeg, image/jpg" required>
+                            <div class="form-text text-muted">Sadece JPG veya PNG formatında resim yükleyiniz.</div>
+                        </div>
+
                         <button type="submit" class="btn btn-primary w-100" id="btnBookSubmit">İlanı Yayınla</button>
                     </form>
                 </div>
@@ -115,17 +144,14 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        // --- SUPABASE BAĞLANTISI ---
         const SUPABASE_URL = 'https://kmzbywrcspzwuznexcla.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_2mPJ39Ossxg8euZ9hgmfFg_O5mPR1Fh';
-        
         const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // --- SAYFA YÜKLENİNCE ---
         document.addEventListener('DOMContentLoaded', fetchBooks);
         let allBooks = [];
 
-        // 1. KİTAPLARI ÇEK
+        // 1. KİTAPLARI ÇEK VE GÖSTER
         async function fetchBooks() {
             const container = document.getElementById('booksContainer');
             const spinner = document.getElementById('loadingSpinner');
@@ -146,17 +172,17 @@
             } catch (err) {
                 spinner.style.display = 'none';
                 console.error(err);
-                container.innerHTML = '<div class="alert alert-danger w-100">Beklenmedik bir hata oluştu.</div>';
+                container.innerHTML = '<div class="alert alert-danger w-100">Hata oluştu.</div>';
             }
         }
 
-        // 2. LİSTELEME
+        // 2. KARTLARI OLUŞTUR
         function renderBooks(books) {
             const container = document.getElementById('booksContainer');
             container.innerHTML = '';
 
             if (!books || books.length === 0) {
-                container.innerHTML = '<div class="alert alert-light text-center w-100 border py-4">Henüz ilan yok. İlk ilanı sen ver!</div>';
+                container.innerHTML = '<div class="alert alert-light text-center w-100 border py-5"><i class="fa-solid fa-box-open fa-3x mb-3 text-muted"></i><br>Henüz hiç ilan yok. İlk ilanı sen ver!</div>';
                 return;
             }
 
@@ -166,22 +192,25 @@
                 if(book.category === 'Takaslık') badgeClass = 'bg-warning text-dark';
                 if(book.category === 'Bağış') badgeClass = 'bg-info text-dark';
 
-                // Telefon numarasını temizle
                 const phone = book.contact_info ? book.contact_info.replace(/\D/g,'') : '';
                 const wpLink = `https://wa.me/90${phone}`;
 
-                // Fiyat Gösterimi
                 let priceDisplay = book.price > 0 ? `${book.price} ₺` : 'Ücretsiz';
                 if(book.category === 'Takaslık') priceDisplay = 'Takas';
+
+                // Varsayılan resim (Eğer resim yüklenmemişse)
+                const imageUrl = book.image_url || 'https://via.placeholder.com/300x400?text=Resim+Yok';
 
                 const html = `
                 <div class="col-md-6 col-lg-3">
                     <div class="book-card position-relative">
                         <span class="badge badge-category ${badgeClass}">${book.category}</span>
-                        <img src="${book.image_url}" class="book-img" alt="${book.title}">
+                        <div class="book-img-container">
+                            <img src="${imageUrl}" class="book-img" alt="${book.title}">
+                        </div>
                         <div class="book-body">
                             <h5 class="book-title text-truncate" title="${book.title}">${book.title}</h5>
-                            <p class="text-muted small mb-2"><i class="fa-solid fa-user-pen me-1"></i> ${book.author || 'Yazar yok'}</p>
+                            <p class="text-muted small mb-2"><i class="fa-solid fa-user-pen me-1"></i> ${book.author || 'Yazar Belirtilmemiş'}</p>
                             <div class="book-price">${priceDisplay}</div>
                             
                             <a href="${wpLink}" target="_blank" class="btn btn-whatsapp">
@@ -194,39 +223,58 @@
             });
         }
 
-        // 3. KİTAP EKLEME
+        // 3. YENİ İLAN YÜKLEME (FOTOĞRAFLI)
         document.getElementById('bookForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnBookSubmit');
             const originalText = btn.innerHTML;
-            btn.innerHTML = 'Yükleniyor...'; btn.disabled = true;
+            
+            // 1. Giriş Kontrolü
+            const { data: { user } } = await client.auth.getUser();
+            if (!user) {
+                alert("İlan vermek için giriş yapmalısınız!");
+                window.location.href = "login.html";
+                return;
+            }
+
+            // 2. Butonu Kilitle
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Fotoğraf Yükleniyor...'; 
+            btn.disabled = true;
 
             const file = document.getElementById('bookImage').files[0];
-            const safeName = file.name.replace(/[^a-zA-Z0-9.]/g, '_');
+            
+            // 3. Dosya İsmini Temizle (Türkçe karakter sorununu önlemek için)
+            // Örn: "fotoğraf.jpg" -> "fotograf.jpg"
+            const safeName = file.name.replace(/[^a-zA-Z0-9.]/g, '_').toLowerCase();
             const fileName = `book_${Date.now()}_${safeName}`;
 
             try {
-                // Resmi Yükle
+                // A) Resmi Storage'a Yükle
                 const { error: uploadError } = await client.storage.from('book_images').upload(fileName, file);
-                if (uploadError) throw uploadError;
-
-                // Link Al
-                const { data: publicUrlData } = client.storage.from('book_images').getPublicUrl(fileName);
                 
-                // Veritabanına Yaz
+                if (uploadError) {
+                    throw new Error("Resim yüklenemedi: " + uploadError.message);
+                }
+
+                // B) Resmin Herkese Açık Linkini Al
+                const { data: publicUrlData } = client.storage.from('book_images').getPublicUrl(fileName);
+                const publicURL = publicUrlData.publicUrl;
+                
+                // C) Veritabanına Kaydet (Link ile birlikte)
                 const { error: dbError } = await client.from('books').insert([{
+                    user_id: user.id,
                     title: document.getElementById('bookTitle').value,
                     author: document.getElementById('bookAuthor').value,
                     category: document.getElementById('bookCategory').value,
                     price: document.getElementById('bookPrice').value,
                     contact_info: document.getElementById('bookContact').value,
-                    image_url: publicUrlData.publicUrl,
+                    image_url: publicURL, // <-- İşte resim linki buraya gidiyor
                     seller_name: 'Öğrenci'
                 }]);
 
                 if (dbError) throw dbError;
 
-                alert('İlan başarıyla yayınlandı!');
+                alert('İlan başarıyla ve fotoğraflı olarak yayınlandı! 📸');
                 location.reload();
 
             } catch (err) {
@@ -237,17 +285,12 @@
             }
         });
 
-        // 4. FİLTRELEME
+        // FİLTRELEME
         window.filterBooks = function(category, btnElement) {
             document.querySelectorAll('.btn-outline-dark').forEach(btn => btn.classList.remove('active'));
             btnElement.classList.add('active');
-
-            if (category === 'all') {
-                renderBooks(allBooks);
-            } else {
-                const filtered = allBooks.filter(book => book.category === category);
-                renderBooks(filtered);
-            }
+            if (category === 'all') renderBooks(allBooks);
+            else renderBooks(allBooks.filter(book => book.category === category));
         }
     </script>
 </body>
