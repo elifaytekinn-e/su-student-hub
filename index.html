@@ -16,7 +16,7 @@
         .nav-link { color: #555; font-weight: 500; margin: 0 10px; font-size: 1.05rem; }
         .nav-link:hover, .nav-link.active { color: #dc3545; }
         
-        /* DUYURU KUTUSU (Yeni Eklendi) */
+        /* DUYURU KUTUSU */
         #announcementBox {
             display: none;
             background: #fff3cd;
@@ -86,8 +86,9 @@
                     <li class="nav-item"><a class="nav-link" href="notes.html">Ders Notları</a></li>
                     <li class="nav-item"><a class="nav-link" href="books.html">Sahaf</a></li>
                     <li class="nav-item"><a class="nav-link" href="faq.html">S.S.S</a></li>
-                    <li class="nav-item ms-lg-3">
-                        <a href="login.html" id="authButton" class="btn btn-outline-dark px-4 rounded-pill">Giriş Yap</a>
+                    
+                    <li class="nav-item ms-lg-3" id="authContainer">
+                        <a href="login.html" class="btn btn-outline-dark px-4 rounded-pill">Giriş Yap</a>
                     </li>
                 </ul>
             </div>
@@ -148,34 +149,54 @@
         const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         document.addEventListener('DOMContentLoaded', async () => {
-            checkUser();
+            await checkUser();
             loadAnnouncement();
         });
 
         // 1. KULLANICI & ADMİN KONTROLÜ
         async function checkUser() {
             const { data: { session } } = await client.auth.getSession();
-            const authBtn = document.getElementById('authButton');
+            const authContainer = document.getElementById('authContainer');
             
             if (session) {
-                // Admin mi kontrol et
+                // Giriş yapılmışsa profil bilgilerini ve Adminlik durumunu çek
                 const { data: profile } = await client.from('profiles').select('is_admin').eq('id', session.user.id).single();
                 
+                let btnLink = "profile.html";
+                let btnText = "Profilim";
+                let btnClass = "btn-outline-dark";
+
+                // Eğer admin ise butonun rengini ve hedefini değiştir
                 if (profile && profile.is_admin) {
-                    authBtn.innerText = "Yönetim Paneli";
-                    authBtn.href = "yonetim-paneli.html";
-                    authBtn.classList.add('btn-danger', 'text-white');
-                } else {
-                    authBtn.innerText = "Profilim";
-                    authBtn.href = "profile.html";
+                    btnLink = "yonetim-paneli.html";
+                    btnText = "Yönetim Paneli";
+                    btnClass = "btn-danger text-white border-0";
                 }
+
+                // Butonları Yerleştir (Profil/Admin Butonu + Çıkış Butonu)
+                authContainer.innerHTML = `
+                    <div class="d-flex gap-2">
+                        <a href="${btnLink}" class="btn ${btnClass} px-3 rounded-pill fw-bold">${btnText}</a>
+                        <button onclick="handleLogout()" class="btn btn-outline-secondary px-3 rounded-pill">Çıkış</button>
+                    </div>
+                `;
             } else {
-                authBtn.innerText = "Giriş Yap";
-                authBtn.href = "login.html";
+                // Giriş yapılmamışsa sadece Giriş Yap butonu
+                authContainer.innerHTML = `
+                    <a href="login.html" class="btn btn-outline-dark px-4 rounded-pill">Giriş Yap</a>
+                `;
             }
         }
 
-        // 2. DUYURU YÜKLEME (Admin Paneline Bağlı)
+        // 2. GÜVENLİ ÇIKIŞ FONKSİYONU
+        window.handleLogout = async function() {
+            if(confirm("Çıkış yapmak istediğinize emin misiniz?")) {
+                await client.auth.signOut();
+                window.location.href = "index.html"; // Sayfayı yenile
+            }
+        }
+
+        // 3. DUYURU YÜKLEME
         async function loadAnnouncement() {
             const { data: announcement } = await client
                 .from('announcements')
