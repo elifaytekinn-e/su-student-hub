@@ -35,21 +35,43 @@
 
         document.getElementById('authForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+            const btn = document.getElementById('loginBtn');
+
+            // 1. UI Geri Bildirimi: Butonu kilitle
+            btn.disabled = true;
+            btn.innerText = "Giriş Yapılıyor...";
             
+            // 2. Supabase ile Giriş Yap
             const { data: { user }, error } = await client.auth.signInWithPassword({ email, password });
 
             if (error) {
                 alert("Hata: " + error.message);
+                // Hata varsa butonu eski haline getir
+                btn.disabled = false;
+                btn.innerText = "Giriş Yap";
             } else {
-                // KRİTİK NOKTA: Kullanıcının admin olup olmadığını kontrol et
-                const { data: profile } = await client.from('profiles').select('is_admin').eq('id', user.id).single();
+                // 3. Admin Kontrolü
+                
+                // A) Eğer mail admin@aksaray.edu.tr ise KESİN Admin Sayfasına git
+                if (email === 'admin@aksaray.edu.tr') {
+                    window.location.href = 'yonetim-paneli.html';
+                    return;
+                }
+
+                // B) Diğer adminler için veritabanını kontrol et
+                const { data: profile } = await client
+                    .from('profiles')
+                    .select('is_admin')
+                    .eq('id', user.id)
+                    .single();
                 
                 if (profile && profile.is_admin) {
-                    window.location.href = 'yonetim-paneli.html'; // Adminse buraya
+                    window.location.href = 'yonetim-paneli.html'; // Adminse panele
                 } else {
-                    window.location.href = 'profile.html'; // Öğrenciyse buraya
+                    window.location.href = 'profile.html'; // Öğrenciyse profile
                 }
             }
         });
@@ -57,8 +79,18 @@
         document.getElementById('signupBtn').addEventListener('click', async () => {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+            
+            if(!email || !password) {
+                alert("Lütfen kayıt olmak için e-posta ve şifre giriniz.");
+                return;
+            }
+
             const { error } = await client.auth.signUp({ email, password });
-            if (error) alert(error.message); else alert("Kayıt başarılı! Giriş yapabilirsiniz.");
+            if (error) {
+                alert(error.message);
+            } else {
+                alert("Kayıt başarılı! Şimdi 'Giriş Yap' butonuna basarak girebilirsiniz.");
+            }
         });
     </script>
 </body>
