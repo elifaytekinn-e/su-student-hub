@@ -37,8 +37,8 @@
                 <ul class="navbar-nav align-items-center">
                     <li class="nav-item"><a class="nav-link" href="index.html">Ana Sayfa</a></li>
                     <li class="nav-item"><a class="nav-link active" href="notes.html">Ders Notları</a></li>
-                    <li class="nav-item"><a class="nav-link" href="sahaf.html">Sahaf</a></li>
-                    <li class="nav-item"><a class="nav-link" href="sss.html">S.S.S</a></li>
+                    <li class="nav-item"><a class="nav-link" href="books.html">Sahaf</a></li>
+                    <li class="nav-item"><a class="nav-link" href="faq.html">S.S.S</a></li>
                     <li class="nav-item ms-lg-3"><a href="profile.html" class="btn btn-outline-dark btn-sm px-3">Profilim</a></li>
                 </ul>
             </div>
@@ -149,7 +149,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
-        // --- SUPABASE AYARLARI (Senin Verdiğin Bilgiler) ---
+        // --- SUPABASE AYARLARI ---
         const SUPABASE_URL = 'https://kmzbywrcspzwuznexcla.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_2mPJ39Ossxg8euZ9hgmfFg_O5mPR1Fh';
         
@@ -236,7 +236,6 @@
             const file = document.getElementById('noteFile').files[0];
             if (!file) { alert("Dosya seçmelisiniz."); btn.innerHTML = originalText; btn.disabled = false; return; }
 
-            // Dosya ismindeki Türkçe karakterleri ve boşlukları temizle
             const safeName = file.name.replace(/[^a-zA-Z0-9.]/g, '_');
             const fileName = `note_${Date.now()}_${safeName}`;
 
@@ -342,7 +341,7 @@
 
             if (!error) {
                 alert("Yorumunuz eklendi!");
-                location.reload(); // Yorumları yenilemek için sayfayı yenile
+                location.reload(); 
             } else {
                 alert("Hata: " + error.message);
                 btn.disabled = false; btn.innerText = "Gönder";
